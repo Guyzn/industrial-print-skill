@@ -1,0 +1,518 @@
+/* ============================================================
+   D · 工业技术风 — 版式系统（blocks.css）
+   适用文档：产品目录 Catalog / 技术数据 Technical Data / 企业介绍 Company Profile
+   物理规格：成品 A4 单页 210×297mm，对开 420×297mm；
+            含 3mm 四周出血的印刷幅面 426×303mm（订口/折线处不出血）
+   纪律：直角纯色 / hairline 分割 / 单一 accent / 8px 基线网格
+        数字与牌号一律 IBM Plex Mono / 禁止渐变、阴影、圆角
+   ============================================================ */
+
+:root {
+  /* ---- 物理规格（不可随主题改动）---- */
+  --page-w: 210mm;    /* 成品单页宽 */
+  --page-h: 297mm;    /* 成品单页高 */
+  --spread-w: 426mm;  /* 印刷幅面宽 = 3 + 210 + 210 + 3（折线处不出血） */
+  --spread-h: 303mm;  /* 印刷幅面高 = 3 + 297 + 3 */
+  --bleed: 3mm;       /* 四缘出血；裁切标记画在此区，TrimBox = 内缩 3mm */
+  --ink-top: 13mm;
+  --ink-outer: 12mm;
+  --ink-fold: 12mm;
+  --ink-bottom: 14mm;
+  --baseline: 8px;
+
+
+/* ---- 字体 ---- */
+  --font: "MiSans", "Alibaba PuHuiTi 3", "Noto Serif SC", sans-serif;
+  --mono: "IBM Plex Mono", "MiSans", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --serif: "Noto Serif SC", serif;
+
+  /* ---- 字号阶梯（pt，印刷单位）---- */
+  --fs-disp: 34pt;   /* 封面主标题 */
+  --fs-h1: 20pt;     /* 章节大标题 */
+  --fs-h2: 13pt;     /* 块小标题 */
+  --fs-h3: 10.5pt;   /* 卡内标题 */
+  --fs-body: 9.5pt;  /* 正文 */
+  --fs-small: 8pt;   /* 表格 / 注释 */
+  --fs-micro: 6.8pt; /* 页脚 / 标签 */
+}
+
+/* ---- 字体 ---- */
+/* 可商用字体本地化：字体文件由 build.mjs 从 _shared/fonts/ 同步到产物旁，
+   打印时浏览器随 PDF 内嵌，等效转曲，印厂不会缺字形。 */
+@font-face { font-family: "MiSans"; src: url("./fonts/MiSans-Regular.ttf") format("truetype"); font-weight: 400; font-display: swap; }
+@font-face { font-family: "MiSans"; src: url("./fonts/MiSans-Semibold.ttf") format("truetype"); font-weight: 600; font-display: swap; }
+@font-face { font-family: "IBM Plex Mono"; src: url("./fonts/IBMPlexMono-Regular.woff2") format("woff2"); font-weight: 400; font-display: swap; }
+@font-face { font-family: "Noto Serif SC"; src: url("./fonts/NotoSerifSC-Var.ttf") format("truetype"); font-weight: 200 900; font-display: swap; }
+@font-face { font-family: "Alibaba PuHuiTi 3"; src: url("./fonts/AlibabaPuHuiTi-3-45-Light.woff2") format("woff2"); font-weight: 300; font-display: swap; }
+@font-face { font-family: "Alibaba PuHuiTi 3"; src: url("./fonts/AlibabaPuHuiTi-3-55-Regular.woff2") format("woff2"); font-weight: 400; font-display: swap; }
+@font-face { font-family: "Alibaba PuHuiTi 3"; src: url("./fonts/AlibabaPuHuiTi-3-65-Medium.woff2") format("woff2"); font-weight: 500; font-display: swap; }
+@font-face { font-family: "Alibaba PuHuiTi 3"; src: url("./fonts/AlibabaPuHuiTi-3-75-SemiBold.woff2") format("woff2"); font-weight: 600; font-display: swap; }
+@font-face { font-family: "Alibaba PuHuiTi 3"; src: url("./fonts/AlibabaPuHuiTi-3-85-Bold.woff2") format("woff2"); font-weight: 700; font-display: swap; }
+@font-face { font-family: "Alibaba PuHuiTi 3"; src: url("./fonts/AlibabaPuHuiTi-3-95-ExtraBold.woff2") format("woff2"); font-weight: 800; font-display: swap; }
+
+/* ---- 主题 token（由 build.mjs 从 _shared/themes.md 注入）---- */
+/* --bg --surface --fg --muted --border --accent --accent-2 --warn --marker
+   --cov-ink --cov-year --cov-mist --cov-line --table-head --zebra */
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { background: var(--bg); }
+
+body {
+  font-family: var(--font);
+  font-size: var(--fs-body);
+  line-height: 1.62;
+  color: var(--fg);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ============================================================
+   舞台与对开
+   ============================================================ */
+.stage { display: flex; flex-direction: column; align-items: center; gap: 12mm; padding: 12mm 0; }
+
+.spread {
+  position: relative;
+  width: var(--spread-w);
+  height: var(--spread-h);
+  background: var(--surface);
+  box-shadow: 0 12px 40px rgba(30, 28, 22, 0.16);
+  overflow: hidden;
+}
+
+.page {
+  position: absolute;
+  top: var(--bleed);
+  width: var(--page-w);
+  height: var(--page-h);
+  overflow: hidden;
+  background: var(--surface);
+}
+.page.left  { left: var(--bleed); }
+.page.right { left: calc(var(--page-w) + var(--bleed)); }
+
+/* 印刷裁切标记：画在出血区（TrimBox 四角外侧 + 折线处上下缘），
+   打印时印出来供印厂对刀，屏幕上隐藏避免干扰预览 */
+.crop { position: absolute; background: var(--fg); }
+.crop.tl-h { left: 0;             top: calc(var(--bleed) - 0.1mm);            width: var(--bleed); height: 0.2mm; }
+.crop.tl-v { left: calc(var(--bleed) - 0.1mm); top: 0;                        width: 0.2mm; height: var(--bleed); }
+.crop.tr-h { right: 0;            top: calc(var(--bleed) - 0.1mm);            width: var(--bleed); height: 0.2mm; }
+.crop.tr-v { right: calc(var(--bleed) - 0.1mm); top: 0;                       width: 0.2mm; height: var(--bleed); }
+.crop.bl-h { left: 0;             bottom: calc(var(--bleed) - 0.1mm);         width: var(--bleed); height: 0.2mm; }
+.crop.bl-v { left: calc(var(--bleed) - 0.1mm); bottom: 0;                     width: 0.2mm; height: var(--bleed); }
+.crop.br-h { right: 0;            bottom: calc(var(--bleed) - 0.1mm);         width: var(--bleed); height: 0.2mm; }
+.crop.br-v { right: calc(var(--bleed) - 0.1mm); bottom: 0;                    width: 0.2mm; height: var(--bleed); }
+/* 折线标记：对开中线 x = bleed + page-w，上下出血区各一条 */
+.crop.fold-t { left: calc(var(--bleed) + var(--page-w) - 0.1mm); top: 0;      width: 0.2mm; height: var(--bleed); }
+.crop.fold-b { left: calc(var(--bleed) + var(--page-w) - 0.1mm); bottom: 0;   width: 0.2mm; height: var(--bleed); }
+
+/* ============================================================
+   通用原子
+   ============================================================ */
+.mono { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+.tag {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: var(--fs-micro);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  border: 0.2mm solid var(--border);
+  padding: 0.6mm 1.6mm;
+}
+.tag.solid { background: var(--accent); border-color: var(--accent); color: #fff; }
+.tag.ghost { border-color: var(--accent); color: var(--accent); }
+
+.rule { border: 0; border-top: 0.25mm solid var(--fg); }
+.rule.thin { border-top-width: 0.15mm; border-top-color: var(--border); }
+.rule.accent { border-top: 0.6mm solid var(--accent); }
+
+/* 双语渲染：lang=bi 时 en 另起一行作次级；lang=zh/en 时另一语不输出 */
+.bi-en { font-size: 0.82em; color: var(--muted); line-height: 1.5; }
+[data-lang="zh"] .bi-en { display: none; }
+[data-lang="en"] .zh { display: none; }
+
+/* 标题层级的英文必须换行，不能与中文挤在一行 */
+h1 .bi-en, h2 .bi-en, h3 .bi-en, h4 .bi-en,
+.cov-title .bi-en, .cov-sub .bi-en, .cov-doc .bi-en, .cov-kind .bi-en,
+.blk-title .bi-en, .toc-title .bi-en, .sec-open h2 .bi-en, .sec-open .lede .bi-en,
+.grade-card .nm .bi-en, .grade-card .code .en, .cert-cell .nm .bi-en,
+.flow .step .tt .bi-en, .tl .ev .tt .bi-en, .tl .ev .dd .bi-en,
+.stat-band .cell .lb .bi-en, .big-num .lb .bi-en, .fig-cap .bi-en,
+.pull .bi-en, .contact-list .row .v .bi-en, .sign .bi-en,
+.bars .row .lb .bi-en, .donut-legend .li .bi-en, .toc-item .tt .bi-en {
+  display: block;
+}
+.grade-card .code .en { font-family: var(--mono); font-size: 8pt; color: var(--muted); margin-top: 1mm; }
+
+/* 页码脚 */
+.page-foot {
+  position: absolute;
+  left: var(--ink-outer);
+  right: var(--ink-outer);
+  bottom: 6mm;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-family: var(--mono);
+  font-size: var(--fs-micro);
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  border-top: 0.15mm solid var(--border);
+  padding-top: 1.6mm;
+}
+.page-foot .num { color: var(--fg); }
+
+/* 跨对开页的两个页脚：各占一页，不重叠（spread 级定位，含出血偏移） */
+.page-foot.foot-l {
+  left: calc(var(--bleed) + var(--ink-outer));
+  right: auto;
+  width: calc(var(--page-w) - var(--ink-outer) - var(--ink-fold));
+}
+.page-foot.foot-r {
+  left: calc(var(--bleed) + var(--page-w) + var(--ink-fold));
+  right: calc(var(--bleed) + var(--ink-outer));
+  width: auto;
+}
+
+/* ============================================================
+   D00 / D01 封面
+   ============================================================ */
+.cov-meta {
+  position: absolute;
+  font-family: var(--mono);
+  font-size: var(--fs-micro);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.cov-logo { top: var(--ink-top); left: var(--ink-outer); height: 9mm; width: auto; }
+.cov-kind { top: var(--ink-top); right: var(--ink-outer); }
+.cov-doc {
+  position: absolute;
+  left: var(--ink-outer);
+  top: 52mm;
+  font-family: var(--mono);
+  font-size: var(--fs-small);
+  letter-spacing: 0.24em;
+  color: var(--cov-ink);
+  text-transform: uppercase;
+}
+.cov-title {
+  position: absolute;
+  left: var(--ink-outer);
+  right: var(--ink-outer);
+  top: 62mm;
+  font-size: var(--fs-disp);
+  font-weight: 600;
+  line-height: 1.14;
+  letter-spacing: -0.01em;
+  color: var(--cov-ink);
+}
+.cov-sub {
+  position: absolute;
+  left: var(--ink-outer);
+  right: var(--ink-outer);
+  top: 128mm;
+  font-size: 11pt;
+  color: var(--muted);
+  max-width: 130mm;
+}
+.cov-year {
+  position: absolute;
+  right: var(--ink-outer);
+  top: 118mm;
+  font-family: var(--mono);
+  font-size: 58pt;
+  font-weight: 500;
+  line-height: 0.9;
+  color: var(--cov-year);
+}
+.cov-stats {
+  position: absolute;
+  left: var(--ink-outer);
+  right: var(--ink-outer);
+  bottom: 26mm;
+  display: flex;
+  gap: 7mm;
+  align-items: stretch;
+  border-top: 0.25mm solid var(--fg);
+  padding-top: 4mm;
+}
+.cov-stats .st { display: flex; flex-direction: column; gap: 1mm; }
+.cov-stats .st b { font-family: var(--mono); font-size: 15pt; font-weight: 500; color: var(--accent); }
+.cov-stats .st span { font-size: var(--fs-small); color: var(--muted); }
+.cov-mist {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 12mm;
+  background: var(--cov-mist);
+}
+.cov-line { position: absolute; left: var(--ink-outer); right: var(--ink-outer); bottom: 22mm; height: 0.6mm; background: var(--cov-line); }
+/* 封面左页：公司名与定位语 */
+.cov-org { position: absolute; left: var(--ink-outer); right: var(--ink-outer); bottom: 34mm; }
+.cov-org .nm { font-size: 15pt; font-weight: 600; color: var(--cov-ink); line-height: 1.3; }
+.cov-org .nm .bi-en { display: block; font-size: 0.72em; color: var(--muted); font-weight: 400; margin-top: 1.5mm; }
+.cov-org .tl { font-size: var(--fs-small); color: var(--muted); margin-top: 3mm; }
+.cov-org .tl .bi-en { display: block; }
+
+/* ============================================================
+   D02 目录
+   ============================================================ */
+.toc-wrap { position: absolute; left: var(--ink-outer); right: var(--ink-outer); top: var(--ink-top); bottom: var(--ink-bottom); }
+.toc-title { font-size: var(--fs-h1); font-weight: 600; color: var(--cov-ink); margin-bottom: 2mm; }
+.toc-title .en { display: block; font-family: var(--mono); font-size: var(--fs-small); font-weight: 400; color: var(--muted); letter-spacing: 0.14em; text-transform: uppercase; margin-top: 1.5mm; }
+.toc-cols { columns: 2; column-gap: 12mm; margin-top: 8mm; }
+.toc-item { break-inside: avoid; display: flex; align-items: baseline; gap: 3mm; padding: 2.2mm 0; border-bottom: 0.15mm solid var(--border); }
+.toc-item .no { font-family: var(--mono); font-size: var(--fs-small); color: var(--accent); min-width: 9mm; }
+.toc-item .tt { flex: 1; font-size: var(--fs-body); }
+.toc-item .tt .en { display: block; font-size: 0.8em; color: var(--muted); }
+.toc-item .pg { font-family: var(--mono); font-size: var(--fs-small); color: var(--muted); }
+
+/* ============================================================
+   D03 章节 opener / D15 幕封
+   ============================================================ */
+.sec-open { position: absolute; left: var(--ink-outer); right: var(--ink-outer); top: 96mm; }
+.sec-open .no { font-family: var(--mono); font-size: 13pt; color: var(--accent); letter-spacing: 0.1em; }
+.sec-open h2 { font-size: var(--fs-h1); font-weight: 600; color: var(--cov-ink); margin-top: 4mm; line-height: 1.2; }
+.sec-open h2 .en { display: block; font-family: var(--mono); font-size: var(--fs-small); font-weight: 400; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; margin-top: 2.5mm; }
+.sec-open .lede { margin-top: 6mm; font-size: 10.5pt; color: var(--muted); max-width: 120mm; }
+.sec-open .en-only { font-family: var(--mono); font-size: var(--fs-small); color: var(--muted); letter-spacing: 0.1em; }
+.divider { position: absolute; left: var(--ink-outer); right: var(--ink-outer); top: 132mm; }
+.divider .big { font-family: var(--mono); font-size: 26pt; color: var(--accent); }
+.divider .tt { font-size: var(--fs-h1); font-weight: 600; color: var(--cov-ink); margin-top: 3mm; }
+.divider .en { font-family: var(--mono); font-size: var(--fs-small); color: var(--muted); letter-spacing: 0.12em; text-transform: uppercase; margin-top: 2mm; }
+
+/* ============================================================
+   D04 双栏正文
+   ============================================================ */
+.cols-2 { columns: 2; column-gap: 10mm; column-rule: 0.15mm solid var(--border); }
+.cols-2 p { margin-bottom: 3.2mm; text-align: justify; }
+.cols-2 p.en { font-size: var(--fs-small); color: var(--muted); }
+.cols-3 { columns: 3; column-gap: 8mm; column-rule: 0.15mm solid var(--border); }
+.blk-title {
+  font-size: var(--fs-h2);
+  font-weight: 600;
+  color: var(--fg);
+  display: flex;
+  align-items: baseline;
+  gap: 3mm;
+  margin-bottom: 4mm;
+  padding-bottom: 2mm;
+  border-bottom: 0.6mm solid var(--accent);
+}
+.blk-title .idx { font-family: var(--mono); font-size: var(--fs-small); color: var(--accent); }
+.blk-title .en { font-family: var(--mono); font-size: var(--fs-small); font-weight: 400; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; }
+.pull {
+  border-left: 0.8mm solid var(--accent);
+  padding: 2mm 0 2mm 5mm;
+  margin: 4mm 0;
+  font-size: 11pt;
+  line-height: 1.5;
+  color: var(--cov-ink);
+}
+.pull .who { display: block; font-family: var(--mono); font-size: var(--fs-micro); color: var(--muted); margin-top: 2mm; letter-spacing: 0.08em; }
+
+/* ============================================================
+   D05 牌号卡网格（Catalog 核心）
+   ============================================================ */
+.grade-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4mm; }
+.grade-grid.c2 { grid-template-columns: repeat(2, 1fr); }
+.grade-card { border: 0.25mm solid var(--border); padding: 4mm; display: flex; flex-direction: column; gap: 2.4mm; }
+.grade-card .head { border-bottom: 0.6mm solid var(--accent); padding-bottom: 2mm; }
+.grade-card .code { font-family: var(--mono); font-size: 15pt; font-weight: 500; color: var(--cov-ink); line-height: 1.1; }
+.grade-card .code .en { display: block; font-size: 8pt; color: var(--muted); margin-top: 1mm; }
+.grade-card .nm { font-size: var(--fs-h3); font-weight: 600; }
+.grade-card .nm .en { display: block; font-family: var(--mono); font-size: var(--fs-micro); font-weight: 400; color: var(--muted); margin-top: 0.6mm; }
+.grade-card dl { display: grid; grid-template-columns: auto 1fr; gap: 1.2mm 3mm; font-size: var(--fs-small); }
+.grade-card dt { color: var(--muted); white-space: nowrap; }
+.grade-card dd { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+.grade-card .badges { display: flex; flex-wrap: wrap; gap: 1.4mm; margin-top: auto; padding-top: 2mm; }
+
+/* ============================================================
+   D06 规格表 / D07 化学-力学双表
+   ============================================================ */
+table.tb { width: 100%; border-collapse: collapse; font-size: var(--fs-small); }
+table.tb caption {
+  caption-side: top;
+  text-align: left;
+  font-size: var(--fs-h3);
+  font-weight: 600;
+  padding-bottom: 2mm;
+  color: var(--fg);
+}
+table.tb caption .en { display: block; font-family: var(--mono); font-size: var(--fs-micro); font-weight: 400; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; margin-top: 0.8mm; }
+table.tb th, table.tb td { padding: 1.7mm 2mm; text-align: left; border-bottom: 0.15mm solid var(--border); vertical-align: top; }
+table.tb thead th {
+  background: var(--table-head);
+  color: var(--fg);
+  font-family: var(--mono);
+  font-size: var(--fs-micro);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border-bottom: 0.4mm solid var(--fg);
+  white-space: nowrap;
+}
+table.tb td.n, table.tb th.n { font-family: var(--mono); font-variant-numeric: tabular-nums; text-align: right; }
+table.tb tbody tr.zebra:nth-child(even) { background: var(--zebra); }
+table.tb tbody tr:hover { background: var(--zebra); }
+table.tb td.k { color: var(--muted); white-space: nowrap; }
+table.tb .u { color: var(--muted); font-size: 0.9em; }
+table.tb.compact th, table.tb.compact td { padding: 1.2mm 1.6mm; }
+
+.twin { display: grid; grid-template-columns: 1fr 1fr; gap: 8mm; }
+.twin.wide-left { grid-template-columns: 1.35fr 1fr; }
+
+/* ============================================================
+   D08 工艺流程
+   ============================================================ */
+.flow { display: flex; gap: 0; margin-top: 4mm; }
+.flow .step { flex: 1; position: relative; padding: 4mm 4mm 4mm 0; }
+.flow .step + .step { padding-left: 5mm; border-left: 0.15mm solid var(--border); }
+.flow .step .no {
+  font-family: var(--mono);
+  font-size: var(--fs-h2);
+  color: var(--accent);
+  display: block;
+  margin-bottom: 2mm;
+}
+.flow .step .tt { font-size: var(--fs-h3); font-weight: 600; display: block; }
+.flow .step .tt .en { display: block; font-family: var(--mono); font-size: var(--fs-micro); font-weight: 400; color: var(--muted); margin-top: 0.8mm; }
+.flow .step .dd { font-size: var(--fs-small); color: var(--muted); margin-top: 2mm; line-height: 1.5; }
+.flow.v { flex-direction: column; }
+.flow.v .step { display: grid; grid-template-columns: 14mm 1fr; gap: 4mm; padding: 3mm 0; border-left: 0; border-top: 0.15mm solid var(--border); }
+.flow.v .step + .step { padding-left: 0; }
+
+/* ============================================================
+   D09 图表（数据由 --v/--max 计算）
+   ============================================================ */
+.chart-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 8mm; }
+.bars { display: flex; flex-direction: column; gap: 3mm; }
+.bars .row { display: grid; grid-template-columns: 26mm 1fr 18mm; align-items: center; gap: 3mm; font-size: var(--fs-small); }
+.bars .row .lb { color: var(--muted); }
+.bars .row .track { position: relative; height: 4mm; background: var(--zebra); }
+.bars .row .fill { position: absolute; left: 0; top: 0; bottom: 0; width: calc(var(--v) / var(--max) * 100%); background: var(--accent); }
+.bars .row .val { font-family: var(--mono); font-variant-numeric: tabular-nums; text-align: right; }
+.bars .row .lb .en { display: block; font-size: 0.85em; }
+
+.donut-wrap { display: flex; align-items: center; gap: 6mm; }
+.donut { position: relative; width: 46mm; height: 46mm; border-radius: 50%; flex: none;
+  background: conic-gradient(var(--accent) calc(var(--v) / var(--max) * 100%), var(--zebra) 0); }
+.donut::after { content: ""; position: absolute; inset: 9mm; background: var(--surface); border-radius: 50%; }
+.donut b { position: absolute; inset: 0; display: grid; place-items: center; font-family: var(--mono); font-size: 13pt; z-index: 1; }
+.donut-legend { display: flex; flex-direction: column; gap: 2mm; font-size: var(--fs-small); }
+.donut-legend .li { display: flex; align-items: baseline; gap: 2mm; }
+.donut-legend .sw { width: 3mm; height: 3mm; background: var(--accent); flex: none; }
+.donut-legend .sw.s2 { background: var(--accent-2); }
+.donut-legend .sw.s3 { background: var(--border); }
+.donut-legend .val { font-family: var(--mono); margin-left: auto; }
+
+.big-num { display: flex; flex-direction: column; gap: 1mm; }
+.big-num b { font-family: var(--mono); font-size: 22pt; font-weight: 500; color: var(--accent); line-height: 1; }
+.big-num .lb { font-size: var(--fs-small); color: var(--muted); }
+.big-num .lb .en { display: block; font-family: var(--mono); font-size: var(--fs-micro); }
+
+/* ============================================================
+   D10 全出血图
+   ============================================================ */
+.bleed-img { position: absolute; inset: 0; overflow: hidden; }
+.bleed-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.fig-cap {
+  position: absolute;
+  left: calc(var(--bleed) + var(--ink-outer));
+  bottom: calc(var(--bleed) + 14mm);
+  font-size: var(--fs-small);
+  color: #fff;
+  text-shadow: 0 0 3mm rgba(0,0,0,0.55);
+  max-width: 150mm;
+}
+.fig-cap .no { font-family: var(--mono); color: var(--cov-year); margin-right: 2mm; }
+.fig-cap .en { display: block; font-size: 0.85em; opacity: 0.85; }
+.fig-plate { border: 0.15mm solid var(--border); padding: 3mm; }
+.fig-plate img { width: 100%; display: block; }
+.fig-plate figcaption { font-size: var(--fs-micro); color: var(--muted); margin-top: 2mm; font-family: var(--mono); }
+
+/* ============================================================
+   D11 数字带
+   ============================================================ */
+.stat-band { display: grid; grid-template-columns: repeat(4, 1fr); border-top: 0.6mm solid var(--fg); border-bottom: 0.25mm solid var(--fg); }
+.stat-band .cell { padding: 5mm 4mm 5mm 0; }
+.stat-band .cell + .cell { border-left: 0.15mm solid var(--border); padding-left: 4mm; }
+.stat-band .cell b { display: block; font-family: var(--mono); font-size: 21pt; font-weight: 500; color: var(--accent); line-height: 1; }
+.stat-band .cell .lb { font-size: var(--fs-small); margin-top: 2.5mm; display: block; }
+.stat-band .cell .lb .en { display: block; font-family: var(--mono); font-size: var(--fs-micro); color: var(--muted); }
+.stat-band.c3 { grid-template-columns: repeat(3, 1fr); }
+.stat-band.c5 { grid-template-columns: repeat(5, 1fr); }
+
+/* ============================================================
+   D12 认证网格
+   ============================================================ */
+.cert-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 3mm; }
+.cert-cell { border: 0.25mm solid var(--border); padding: 4mm 3mm; text-align: center; }
+.cert-cell .code { font-family: var(--mono); font-size: var(--fs-h3); font-weight: 500; color: var(--cov-ink); }
+.cert-cell .nm { font-size: var(--fs-small); margin-top: 1.6mm; }
+.cert-cell .nm .en { display: block; font-family: var(--mono); font-size: var(--fs-micro); color: var(--muted); }
+
+/* ============================================================
+   D13 时间线
+   ============================================================ */
+.tl { position: relative; padding-left: 8mm; }
+.tl::before { content: ""; position: absolute; left: 1.6mm; top: 2mm; bottom: 2mm; width: 0.25mm; background: var(--border); }
+.tl .ev { position: relative; padding: 0 0 5mm 0; }
+.tl .ev::before { content: ""; position: absolute; left: -7.2mm; top: 2.2mm; width: 2.6mm; height: 2.6mm; background: var(--accent); }
+.tl .ev .yr { font-family: var(--mono); font-size: var(--fs-h3); color: var(--accent); }
+.tl .ev .tt { font-size: var(--fs-body); font-weight: 600; margin-top: 1mm; }
+.tl .ev .dd { font-size: var(--fs-small); color: var(--muted); margin-top: 1mm; }
+
+/* ============================================================
+   D14 联系页
+   ============================================================ */
+.contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10mm; }
+.contact-grid .blk-title { margin-bottom: 3mm; }
+.contact-list { display: flex; flex-direction: column; gap: 3mm; font-size: var(--fs-body); }
+.contact-list .row { display: grid; grid-template-columns: 22mm 1fr; gap: 3mm; align-items: baseline; border-bottom: 0.15mm solid var(--border); padding-bottom: 2mm; }
+.contact-list .row .k { font-family: var(--mono); font-size: var(--fs-micro); color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; }
+.contact-list .row .v { font-family: var(--mono); }
+.contact-list .row .v .en { display: block; font-family: var(--font); font-size: 0.85em; color: var(--muted); }
+.sign { margin-top: 8mm; border-top: 0.25mm solid var(--fg); padding-top: 4mm; font-size: var(--fs-small); color: var(--muted); }
+.sign b { display: block; font-size: var(--fs-h3); color: var(--fg); font-weight: 600; }
+
+/* ============================================================
+   页面骨架容器
+   ============================================================ */
+.pane { position: absolute; left: var(--ink-outer); right: var(--ink-outer); top: var(--ink-top); bottom: var(--ink-bottom); }
+.pane.wide { left: 0; right: 0; top: 0; bottom: 0; padding: 0; }
+.pane.top { bottom: auto; }
+.pane.no-bottom { bottom: auto; }
+/* 单页容器：内容只放左页或右页 */
+.pane.single-left { left: var(--ink-outer); right: auto; width: var(--page-w); padding-right: calc(var(--ink-fold)); }
+.pane.single-right { left: var(--page-w); right: auto; width: var(--page-w); padding-left: calc(var(--ink-fold)); padding-right: var(--ink-outer); }
+/* 跨对开容器：大表连续排两页（中缝由 padding 让开；spread 级定位含出血偏移） */
+.pane.full { left: var(--bleed); right: var(--bleed); top: var(--bleed); padding: 0 var(--ink-outer); }
+.pane.full .fold-guide { position: absolute; left: calc(var(--bleed) + var(--page-w) - 0.1mm); top: 0; bottom: 0; width: 0.2mm; background: var(--border); }
+
+/* 屏幕工具条（打印隐藏） */
+.toolbar { display: none; }
+
+/* ============================================================
+   打印
+   ============================================================ */
+@page { size: 420mm 297mm; margin: 0; }
+
+
+
+/* ============================================================
+   打印 / 屏幕分流
+   ============================================================ */
+/* 屏幕预览：隐藏裁切标记，保留纸张观感 */
+@media screen {
+  .crop { display: none; }
+  .spread { box-shadow: 0 12px 40px rgba(30, 28, 22, 0.16); }
+}
+/* 打印：清掉舞台间距与投影（每对开一页），强制保留底色/表头色 */
+@media print {
+  .stage { gap: 0; padding: 0; }
+  .spread { box-shadow: none; page-break-after: always; break-after: page; }
+  html, body { background: #fff; }
+  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .toolbar { display: none !important; }
+}

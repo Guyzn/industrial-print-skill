@@ -1,0 +1,29 @@
+# macOS
+.DS_Store
+
+# Node
+node_modules/
+package-lock.json
+yarn.lock
+
+# 构建产物（防止未来误提交）
+dist/
+build/
+output/
+
+# 日志
+*.log
+npm-debug.log*
+
+# 编辑器 / IDE
+.vscode/
+.idea/
+*.swp
+.DS_Store
+
+# Python
+__pycache__/
+*.pyc
+
+# 系统垃圾
+Thumbs.db

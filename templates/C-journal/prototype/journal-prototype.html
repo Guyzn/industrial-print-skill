@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>模版C · 东方学报风 — 关键页原型</title>
+<style>
+/* ============ 东方学报风 · 设计令牌 ============ */
+@font-face{font-family:"Noto Serif SC";src:url("../../../_shared/fonts/NotoSerifSC-Var.ttf") format("truetype");font-weight:200 900;font-display:swap}
+@font-face{font-family:"MiSans";src:url("../../../_shared/fonts/MiSans-Regular.ttf");font-weight:400;font-display:swap}
+@font-face{font-family:"MiSans";src:url("../../../_shared/fonts/MiSans-Semibold.ttf");font-weight:600;font-display:swap}
+@font-face{font-family:"IBM Plex Mono";src:url("../../../_shared/fonts/IBMPlexMono-Regular.woff2");font-weight:400;font-display:swap}
+:root{
+  --paper:#f7f3ea;      /* 宣纸 */
+  --paper-2:#efe8d8;    /* 纸深色块 */
+  --ink:#1e1c17;        /* 墨 */
+  --ink-2:#3a372e;
+  --muted:#7d7666;
+  --border:#d9d1bf;
+  --seal:#9e2f26;       /* 朱砂 — 唯一点缀色，仅印章与极小记号 */
+  --disp:"Noto Serif SC",serif;
+  --body:"MiSans",sans-serif;
+  --mono:"IBM Plex Mono",monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#6b675e;font-family:var(--body);color:var(--ink);
+  -webkit-font-smoothing:antialiased;padding:24px 0}
+.stage{display:flex;flex-direction:column;gap:20px;align-items:center}
+/* ============ 物理层（三模版同族） ============ */
+.spread{position:relative;width:432mm;height:291mm;background:var(--paper);
+  display:flex;box-shadow:0 4px 24px rgba(0,0,0,.35);flex:none}
+.page{position:relative;width:210mm;height:285mm;margin:3mm 0 3mm 3mm;
+  background:var(--paper);overflow:hidden;flex:none;
+  padding:13mm 12mm 26mm 12mm}
+.page.left{margin-right:0;padding-right:12mm}   /* 左页 fold 在右缘 */
+.page.right{margin-left:0;padding-left:12mm}    /* 右页 fold 在左缘 */
+.spread::after{content:"";position:absolute;left:50%;top:0;bottom:0;width:1px;
+  background:rgba(0,0,0,.18);pointer-events:none}
+.page.flex-fill{display:flex;flex-direction:column}
+.pin-bottom{margin-top:auto}
+/* 中式页码：书口居中 */
+.folio{position:absolute;bottom:10mm;left:50%;transform:translateX(-50%);
+  font-family:var(--mono);font-size:7.5pt;letter-spacing:.08em;color:var(--muted)}
+.folio b{font-weight:400;color:var(--ink)}
+/* ============ 学报组件 ============ */
+/* 文武线（粗 1.6px + 细 0.5pt 成对） */
+.wenwu{height:0;border-top:1.6px solid var(--ink);position:relative}
+.wenwu::after{content:"";position:absolute;left:0;right:0;top:1.2mm;
+  border-top:.5pt solid var(--ink)}
+.wenwu.thin{border-top-width:.5pt}
+.wenwu.thin::after{top:.9mm;border-top-color:var(--border)}
+/* 印章：朱砂方块白字 */
+.seal{display:inline-flex;align-items:center;justify-content:center;
+  background:var(--seal);color:#fdf9f0;font-family:var(--disp);font-weight:600;
+  border-radius:1px;box-shadow:inset 0 0 0 1px rgba(253,249,240,.35);
+  writing-mode:vertical-rl;letter-spacing:.18em;text-align:center}
+/* 竖排题字 */
+.vt{writing-mode:vertical-rl;font-family:var(--disp);text-orientation:upright}
+/* 栏目标题（页首） */
+.col-title{display:flex;justify-content:space-between;align-items:baseline;
+  font-family:var(--mono);font-size:7.5pt;letter-spacing:.14em;color:var(--muted);
+  padding-bottom:3mm;margin-bottom:6mm;border-bottom:.5pt solid var(--border)}
+.col-title .ct-cn{font-family:var(--disp);font-weight:600;color:var(--ink);
+  letter-spacing:.3em;font-size:8.5pt}
+/* 正文 */
+.body-text{font-size:9pt;line-height:1.95;color:var(--ink-2);text-align:justify}
+.body-text p+p{margin-top:1.2em}
+.body-text p{text-indent:2em}
+.body-text.no-indent p{text-indent:0}
+.body-text mark{background:linear-gradient(transparent 62%,rgba(158,47,38,.14) 62%);
+  color:inherit;font-weight:600}
+/* 大数字（宋体表格数字） */
+.dnum{font-family:var(--disp);font-weight:700;color:var(--ink);
+  font-variant-numeric:tabular-nums;line-height:1.05}
+/* 小注 */
+.note{font-size:7.5pt;line-height:1.7;color:var(--muted)}
+/* 引文 */
+.pull{font-family:var(--disp);font-weight:600;color:var(--ink)}
+.pull-src{font-size:8pt;color:var(--muted);margin-top:4mm;text-align:right}
+/* 图注 */
+.figcap{font-size:7.5pt;line-height:1.6;color:var(--muted);margin-top:2.5mm}
+.caption-chip{position:absolute;background:rgba(247,243,234,.94);
+  padding:2.5mm 4mm;font-size:7pt;line-height:1.6;color:var(--ink-2);
+  box-shadow:0 1px 6px rgba(0,0,0,.15)}
+.caption-chip b{font-family:var(--mono);font-weight:400;letter-spacing:.12em;
+  color:var(--seal);display:block;margin-bottom:1mm}
+/* 整版出血图 */
+.img-bleed{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+  filter:grayscale(1) contrast(1.06) sepia(.12)}
+/* ============ 页面专属 ============ */
+/* — 封面 — */
+.cov-frame{position:absolute;inset:10mm;border:.5pt solid var(--ink);pointer-events:none}
+.cov-frame::after{content:"";position:absolute;inset:1.6mm;border:1.6px solid var(--ink)}
+.cov-vtitle{position:absolute;top:34mm;right:30mm;height:150mm;
+  font-size:40pt;font-weight:700;letter-spacing:.22em;color:var(--ink)}
+.cov-vsub{position:absolute;top:36mm;right:52mm;font-size:13pt;font-weight:400;
+  letter-spacing:.5em;color:var(--ink-2)}
+.cov-seal{position:absolute;top:34mm;right:14.5mm;width:11mm;height:11mm;font-size:8pt}
+.cov-school{position:absolute;top:16mm;left:0;right:0;text-align:center;
+  font-family:var(--disp);font-size:11pt;letter-spacing:.55em;color:var(--ink)}
+.cov-school .en{display:block;font-family:var(--mono);font-size:6.5pt;
+  letter-spacing:.3em;color:var(--muted);margin-top:2mm}
+.cov-meta{position:absolute;left:24mm;bottom:30mm}
+.cov-meta .yr{font-family:var(--mono);font-size:9pt;letter-spacing:.3em;color:var(--ink)}
+.cov-meta .ttl{font-family:var(--disp);font-size:10.5pt;letter-spacing:.2em;
+  margin-top:2.5mm;color:var(--ink-2)}
+.cov-strip{position:absolute;left:24mm;right:24mm;bottom:16mm;display:flex;
+  gap:10mm;padding-top:3mm;border-top:.5pt solid var(--border)}
+.cov-strip .cs{font-family:var(--mono);font-size:7pt;letter-spacing:.1em;color:var(--muted)}
+.cov-strip .cs b{display:block;font-family:var(--disp);font-weight:700;
+  font-size:13pt;color:var(--ink);letter-spacing:0;margin-bottom:1mm}
+/* — 封底 — */
+.bc-center{position:absolute;top:96mm;left:0;right:0;text-align:center}
+.bc-center .seal{width:16mm;height:16mm;font-size:10.5pt}
+.bc-center .nm{font-family:var(--disp);font-size:10pt;letter-spacing:.4em;margin-top:8mm}
+.bc-foot{position:absolute;left:24mm;right:24mm;bottom:18mm;
+  font-size:7.5pt;line-height:2.1;color:var(--muted);text-align:center;
+  padding-top:3mm;border-top:.5pt solid var(--border)}
+/* — 序 — */
+.pf-head{display:flex;align-items:flex-start;gap:8mm;margin-bottom:9mm}
+.pf-head .zi{font-family:var(--disp);font-size:46pt;font-weight:700;line-height:1;color:var(--ink)}
+.pf-head .seal{width:10mm;height:10mm;font-size:7pt;margin-top:2mm}
+.pf-head .side{margin-left:auto;text-align:right;padding-top:2mm}
+.pf-head .side .a{font-family:var(--mono);font-size:7pt;letter-spacing:.22em;color:var(--muted)}
+.pf-head .side .b{font-family:var(--disp);font-size:9pt;letter-spacing:.3em;margin-top:2mm;color:var(--ink-2)}
+.pf-sign{margin-top:auto;text-align:right}
+.pf-sign .who{font-family:var(--disp);font-size:9.5pt;letter-spacing:.15em;color:var(--ink)}
+.pf-sign .when{font-family:var(--mono);font-size:7.5pt;letter-spacing:.2em;color:var(--muted);margin-top:2mm}
+.pf-sign .seal{width:9mm;height:9mm;font-size:6.5pt;margin-left:3mm}
+/* — 目录 — */
+.toc-title{text-align:center;font-family:var(--disp);font-size:22pt;font-weight:700;
+  letter-spacing:.9em;text-indent:.9em;margin:4mm 0 8mm}
+.toc-part{display:flex;align-items:baseline;gap:4mm;margin:7mm 0 3mm}
+.toc-part .pn{font-family:var(--disp);font-size:12pt;font-weight:700;color:var(--seal);letter-spacing:.2em}
+.toc-part .pt{font-family:var(--disp);font-size:12pt;font-weight:700;letter-spacing:.25em}
+.toc-part .pe{margin-left:auto;font-family:var(--mono);font-size:6.5pt;letter-spacing:.2em;color:var(--muted)}
+.toc-row{display:flex;align-items:baseline;gap:3mm;padding:2.6mm 0 2.4mm;
+  border-bottom:.5pt dotted var(--border)}
+.toc-row .no{font-family:var(--mono);font-size:7pt;color:var(--muted);width:8mm}
+.toc-row .tt{font-size:9.5pt;color:var(--ink-2)}
+.toc-row .pg{margin-left:auto;font-family:var(--mono);font-size:8pt;color:var(--ink)}
+/* — 速览 / 大数字行 — */
+.bn-row{display:flex;align-items:baseline;gap:10mm;padding:7mm 0 6.5mm;
+  border-bottom:.5pt solid var(--border)}
+.bn-row:first-child{border-top:1.6px solid var(--ink)}
+.bn-row .bn{font-family:var(--disp);font-weight:700;font-size:44pt;line-height:1;
+  min-width:52mm;color:var(--ink)}
+.bn-row .bn small{font-size:14pt;font-weight:400;margin-left:1mm}
+.bn-row .bn-note{max-width:78mm}
+.bn-row .bn-note .t{font-family:var(--disp);font-size:10pt;font-weight:600;letter-spacing:.1em;margin-bottom:1.5mm}
+.bn-row .bn-note .d{font-size:8pt;line-height:1.75;color:var(--muted)}
+/* — 幕封 — */
+.dv-watermark{position:absolute;right:6mm;bottom:-8mm;font-family:var(--disp);
+  font-weight:700;font-size:230pt;line-height:1;color:rgba(30,28,23,.055)}
+.dv-vt{position:absolute;top:40mm;right:34mm;font-size:34pt;font-weight:700;letter-spacing:.3em}
+.dv-vt .pt-tag{font-size:11pt;font-weight:400;letter-spacing:.6em;color:var(--seal);margin-bottom:8mm}
+.dv-sum{position:absolute;left:14mm;bottom:32mm;width:96mm}
+.dv-sum .lab{font-family:var(--mono);font-size:7pt;letter-spacing:.26em;color:var(--muted);margin-bottom:3mm}
+.dv-sum .tx{font-size:9pt;line-height:2;color:var(--ink-2)}
+.dv-seal{position:absolute;top:40mm;right:16mm;width:11mm;height:11mm;font-size:8pt}
+/* — 引文页 — */
+.q-mark{font-family:var(--disp);font-size:80pt;font-weight:700;color:var(--seal);line-height:.8}
+.q-body{font-family:var(--disp);font-weight:600;font-size:24pt;line-height:1.85;
+  color:var(--ink);margin-top:6mm}
+/* — 数据页 — */
+.hero-num{font-family:var(--disp);font-weight:700;font-size:76pt;line-height:1;color:var(--ink)}
+.hero-num small{font-size:20pt;font-weight:400}
+.stat-row{display:flex;align-items:baseline;gap:6mm;padding:5mm 0 4.6mm;
+  border-bottom:.5pt solid var(--border)}
+.stat-row .sn{font-family:var(--disp);font-weight:700;font-size:19pt;min-width:26mm}
+.stat-row .sn small{font-size:9pt;font-weight:400}
+.stat-row .st{font-family:var(--disp);font-size:10.5pt;font-weight:600;min-width:34mm;letter-spacing:.08em}
+.stat-row .sd{font-size:8pt;line-height:1.7;color:var(--muted)}
+.stat-row .bar{position:absolute;left:0;bottom:-.5pt;height:1.6px;background:var(--ink)}
+.stat-row{position:relative}
+.stat-row.top .bar{background:var(--seal)}
+.mod-h{display:flex;align-items:baseline;gap:3mm;padding-bottom:2mm;
+  border-bottom:1.6px solid var(--ink);margin-bottom:2.5mm}
+.mod-h .mh-no{font-family:var(--mono);font-size:7pt;color:var(--seal);letter-spacing:.1em}
+.mod-h .mh-name{font-family:var(--disp);font-size:11pt;font-weight:700;letter-spacing:.12em}
+.mod-h .mh-stat{margin-left:auto;font-family:var(--mono);font-size:7pt;color:var(--muted)}
+.mod p{font-size:8.5pt;line-height:1.85;color:var(--ink-2);text-align:justify}
+.mod-grid{display:grid;grid-template-columns:1fr 1fr;gap:7mm 8mm}
+/* 细条图 */
+.hbar-row{display:flex;align-items:center;gap:4mm;padding:3.4mm 0;border-bottom:.5pt dotted var(--border)}
+.hbar-row .hl{font-family:var(--disp);font-size:9.5pt;font-weight:600;width:26mm;letter-spacing:.06em}
+.hbar-row .ht{flex:1;height:5mm;background:var(--paper-2);position:relative}
+.hbar-row .hf{position:absolute;left:0;top:0;bottom:0;background:var(--ink)}
+.hbar-row .hf.acc{background:var(--seal)}
+.hbar-row .hv{font-family:var(--mono);font-size:8pt;width:22mm;text-align:right}
+.chart-unit{margin-bottom:8mm}
+/* 圆环图 */
+.donut-row{display:flex;align-items:center;gap:8mm;padding:4mm 0 1mm}
+.donut-svg{width:54mm;height:54mm;flex:none}
+.donut-legend{flex:1;display:flex;flex-direction:column}
+.dl-row{display:flex;align-items:baseline;gap:3mm;padding:3mm 0;
+  border-bottom:.5pt dotted var(--border)}
+.dl-row:first-child{border-bottom:1.6px solid var(--ink)}
+.dl-dot{width:2.8mm;height:2.8mm;flex:none;border-radius:1px;
+  align-self:center;background:var(--ink)}
+.dl-label{font-family:var(--disp);font-weight:600;font-size:10.5pt;letter-spacing:.08em}
+.dl-val{margin-left:auto;font-family:var(--mono);font-size:8pt;color:var(--muted)}
+/* 竖向柱图 */
+.col-chart{display:flex;align-items:flex-end;gap:10mm;height:54mm;
+  padding:0 2mm;border-bottom:1.6px solid var(--ink)}
+.ccol{flex:1;height:100%;display:flex;flex-direction:column;
+  justify-content:flex-end;align-items:center;gap:2.5mm}
+.ccol .v{font-family:var(--disp);font-weight:700;font-size:13pt;color:var(--ink)}
+.ccol .v small{font-size:8pt;font-weight:400}
+.ccol .bar{width:100%;background:var(--ink)}
+.ccol.acc .bar{background:var(--seal)}
+.ccol-labels{display:flex;gap:10mm;padding:2.5mm 2mm 0}
+.ccol-labels>span{flex:1;text-align:center;font-family:var(--disp);
+  font-size:10pt;font-weight:600;letter-spacing:.08em;color:var(--ink)}
+.ccol-labels>span em{display:block;font-style:normal;font-family:var(--mono);
+  font-size:6.5pt;font-weight:400;letter-spacing:.04em;color:var(--muted);margin-top:.8mm}
+/* — 岗位 — */
+.job-band{position:absolute;left:0;right:0;bottom:0;background:var(--paper);
+  padding:7mm 12mm 9mm;border-top:1.6px solid var(--ink)}
+.job-band .jb-no{font-family:var(--mono);font-size:7.5pt;letter-spacing:.3em;color:var(--seal)}
+.job-band .jb-title{font-family:var(--disp);font-size:23pt;font-weight:700;letter-spacing:.1em;margin-top:2mm}
+.job-band .jb-sub{font-size:8pt;color:var(--muted);margin-top:2.5mm;letter-spacing:.06em}
+.jmod-grid{display:grid;grid-template-columns:1fr 1fr;gap:8mm 9mm}
+.jmod .jm-h{display:flex;align-items:baseline;gap:3mm;padding-bottom:2mm;
+  border-bottom:1.6px solid var(--ink);margin-bottom:2.5mm}
+.jmod .jm-no{font-family:var(--disp);font-weight:700;font-size:13pt;color:var(--seal)}
+.jmod .jm-name{font-family:var(--disp);font-size:11.5pt;font-weight:700;letter-spacing:.1em}
+.jmod p{font-size:8.5pt;line-height:1.9;color:var(--ink-2);text-align:justify}
+/* — 封面 logo（已按宣纸底改墨色） — */
+.cov-logo{position:absolute;top:15mm;left:0;right:0;text-align:center}
+.cov-logo img{height:7mm;width:auto;opacity:.95}
+/* — 竖排目录 — */
+/* 自适应：条目 ≥8（含 07 一览）自动收紧列距/字距/字号，条目再多也单行放下 */
+.vtoc{display:flex;flex-direction:row-reverse;align-items:flex-start;
+  gap:var(--vt-gap,6mm);--vt-pad:2.5mm;--vt-fs:12pt;--vt-no:7pt;--vt-pg:8.5pt;
+  --vt-name:16pt;--vt-seal:9mm;--vt-ptpad:2mm}
+.vtoc:has(> .vt-entry:nth-child(9)){--vt-gap:3.5mm;--vt-pad:1.4mm;--vt-fs:10.5pt;
+  --vt-no:6.5pt;--vt-pg:8pt;--vt-name:14pt;--vt-seal:8mm;--vt-ptpad:1.4mm}
+.vt-part{writing-mode:vertical-rl;height:120mm;display:flex;gap:3.5mm;
+  padding:0 var(--vt-ptpad) 0 3.5mm;border-left:1.6px solid var(--ink)}
+.vt-part .vp-name{font-family:var(--disp);font-size:var(--vt-name);font-weight:700;letter-spacing:.32em;color:var(--ink)}
+.vt-part .vp-en{margin-top:auto;font-family:var(--mono);font-size:6.5pt;letter-spacing:.18em;color:var(--muted)}
+.vt-part .seal{width:var(--vt-seal);height:var(--vt-seal);font-size:6.5pt;flex:none}
+.vt-entry{writing-mode:vertical-rl;height:120mm;display:flex;gap:3mm;
+  padding:0 var(--vt-pad);border-left:.5pt solid var(--border)}
+.vt-entry .ve-no{writing-mode:horizontal-tb;text-align:center;
+  font-family:var(--mono);font-size:var(--vt-no);color:var(--muted);letter-spacing:.08em}
+.vt-entry .ve-tt{font-family:var(--disp);font-size:var(--vt-fs);font-weight:600;letter-spacing:.2em;color:var(--ink-2)}
+.vt-entry .ve-pg{writing-mode:horizontal-tb;text-align:center;margin-top:auto;
+  font-family:var(--mono);font-size:var(--vt-pg);color:var(--ink)}
+.glance-strip{margin-top:auto;border-top:1.6px solid var(--ink);padding-top:4mm}
+.glance-strip .gs-h{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:2mm}
+.glance-strip .gs-h .t{font-family:var(--disp);font-size:10.5pt;font-weight:700;letter-spacing:.2em}
+.glance-strip .gs-h .e{font-family:var(--mono);font-size:6.5pt;letter-spacing:.2em;color:var(--muted)}
+.gs-row{display:flex;align-items:baseline;gap:6mm;padding:2.6mm 0;border-bottom:.5pt solid var(--border)}
+.gs-row .gn{font-family:var(--disp);font-weight:700;font-size:17pt;min-width:30mm;line-height:1.1}
+.gs-row .gn small{font-size:8.5pt;font-weight:400}
+.gs-row .gd{font-size:7.5pt;color:var(--muted);line-height:1.6}
+/* 目录页：flex 纵向，让注释 / 速览贴底，与竖排目录留出明确间距 */
+.page[data-layout="X04"],.page[data-layout="X05"]{display:flex;flex-direction:column}
+.page[data-layout="X04"] .vtoc,.page[data-layout="X05"] .vtoc{align-self:flex-end}
+/* — 首字下沉导语 — */
+.lede p{font-size:9pt;line-height:1.95;color:var(--ink-2);text-align:justify}
+.lede p:first-child::first-letter{font-family:var(--disp);font-weight:700;
+  font-size:30pt;line-height:1;float:left;padding:1mm 2.5mm 0 0;color:var(--ink)}
+/* — 时段表格（xx 的一天） — */
+.day-tab{border-top:0}
+.day-row{display:flex;gap:0;border-bottom:.5pt solid var(--border)}
+.day-row .dt{flex:none;width:20mm;background:var(--paper-2);display:flex;
+  align-items:center;justify-content:center;font-family:var(--disp);
+  font-size:10.5pt;font-weight:700;letter-spacing:.3em;color:var(--ink);
+  border-right:.5pt solid var(--border)}
+.day-row .dc{padding:3.2mm 0 3.2mm 5mm;font-size:8.5pt;line-height:1.85;color:var(--ink-2);text-align:justify}
+/* — 小段标题（朱砂方记 + 宋体小标题） — */
+.sitem{display:flex;gap:3mm;align-items:flex-start}
+.sitem::before{content:"";flex:none;width:2.2mm;height:2.2mm;background:var(--seal);margin-top:1.8mm}
+.sitem .si-t{font-family:var(--disp);font-size:9.5pt;font-weight:700;letter-spacing:.1em;color:var(--ink);margin-bottom:1.2mm}
+.sitem .si-d{font-size:8.5pt;line-height:1.85;color:var(--ink-2);text-align:justify}
+.slist{display:flex;flex-direction:column;gap:4mm}
+/* — 12 段式节 — */
+.jsec{margin-bottom:7mm}
+.jsec:last-child{margin-bottom:0}
+.jm-h{display:flex;align-items:baseline;gap:3mm;padding-bottom:2mm;
+  border-bottom:1.6px solid var(--ink);margin-bottom:3mm}
+.jm-h .jm-no{font-family:var(--disp);font-weight:700;font-size:13pt;color:var(--seal)}
+.jm-h .jm-name{font-family:var(--disp);font-size:11.5pt;font-weight:700;letter-spacing:.12em}
+.jm-h .jm-en{margin-left:auto;font-family:var(--mono);font-size:6.5pt;letter-spacing:.16em;color:var(--muted)}
+/* — 职责序数条目 — */
+.ditem{display:flex;gap:4mm;align-items:flex-start;padding:2.8mm 0;border-bottom:.5pt dotted var(--border)}
+.ditem:last-child{border-bottom:0}
+.ditem .dno{font-family:var(--disp);font-weight:700;font-size:10pt;color:var(--seal);flex:none;width:9mm;letter-spacing:.05em}
+.ditem .dt2 .t{font-family:var(--disp);font-size:9.5pt;font-weight:700;letter-spacing:.08em;margin-bottom:.8mm}
+.ditem .dt2 .d{font-size:8.5pt;line-height:1.8;color:var(--ink-2);text-align:justify}
+/* — 薪酬（陆 · 三档大字，无内分割线） — */
+.sal{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7mm}
+.sal .sal-c{display:flex;flex-direction:column}
+.sal .sal-c .sc-t{font-family:var(--disp);font-size:9.5pt;font-weight:700;letter-spacing:.1em;margin-bottom:2.5mm}
+.sal .sal-c .sc-t::before{content:"";display:inline-block;width:2.2mm;height:2.2mm;background:var(--seal);margin-right:2mm}
+.sal .sal-c .sc-v{font-family:var(--disp);font-weight:700;font-size:15pt;line-height:1.15;margin-bottom:1.5mm}
+.sal .sal-c .sc-v small{font-size:8.5pt;font-weight:400;color:var(--muted)}
+.sal .sal-c.acc .sc-v{color:var(--seal)}
+.sal .sal-c .sc-d{font-size:8pt;line-height:1.8;color:var(--ink-2);text-align:justify}
+/* — 发展路径（柒 · 分轨阶段链） — */
+.pway{display:flex;flex-direction:column;gap:4.5mm}
+.pw-r{display:grid;grid-template-columns:24mm 1fr;column-gap:4mm;align-items:baseline}
+.pw-r .pw-t{font-family:var(--disp);font-size:9.5pt;font-weight:700;letter-spacing:.1em;color:var(--ink)}
+.pw-r .pw-t::before{content:"";display:inline-block;width:2.2mm;height:2.2mm;background:var(--seal);margin-right:2mm}
+.pw-r .pw-seq{display:flex;align-items:center;gap:2.5mm;flex-wrap:wrap}
+.pw-r .pw-step{font-family:var(--disp);font-size:9pt;font-weight:600;letter-spacing:.05em;
+  border:1px solid var(--border);padding:1.3mm 3mm;color:var(--ink)}
+.pw-r .pw-step.hl{border-color:var(--seal);color:var(--seal)}
+.pw-r .pw-arrow{font-family:var(--disp);color:var(--seal);font-size:9pt}
+/* — 技能阶梯（X13 核心技能：专业·工具·素养） — */
+.ladder{display:flex;flex-direction:column;border-top:1.6px solid var(--ink);margin-bottom:6mm}
+.lad-r{display:grid;grid-template-columns:12mm 1fr auto;column-gap:4mm;row-gap:1.2mm;
+  align-items:baseline;padding:3.2mm 0;border-bottom:.5pt solid var(--border)}
+.lad-r:nth-child(1){padding-left:20mm}
+.lad-r:nth-child(2){padding-left:10mm}
+.lad-r:nth-child(3){padding-left:0mm}
+.lad-r .lad-no{grid-column:1;grid-row:1/3;font-family:var(--disp);font-weight:700;
+  font-size:10.5pt;color:var(--seal);letter-spacing:.1em}
+.lad-r .lad-t{font-family:var(--disp);font-weight:700;font-size:10.5pt;letter-spacing:.16em;color:var(--ink)}
+.lad-r .lad-k{justify-self:end;font-family:var(--disp);font-size:9pt;font-weight:700;
+  letter-spacing:.24em;color:var(--seal);border:1px solid var(--seal);padding:1mm 2.6mm}
+.lad-r .lad-d{grid-column:2/4;font-size:8pt;color:var(--ink-2);line-height:1.7;text-align:justify}
+/* — 大字格（企业规模） — */
+.firm-grid{display:grid;grid-template-columns:1fr 1fr;gap:7mm 9mm}
+.firm-cell{border-top:1.6px solid var(--ink);padding-top:3mm}
+.firm-cell.acc{border-top-color:var(--seal)}
+.firm-cell .fn{font-family:var(--disp);font-weight:700;font-size:26pt;line-height:1.05}
+.firm-cell .fn small{font-size:10pt;font-weight:400}
+.firm-cell .ft{font-family:var(--disp);font-size:10pt;font-weight:600;letter-spacing:.1em;margin:1.5mm 0 1mm}
+.firm-cell .fd{font-size:7.5pt;line-height:1.7;color:var(--muted)}
+/* ============ 上篇数据页：正常字号排版，内容自然流排，仅守距页码 ≥12mm ============ */
+@media print{
+  body{background:#fff;padding:0}
+  .stage{gap:0}
+  .spread{box-shadow:none;page-break-after:always}
+}
+</style>
+</head>
+<body>
+<main class="stage">
+
+<!-- ============ 对开 1 · 封底 X00 | 封面 X01 ============ -->
+<section class="spread" data-spread="cover">
+  <div class="page left" data-layout="X00">
+    <div class="bc-center">
+      <span class="seal">手册</span>
+      <div class="nm">职业发展手册</div>
+    </div>
+    <div class="bc-foot">
+      编写 · 新能源汽车工程专业编写组<br>
+      出品 · 某某理工大学 新能源汽车工程学院<br>
+      数据来源 · 2026 届校园招聘公开数据整理<br>
+      <span style="font-family:var(--mono);letter-spacing:.2em">CAREER HANDBOOK · VOL. 2026</span>
+    </div>
+  </div>
+  <div class="page right" data-layout="X01" style="padding:0">
+    <div class="cov-frame"></div>
+    <div class="cov-logo"><img src="images/logo-placeholder.svg" alt="学校标识（占位，正式发布请替换）"></div>
+    <div class="vt cov-vtitle">职业发展手册</div>
+    <div class="vt cov-vsub">新能源汽车工程</div>
+    <span class="seal cov-seal">丙午</span>
+    <div class="cov-meta">
+      <div class="yr">VOL. 2026 · 第壹辑</div>
+      <div class="ttl">从数据中看清行业 · 从岗位中规划路径</div>
+    </div>
+    <div class="cov-strip">
+      <span class="cs"><b>7,731</b>在招岗位</span>
+      <span class="cs"><b>陆</b>个重点岗位</span>
+      <span class="cs"><b>拾贰</b>个解析维度</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 对开 2 · 序 X02 | 序图 X03 ============ -->
+<section class="spread" data-spread="preface">
+  <div class="page left" data-layout="X02">
+    <div class="col-title"><span class="ct-cn">卷首</span><span>PREFACE</span></div>
+    <div class="pf-head">
+      <span class="zi">序</span>
+      <span class="seal">卷首</span>
+      <div class="side">
+        <div class="a">PREFACE · 2026</div>
+        <div class="b">新能源汽车工程</div>
+      </div>
+    </div>
+    <div class="wenwu" style="margin-bottom:8mm"></div>
+    <div class="body-text">
+      <p>新能源汽车工程专业是一门面向国家新能源战略和汽车产业转型发展的新兴交叉学科，涵盖车辆工程、机械工程、电气工程、控制工程等多个学科领域。专业旨在培养具有扎实的数学、自然科学及人文科学基础，系统掌握新能源工程及相关学科的基本理论知识和方法，具备较强的实践能力、工程应用能力及创新意识，能够适应学科发展需求和区域经济社会发展需要的高素质应用型技术人才。毕业生能够在新能源汽车领域从事新能源汽车整车及零部件设计、生产制造、试验检测、运行维护、技术开发与工程应用等相关工作。</p>
+      <p>当前，新能源汽车行业正处于快速发展的关键阶段。随着全球对生态环境保护、能源危机和可持续发展的高度重视，新能源汽车作为减少温室气体排放、实现能源转型的重要途径，已成为世界各国重点发展的战略性新兴产业。中国作为全球最大的新能源汽车市场，产销量连续多年位居世界首位。这不仅体现了我国新能源汽车产业的综合竞争力，也反映出国家政策支持、技术创新和市场需求共同驱动下的产业发展状况。</p>
+      <p>在技术层面，我们见证了电池技术的飞速进步。如锂电池能量密度的显著提升和成本的持续下降，以及充电基础设施日益完善，这些都极大地推动了新能源汽车的续航能力、使用便利性及市场竞争力的提升。同时，人工智能、大数据、车联网等新一代信息技术与汽车产业深度融合，推动新能源汽车向智能化、网联化方向快速发展，<mark>使得汽车不仅仅是一种交通工具，更是智能生活的移动终端。</mark></p>
+      <p>在政策层面，国家出台了多项鼓励政策。从财政补贴到税收优惠，从推广应用到基础设施建设，全方位支持新能源汽车产业的发展。这些政策不仅降低了企业创新发展的成本，提升了产品技术标准和市场竞争力，也进一步完善了产业发展体系，为新能源汽车产业持续健康发展提供了有力保障。</p>
+      <p>在产业层面，新能源汽车产业链日趋完善。从原材料的开采和供应，到核心部件的制造，再到整车的生产和销售，一个完整而高效的产业生态系统正在形成。这为新能源汽车产业高质量发展奠定了坚实基础，也为新能源汽车工程专业毕业生提供了更加广阔的就业空间和良好的职业发展前景。</p>
+      <p>同学们，你们正处于新能源汽车产业快速发展的时代，也迎来了行业发展的重要机遇。随着技术的不断进步和市场的持续扩大，新能源汽车工程专业毕业生将拥有广阔的发展空间。无论是在研发、生产、销售，还是在技术服务与运营管理等领域，你们都将成为推动行业发展的重要力量。</p>
+      <p>希望同学们能够珍惜大学时光，夯实专业基础，提升实践能力，培养创新精神，为未来投身新能源汽车产业做好充分准备。让我们共同努力，探索未来出行新方向，携手迈向更加绿色、智能、高效的美好未来！</p>
+      <p>最后，衷心祝愿同学们学业有成，未来可期！</p>
+    </div>
+    <div class="pf-sign">
+      <div class="who">新能源汽车工程专业编写组<span class="seal">编写</span></div>
+      <div class="when">段昊阳 · 张大牛 · 康传智　|　丙午年 七月 · 2026.07</div>
+    </div>
+    <div class="folio">— <b>02</b> —</div>
+  </div>
+  <div class="page right" data-layout="X03" style="padding:0">
+    <img class="img-bleed" src="images/preface.jpg" alt="序配图">
+    <div class="caption-chip" style="left:12mm;bottom:12mm"><b>FIG. 01 · 卷首图</b>工程实训中心一景（示意图）</div>
+  </div>
+</section>
+
+<!-- ============ 对开 3 · 目录 X04（竖排·上篇）| 目录 X05（竖排·下篇 + 速览） ============ -->
+<section class="spread" data-spread="toc">
+  <div class="page left" data-layout="X04">
+    <div class="col-title"><span class="ct-cn">目录</span><span>CONTENTS · 上篇</span></div>
+    <div class="toc-title">目 录</div>
+    <div class="wenwu" style="margin-bottom:7mm"></div>
+    <div class="vtoc">
+      <div class="vt-part">
+        <span class="vp-name">上篇</span>
+        <span class="seal">壹</span>
+        <span class="vp-en">PART 01 · DATA</span>
+      </div>
+      <div class="vt-entry"><span class="ve-no">01</span><span class="ve-tt">行业整体招聘数据概览</span><span class="ve-pg">08</span></div>
+      <div class="vt-entry"><span class="ve-no">02</span><span class="ve-tt">岗位城市等级分布</span><span class="ve-pg">09</span></div>
+      <div class="vt-entry"><span class="ve-no">03</span><span class="ve-tt">企业规模与类型分析</span><span class="ve-pg">10</span></div>
+      <div class="vt-entry"><span class="ve-no">04</span><span class="ve-tt">学历要求分析</span><span class="ve-pg">11</span></div>
+      <div class="vt-entry"><span class="ve-no">05</span><span class="ve-tt">工作经验要求分析</span><span class="ve-pg">12</span></div>
+      <div class="vt-entry"><span class="ve-no">06</span><span class="ve-tt">核心技能需求分析</span><span class="ve-pg">13</span></div>
+    </div>
+    <div class="pin-bottom">
+      <div class="note">上篇六章 · 数据来源均为 2026 届校园招聘公开信息整理，统计口径以各章图注为准。</div>
+    </div>
+    <div class="folio">— <b>04</b> —</div>
+  </div>
+  <div class="page right" data-layout="X05">
+    <div class="col-title"><span class="ct-cn">目录</span><span>CONTENTS · 下篇</span></div>
+    <div class="toc-title">目 录</div>
+    <div class="wenwu" style="margin-bottom:7mm"></div>
+    <div class="vtoc">
+      <div class="vt-part">
+        <span class="vp-name">下篇</span>
+        <span class="seal">贰</span>
+        <span class="vp-en">PART 02 · JOBS</span>
+      </div>
+      <div class="vt-entry"><span class="ve-no">07</span><span class="ve-tt">主要就业岗位一览</span><span class="ve-pg">14</span></div>
+      <div class="vt-entry"><span class="ve-no">08</span><span class="ve-tt">供应商质量管理师</span><span class="ve-pg">15</span></div>
+      <div class="vt-entry"><span class="ve-no">09</span><span class="ve-tt">新能源汽车设计工程师</span><span class="ve-pg">20</span></div>
+      <div class="vt-entry"><span class="ve-no">10</span><span class="ve-tt">新能源汽车制造工程师</span><span class="ve-pg">26</span></div>
+      <div class="vt-entry"><span class="ve-no">11</span><span class="ve-tt">新能源汽车电池工程师</span><span class="ve-pg">32</span></div>
+      <div class="vt-entry"><span class="ve-no">12</span><span class="ve-tt">智能驾驶系统工程师</span><span class="ve-pg">38</span></div>
+      <div class="vt-entry"><span class="ve-no">13</span><span class="ve-tt">服务企业经营与管理者</span><span class="ve-pg">44</span></div>
+    </div>
+    <div class="glance-strip">
+      <div class="gs-h"><span class="t">本期速览</span><span class="e">AT A GLANCE · 2026</span></div>
+      <div class="gs-row"><span class="gn">7,731<small>个</small></span><span class="gd">热门 TOP 岗位在招总量，行业整体处于人才需求上升期。</span></div>
+      <div class="gs-row"><span class="gn">91.4<small>%</small></span><span class="gd">质量管控方向占比最高，对应 7,070 个岗位。</span></div>
+      <div class="gs-row"><span class="gn">50.95<small>%</small></span><span class="gd">二线城市岗位占比，产业重镇为吸纳主力。</span></div>
+      <div class="gs-row"><span class="gn">47.05<small>%</small></span><span class="gd">本科学历岗位占比近半，入行门槛友好。</span></div>
+    </div>
+    <div class="folio">— <b>05</b> —</div>
+  </div>
+</section>
+
+<!-- ============ 对开 4 · 幕封 X06 | 引文 X07 ============ -->
+<section class="spread" data-spread="divider-1">
+  <div class="page left" data-layout="X06" style="background:var(--paper)">
+    <div class="dv-watermark">壹</div>
+    <div class="vt dv-vt"><span class="pt-tag">上篇</span>就业市场现状</div>
+    <span class="seal dv-seal">上篇</span>
+    <div class="dv-sum">
+      <div class="lab">PART 01 · 本篇概要</div>
+      <div class="tx">本篇基于 2026 届校园招聘公开数据，从整体规模、城市分布、企业类型、学历与经验要求、核心技能六个维度，呈现新能源汽车工程专业的就业市场全貌。</div>
+    </div>
+    <div class="folio">— <b>06</b> —</div>
+  </div>
+  <div class="page right" data-layout="X07">
+    <div class="col-title"><span class="ct-cn">编者按</span><span>EDITOR'S NOTE</span></div>
+    <div style="margin-top:38mm">
+      <div class="q-mark">「</div>
+      <div class="q-body">从数据中看清行业，<br>从岗位中规划路径。</div>
+      <div class="pull-src">—— 本手册编写原则</div>
+    </div>
+    <div class="pin-bottom note" style="border-top:.5pt solid var(--border);padding-top:3mm">
+      上篇六个章节的数据均来自 2026 届校园招聘公开信息整理，统计口径以各章图注为准。
+    </div>
+    <div class="folio">— <b>07</b> —</div>
+  </div>
+</section>
+
+<!-- ============ 对开 5 · 总量 X08 | 城市 X09 ============ -->
+<section class="spread" data-spread="data-1">
+  <div class="page left" data-layout="X08">
+    <div class="col-title"><span class="ct-cn">上篇 · 数据</span><span>01 · OVERVIEW</span></div>
+    <div style="margin-bottom:6mm">
+      <div class="note" style="margin-bottom:2mm">行业整体招聘数据概览</div>
+      <div class="hero-num">7,731<small> 个岗位</small></div>
+    </div>
+    <div class="sitem" style="margin-bottom:6mm">
+      <div><div class="si-t">行业整体处于人才需求上升期</div><div class="si-d">质量管控方向以 91.4% 占绝对主导，是多数毕业生的主要去向；技术研发方向薪资与成长空间更大。</div></div>
+    </div>
+    <div class="chart-unit">
+      <div class="stat-row top" style="border-top:1.6px solid var(--ink)">
+        <span class="sn">91.4<small>%</small></span>
+        <span class="st">质量管控方向</span>
+        <span class="sd">7,070 个 · 质量监督 / 检测工程师 / 供应商质量管理</span>
+        <span class="bar" style="width:91.4%"></span>
+      </div>
+      <div class="stat-row">
+        <span class="sn">6.3<small>%</small></span>
+        <span class="st">技术研发方向</span>
+        <span class="sd">490 个 · 智驾系统 / 电池 / 汽车设计工程师</span>
+        <span class="bar" style="width:6.3%"></span>
+      </div>
+      <div class="stat-row">
+        <span class="sn">2.2<small>%</small></span>
+        <span class="st">经营管理方向</span>
+        <span class="sd">171 个 · 新能源汽车服务企业经营与管理</span>
+        <span class="bar" style="width:2.2%"></span>
+      </div>
+      <div class="figcap">图 1-1 · 三大就业方向岗位占比（n = 7,731）；条长按百分比等比绘制，朱砂条为本期占比最高项。</div>
+    </div>
+    <div class="body-text no-indent">
+      <p>新能源汽车工程专业作为国家战略性新兴产业配套专业，2026 年就业市场需求旺盛，行业整体处于人才需求上升期。</p>
+      <p><mark>质量管控方向占比最高</mark>（91.4%，7,070 个岗位），是目前需求量最大的就业方向，包含质量监督、质量检测工程师、供应商质量管理师三类岗位，适合细心严谨、喜欢标准化工作的同学；入行门槛相对友好，是多数毕业生的主要就业去向。</p>
+      <p>技术研发方向（6.3%，490 个岗位）包含智能驾驶系统工程师、电池工程师、汽车设计工程师，适合技术能力强、有创新精神的同学。岗位数量虽相对较少，但薪资水平与职业发展空间更大，是高端人才的主要赛道。</p>
+      <p>经营管理方向（2.2%，171 个岗位）主要是新能源汽车服务企业经营与管理岗位，适合沟通能力强、有商业头脑的同学，通常需要一定的行业经验积累。</p>
+    </div>
+    <div class="folio">— <b>08</b> —</div>
+  </div>
+  <div class="page right" data-layout="X09">
+    <div class="col-title"><span class="ct-cn">上篇 · 数据</span><span>02 · CITIES</span></div>
+    <div style="margin-bottom:5mm">
+      <div class="note" style="margin-bottom:2mm">岗位城市等级分布</div>
+      <div style="font-family:var(--disp);font-size:16pt;font-weight:700;line-height:1.4">岗位主要分布在<br>二线与新一线城市</div>
+    </div>
+    <div class="sitem" style="margin-bottom:5mm">
+      <div><div class="si-t">「中间大、两头小」的分布格局</div><div class="si-d">二线 + 新一线合计占比 91.41%，产业重镇为吸纳就业主力。</div></div>
+    </div>
+    <div class="chart-unit">
+      <div class="donut-row">
+        <svg class="donut-svg" viewBox="0 0 42 42" role="img" aria-label="岗位城市等级圆环图：二线 50.95%，新一线 40.46%，三线及以下 4.44%，一线 4.15%">
+          <circle cx="21" cy="21" r="15.9155" fill="none" stroke="var(--border)" stroke-width="4.2" />
+          <circle cx="21" cy="21" r="15.9155" fill="none" stroke="var(--seal)" stroke-width="4.2" stroke-dasharray="50.95 49.05" stroke-dashoffset="25" />
+          <circle cx="21" cy="21" r="15.9155" fill="none" stroke="var(--ink)" stroke-width="4.2" stroke-dasharray="40.46 59.54" stroke-dashoffset="-25.95" />
+          <circle cx="21" cy="21" r="15.9155" fill="none" stroke="var(--muted)" stroke-width="4.2" stroke-dasharray="4.44 95.56" stroke-dashoffset="-66.41" />
+          <circle cx="21" cy="21" r="15.9155" fill="none" stroke="var(--border)" stroke-width="4.2" stroke-dasharray="4.15 95.85" stroke-dashoffset="-70.85" />
+          <text x="21" y="19.5" text-anchor="middle" style="font-family:var(--disp);font-weight:700;font-size:6px;fill:var(--ink)">50.95%</text>
+          <text x="21" y="24" text-anchor="middle" style="font-family:var(--mono);font-size:2px;letter-spacing:.05em;fill:var(--muted)">二线城市占比</text>
+        </svg>
+        <div class="donut-legend">
+          <div class="dl-row"><span class="dl-dot" style="background:var(--seal)"></span><span class="dl-label">二线城市</span><span class="dl-val">50.95% · 3,959 个</span></div>
+          <div class="dl-row"><span class="dl-dot" style="background:var(--ink)"></span><span class="dl-label">新一线城市</span><span class="dl-val">40.46% · 3,128 个</span></div>
+          <div class="dl-row"><span class="dl-dot" style="background:var(--muted)"></span><span class="dl-label">三线及以下</span><span class="dl-val">4.44% · 343 个</span></div>
+          <div class="dl-row"><span class="dl-dot" style="background:var(--border)"></span><span class="dl-label">一线城市</span><span class="dl-val">4.15% · 321 个</span></div>
+        </div>
+      </div>
+      <div class="figcap">图 1-2 · 岗位城市等级分布；圆环按占比等比绘制，朱砂弧段为二线城市，二线 + 新一线合计 91.41%。</div>
+    </div>
+    <div class="body-text no-indent">
+      <p>就业机会在不同城市等级间呈现明显的「中间大、两头小」分布特征：二线、新一线城市是人才需求最集中的地区，合计占比超过 90%；一线城市与三线及以下城市的岗位数量相对较少。</p>
+    </div>
+    <div class="mod-grid">
+      <div class="mod">
+        <div class="mod-h"><span class="mh-no">其一</span><span class="mh-name">二线城市</span><span class="mh-stat">3,959 个</span></div>
+        <p>岗位数量最多的区域，占比超过一半，主要得益于众多整车制造企业与零部件生产基地布局于此。代表城市有合肥、重庆、武汉、西安、常州等产业重镇，岗位以生产制造、质量检测、供应链管理等为主。</p>
+      </div>
+      <div class="mod">
+        <div class="mod-h"><span class="mh-no">其二</span><span class="mh-name">新一线城市</span><span class="mh-stat">3,128 个</span></div>
+        <p>第二大就业市场，兼具完善的产业基础与科技创新能力，集聚大量研发机构、企业总部与高新技术企业。代表城市有杭州、成都、苏州、南京、天津等，岗位涵盖研发设计、生产制造、质量管理、运营管理等多个方向。</p>
+      </div>
+      <div class="mod">
+        <div class="mod-h"><span class="mh-no">其三</span><span class="mh-name">一线城市</span><span class="mh-stat">321 个</span></div>
+        <p>岗位数量相对较少，但层次与技术含量较高，多为企业总部、研发中心所在地。代表城市有北京、上海、广州、深圳，以高端研发、总部管理、智能网联等前沿岗位为主。</p>
+      </div>
+      <div class="mod">
+        <div class="mod-h"><span class="mh-no">其四</span><span class="mh-name">三线及以下</span><span class="mh-stat">343 个</span></div>
+        <p>机会相对有限，主要是部分工厂或服务网点，以基层生产、售后服务岗位为主。</p>
+      </div>
+    </div>
+    <div class="folio">— <b>09</b> —</div>
+  </div>
+</section>
+
+<!-- ============ 对开 6 · 企业规模 X10 | 学历要求 X11 ============ -->
+<section class="spread" data-spread="data-2">
+  <div class="page left" data-layout="X10">
+    <div class="col-title"><span class="ct-cn">上篇 · 数据</span><span>03 · COMPANIES</span></div>
+    <div style="margin-bottom:5mm">
+      <div class="note" style="margin-bottom:2mm">企业规模与类型分析</div>
+      <div style="font-family:var(--disp);font-size:16pt;font-weight:700;line-height:1.4">中小型企业是吸纳就业的主力军</div>
+    </div>
+    <div class="sitem" style="margin-bottom:5mm">
+      <div><div class="si-t">大中小企业协同、多元吸纳人才</div><div class="si-d">中小型企业合计占比超 50%；千人以上中大型企业亦提供近三成岗位。</div></div>
+    </div>
+    <div class="firm-grid">
+      <div class="firm-cell acc">
+        <div class="fn">25.97<small>%</small></div>
+        <div class="ft">中型企业 · 100–299 人</div>
+        <div class="fd">1,993 个岗位，吸纳就业主力。多为快速发展的产业链企业，既有规模与稳定性，又不像大厂竞争激烈。企业类型多为成长中的零部件供应商、技术服务商、造车新势力，成长空间大、能接触完整业务链条、晋升较快，适合想快速成长的同学。</div>
+      </div>
+      <div class="firm-cell">
+        <div class="fn">24.68<small>%</small></div>
+        <div class="ft">小型企业 · 20–99 人</div>
+        <div class="fd">1,894 个岗位，岗位数量与中型不相上下。多为初创科技公司、汽车设计工作室、细分领域技术供应商，成长快、锻炼机会多、能独当一面；公司发展好则早期员工收益大，适合有冒险精神、想快速积累经验的同学。</div>
+      </div>
+      <div class="firm-cell">
+        <div class="fn">19.74<small>%</small></div>
+        <div class="ft">大型企业 · 1000–9999 人</div>
+        <div class="fd">1,515 个岗位，约 20%，是很多人心中的「理想雇主」。多为传统车企新能源部门、头部造车新势力、大型零部件集团，体系完善、培训规范、福利待遇好、职业路径清晰，适合希望获得稳定平台与系统培养的同学。</div>
+      </div>
+      <div class="firm-cell">
+        <div class="fn">8.08<small>%</small></div>
+        <div class="ft">超大型企业 · 10000 人以上</div>
+        <div class="fd">620 个岗位，行业巨头。主要是比亚迪、上汽、广汽、吉利等大型汽车集团，产业链完整、技术实力雄厚、平台广阔，学习资源与职业发展机会丰富，适合希望长期发展的同学。</div>
+      </div>
+    </div>
+    <div class="figcap" style="margin-top:7mm">图 1-3 · 不同规模企业岗位数量分布；中小型企业合计占比超过 50%，千人以上中大型企业提供近三成岗位。</div>
+    <div class="body-text no-indent">
+      <p>就业机会分布于不同规模的企业，呈「大中小企业协同发展、多元吸纳人才」的多元化格局：中小型企业（100–299 人、20–99 人）是吸纳就业的主力军，合计占比超过 50%；千人以上的中大型企业也提供了近三成岗位。</p>
+    </div>
+    <div class="folio">— <b>10</b> —</div>
+  </div>
+  <div class="page right" data-layout="X11">
+    <div class="col-title"><span class="ct-cn">上篇 · 数据</span><span>04 · EDUCATION</span></div>
+    <div style="margin-bottom:5mm">
+      <div class="note" style="margin-bottom:2mm">学历要求分析</div>
+      <div style="font-family:var(--disp);font-size:16pt;font-weight:700;line-height:1.4">本科学历是人才需求的主体</div>
+    </div>
+    <div class="sitem" style="margin-bottom:5mm">
+      <div><div class="si-t">本科为人才需求主体，硕士聚焦研发</div><div class="si-d">47.05% 的岗位面向本科生开放，接近半数为应届同学准备。</div></div>
+    </div>
+    <div class="hero-num" style="margin-bottom:6mm">47.05<small>%</small></div>
+    <div class="chart-unit">
+      <div class="hbar-row"><span class="hl">本科</span><span class="ht"><span class="hf acc" style="width:100%"></span></span><span class="hv">3,613 个</span></div>
+      <div class="hbar-row"><span class="hl">硕士及以上</span><span class="ht"><span class="hf" style="width:4.2%"></span></span><span class="hv">164 个</span></div>
+      <div class="figcap">图 1-4 · 各学历层次岗位数量分布；接近一半的岗位面向本科生开放，条长以本科 47.05% 为满宽基准。</div>
+    </div>
+    <div class="body-text no-indent">
+      <p>行业对学历的整体要求较为合理，<mark>本科学历仍是人才需求的主体</mark>，占比 47.05%，对应 3,613 个岗位——接近一半的岗位为本科同学准备，就业机会丰富、选择广泛，能满足大多数毕业生的就业需求。</p>
+      <p>硕士及以上学历岗位约占 2%（164 个），数量相对较少，但集中在智能驾驶算法、高级电池研发、整车控制等技术研发领域，对专业能力与科研水平要求较高。</p>
+      <p>有志于前沿技术研究或高端研发，可继续攻读硕士研究生以提升专业竞争力与职业发展空间；希望尽早进入企业、积累工程实践经验，本科毕业后直接就业同样具有良好的发展前景。</p>
+    </div>
+    <div class="folio">— <b>11</b> —</div>
+  </div>
+</section>
+
+<!-- ============ 对开 7 · 工作经验 X12 | 核心技能 X13 ============ -->
+<section class="spread" data-spread="data-3">
+  <div class="page left" data-layout="X12">
+    <div class="col-title"><span class="ct-cn">上篇 · 数据</span><span>05 · EXPERIENCE</span></div>
+    <div style="margin-bottom:5mm">
+      <div class="note" style="margin-bottom:2mm">工作经验要求分析</div>
+      <div style="font-family:var(--disp);font-size:16pt;font-weight:700;line-height:1.4">应届生入行门槛友好<br>3–5 年经验者需求最大</div>
+    </div>
+    <div class="sitem" style="margin-bottom:5mm">
+      <div><div class="si-t">应届可直通，骨干持续紧缺</div><div class="si-d">不限经验岗位 1,299 个；需求峰值集中在 3–5 年经验的骨干人群。</div></div>
+    </div>
+    <div class="chart-unit">
+      <div class="col-chart">
+        <div class="ccol"><span class="v">17.11<small>%</small></span><div class="bar" style="height:50.8%"></div></div>
+        <div class="ccol"><span class="v">26.77<small>%</small></span><div class="bar" style="height:79.5%"></div></div>
+        <div class="ccol acc"><span class="v">33.67<small>%</small></span><div class="bar" style="height:100%"></div></div>
+      </div>
+      <div class="ccol-labels">
+        <span>不限经验<em>1,299 个 · 应届直通</em></span>
+        <span>1–3 年<em>2,034 个 · 需求第二</em></span>
+        <span>3–5 年<em>2,558 个 · 需求峰值</em></span>
+      </div>
+      <div class="figcap">图 1-5 · 各工作经验要求岗位数量分布；柱高按占比等比绘制，以 3–5 年 33.67% 为满高基准，朱砂柱为需求峰值阶段。</div>
+    </div>
+    <div class="body-text no-indent">
+      <p>行业就业包容性极强：<mark>不限经验岗位 1,299 个、占比 17.11%</mark>，另有部分仅要求一年以内经验的优质岗位，为应届毕业生开辟了充足的专属就业通道。不限经验岗位主要包含企业专属校招岗位、精英管培生项目以及新人培养类核心技术岗位，常见如研发助理、质量工程师助理、生产管培生、技术支持等，均配套成熟的新人培养体系，重点看重专业基础、学习能力与发展潜力。</p>
+      <p>工作 1–3 年（2,034 个、26.77%）是职业成长的黄金上升期，随实操能力与专业经验积累，岗位选择权大幅提升、薪资稳步增长；<mark>行业需求峰值集中在 3–5 年经验</mark>（2,558 个、33.67%），长期紧缺专业型、技术型骨干人才，人才缺口持续存在。每年秋季、春季招聘是应届毕业生进入行业的重要窗口期。</p>
+    </div>
+    <div class="folio">— <b>12</b> —</div>
+  </div>
+  <div class="page right" data-layout="X13">
+    <div class="col-title"><span class="ct-cn">上篇 · 数据</span><span>06 · SKILLS</span></div>
+    <div style="margin-bottom:5mm">
+      <div class="note" style="margin-bottom:2mm">核心技能需求分析</div>
+      <div style="font-family:var(--disp);font-size:16pt;font-weight:700;line-height:1.4">专业 · 工具 · 素养，<br>三者缺一不可</div>
+    </div>
+    <div class="sitem" style="margin-bottom:5mm">
+      <div><div class="si-t">复合型人才最受欢迎</div><div class="si-d">「既懂汽车又懂软件、既有理论又能动手」是行业最需要的类型。</div></div>
+    </div>
+    <div class="ladder">
+      <div class="lad-r">
+        <span class="lad-no">其一</span>
+        <span class="lad-t">综合素养</span>
+        <span class="lad-k">决定高度</span>
+        <span class="lad-d">问题分析与解决、团队协作、创新意识决定职业发展高度；生产制造与供应链岗位侧重工艺知识与协调能力。</span>
+      </div>
+      <div class="lad-r">
+        <span class="lad-no">其二</span>
+        <span class="lad-t">软件工具</span>
+        <span class="lad-k">决定速度</span>
+        <span class="lad-d">CAD/CAE、MATLAB、Python 等软件工具决定成长速度；研发岗位尤其是智能驾驶方向，需练好编程与算法。</span>
+      </div>
+      <div class="lad-r">
+        <span class="lad-no">其三</span>
+        <span class="lad-t">专业知识</span>
+        <span class="lad-k">决定下限</span>
+        <span class="lad-d">汽车构造、动力电池、电机电控等专业知识是入行基础；质量管理岗位需重点掌握质量管理体系与数据分析能力。</span>
+      </div>
+    </div>
+    <div class="figcap">图 1-6 · 核心技能阶梯：专业知识决定入行下限，软件工具决定成长速度，综合素养决定发展高度；阶梯逐级右移，越往上越依赖长期积累。</div>
+    <div class="body-text no-indent">
+      <p>核心技能可归纳为专业技术、软件工具与综合素养三大维度：汽车构造、动力电池、电机电控等专业知识是基础，CAD/CAE、MATLAB、Python 等软件工具是加分项，问题分析与解决、团队协作、创新意识等综合素养决定个人职业发展的高度。不同岗位各有侧重——质量管理岗位需重点掌握质量管理体系与数据分析能力，研发岗位（尤其是智能驾驶方向）要练好编程与算法，生产制造与供应链管理岗位侧重工艺知识与协调能力。</p>
+      <p>建议打牢专业基础的同时，至少精通 1–2 个专业软件，有意识培养编程能力，通过竞赛、实习积累实践经验，成长为「既懂汽车又懂软件、既有理论又能动手」的复合型人才。</p>
+    </div>
+    <div class="folio">— <b>13</b> —</div>
+  </div>
+</section>
+
+<!-- ============ 对开 8 · 岗位封面 X15 | 综述·一天·职责 X17a ============ -->
+<section class="spread" data-spread="job-cover">
+  <div class="page left" data-layout="X15" style="padding:0">
+    <img class="img-bleed" src="images/job1.jpg" alt="岗位场景" style="height:100%;object-position:center 30%">
+    <div class="job-band">
+      <div class="jb-no">下篇 · 重点岗位 · 其壹</div>
+      <div class="jb-title">供应商质量管理师</div>
+      <div class="jb-sub">SUPPLIER QUALITY ENGINEER · 本科及以上 · 质量管控方向 · 应届友好</div>
+    </div>
+    <div class="caption-chip" style="right:12mm;top:12mm"><b>FIG. 2-1 · 岗位场景</b>供应链质量检测现场（示意图）</div>
+  </div>
+  <div class="page right" data-layout="X17a">
+    <div class="col-title"><span class="ct-cn">下篇 · 岗位档案</span><span>JOB FILE · 01</span></div>
+    <div style="margin-bottom:5mm">
+      <div style="font-family:var(--mono);font-size:7pt;letter-spacing:.24em;color:var(--seal);margin-bottom:2mm">POSITION 01 / 06 · 其一至其叁</div>
+      <div style="font-family:var(--disp);font-size:15pt;font-weight:700;letter-spacing:.1em">供应商质量管理师 · 岗位详解</div>
+    </div>
+    <div class="lede jsec">
+      <div class="jm-h"><span class="jm-no">壹</span><span class="jm-name">岗位综述</span><span class="jm-en">OVERVIEW</span></div>
+      <p>供应商质量管理师在企业中扮演着关键角色。负责对供应商进行严格的评估与筛选，确保其在生产能力、技术水平、质量管理体系及财务状况等方面符合企业要求。通过定期审核供应商的质量体系，提出改进建议，推动其不断提升质量管理水平；制定产品质量标准和检验规范，对供应商交付的产品进行严格检验，及时处理不合格产品。</p>
+    </div>
+    <div class="jsec">
+      <div class="jm-h"><span class="jm-no">贰</span><span class="jm-name">供应商质量管理师的一天</span><span class="jm-en">A DAY</span></div>
+      <div class="day-tab">
+        <div class="day-row">
+          <div class="dt">上午</div>
+          <div class="dc">前往一家重要供应商的生产现场进行质量审核，检查生产流程、设备运行状态与员工操作规范；与供应商质量管理人员交流，记录问题并共同探讨解决方案，明确改进的时间表与责任人。</div>
+        </div>
+        <div class="day-row">
+          <div class="dt">中午</div>
+          <div class="dc">回到办公室整理上午的审核报告，将发现的问题分类汇总、分析严重程度与影响；与企业内部采购、生产等部门沟通，协调资源共同推动问题解决。</div>
+        </div>
+        <div class="day-row">
+          <div class="dt">下午</div>
+          <div class="dc">参加与供应商的视频会议，听取质量改进计划汇报并评估反馈，强调质量标准；会议结束后继续处理其他供应商的质量问题，回复邮件与电话咨询。</div>
+        </div>
+      </div>
+    </div>
+    <div class="jsec">
+      <div class="jm-h"><span class="jm-no">叁</span><span class="jm-name">工作职责</span><span class="jm-en">RESPONSIBILITIES</span></div>
+      <div class="ditem"><span class="dno">其一</span><div class="dt2"><div class="t">供应商开发与评估</div><div class="d">协助采购部门寻找潜在供应商，全面考察其生产能力、技术水平、质量管理体系、财务状况等；建立评估指标体系，定期进行绩效评估。</div></div></div>
+      <div class="ditem"><span class="dno">其二</span><div class="dt2"><div class="t">质量控制与改进</div><div class="d">制定质量控制计划，明确质量标准和检验要求；对供应商提供的原材料、零部件和成品进行检验与测试，推动质量改进。</div></div></div>
+      <div class="ditem"><span class="dno">其三</span><div class="dt2"><div class="t">沟通与协调</div><div class="d">与供应商保持良好沟通，及时解决质量问题和纠纷；与企业内部相关部门协作，共同推进质量管理工作。</div></div></div>
+      <div class="ditem"><span class="dno">其四</span><div class="dt2"><div class="t">文档管理与报告</div><div class="d">建立供应商质量管理档案，记录评估结果、质量问题和改进措施；编写质量报告，向上级汇报工作进展与成果。</div></div></div>
+    </div>
+    <div class="folio">— <b>15</b> —</div>
+  </div>
+</section>
+
+<!-- ============ 对开 9 · 前景·生活 X17b | 薪酬·路径·门槛 X17c ============ -->
+<section class="spread" data-spread="job-2">
+  <div class="page left" data-layout="X17b">
+    <div class="col-title"><span class="ct-cn">下篇 · 岗位档案</span><span>JOB FILE · 01</span></div>
+    <div class="jsec">
+      <div class="jm-h"><span class="jm-no">肆</span><span class="jm-name">行业前景</span><span class="jm-en">OUTLOOK</span></div>
+      <div class="slist">
+        <div class="sitem">
+          <div><div class="si-t">市场需求持续增长</div><div class="si-d">企业越来越重视供应链管理，供应商质量是其关键环节之一，对供应商质量管理师的需求持续增长。</div></div>
+        </div>
+        <div class="sitem">
+          <div><div class="si-t">职业发展空间广阔</div><div class="si-d">可晋升为质量管理经理、供应链总监等高级管理职位；随经验积累，可负责企业整体质量与供应链管理工作。</div></div>
+        </div>
+        <div class="sitem">
+          <div><div class="si-t">薪资待遇优厚</div><div class="si-d">岗位专业性强、人才稀缺，通常可获得较高薪资，且随经验与专业能力的提升不断提高。</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="jsec">
+      <div class="jm-h"><span class="jm-no">伍</span><span class="jm-name">供应商质量管理师的生活</span><span class="jm-en">LIFESTYLE</span></div>
+      <div class="slist">
+        <div class="sitem">
+          <div><div class="si-t">学习提升</div><div class="si-d">为不断提升专业水平，从业者在业余时间也投入大量精力学习质量管理理念、方法和技术，了解行业动态，考取相关职业资格证书。</div></div>
+        </div>
+        <div class="sitem">
+          <div><div class="si-t">社交生活</div><div class="si-d">尽管工作忙碌，也会尽量抽出时间参加行业协会活动，结识同行与专业人士，拓展自己的人脉资源。</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="jsec">
+      <div class="jm-h"><span class="jm-no">陆</span><span class="jm-name">薪酬待遇</span><span class="jm-en">SALARY</span></div>
+      <div class="sal">
+        <div class="sal-c acc">
+          <div class="sc-t">高级</div>
+          <div class="sc-v">20 万<small>元以上</small></div>
+          <div class="sc-d">制定供应商质量管理策略，领导团队处理重大质量问题</div>
+        </div>
+        <div class="sal-c">
+          <div class="sc-t">中级</div>
+          <div class="sc-v">10–20 万<small>元</small></div>
+          <div class="sc-d">独立完成供应商评估、审核与质量改进，具备项目管理能力</div>
+        </div>
+        <div class="sal-c">
+          <div class="sc-t">初级</div>
+          <div class="sc-v">5–10 万<small>元</small></div>
+          <div class="sc-d">协助日常质量检验、数据收集与分析等工作</div>
+        </div>
+      </div>
+      <div class="figcap">表 2-1 · 供应商质量管理师年薪区间（市场调研数据）；年薪以人民币计。</div>
+    </div>
+    <div class="folio">— <b>16</b> —</div>
+  </div>
+  <div class="page right" data-layout="X17c">
+    <div class="col-title"><span class="ct-cn">下篇 · 岗位档案</span><span>JOB FILE · 01</span></div>
+    <div class="jsec">
+      <div class="jm-h"><span class="jm-no">柒</span><span class="jm-name">职业发展路径</span><span class="jm-en">PATH</span></div>
+      <div class="pway">
+        <div class="pw-r">
+          <div class="pw-t">专业技术</div>
+          <div class="pw-seq">
+            <span class="pw-step">初级</span><span class="pw-arrow">→</span>
+            <span class="pw-step">中级</span><span class="pw-arrow">→</span>
+            <span class="pw-step hl">高级</span>
+          </div>
+        </div>
+        <div class="pw-r">
+          <div class="pw-t">管理序列</div>
+          <div class="pw-seq">
+            <span class="pw-step">质量团队主管</span><span class="pw-arrow">→</span>
+            <span class="pw-step">供应链质量经理</span><span class="pw-arrow">→</span>
+            <span class="pw-step hl">企业质量总监</span>
+          </div>
+        </div>
+        <div class="pw-r">
+          <div class="pw-t">跨领域</div>
+          <div class="pw-seq">
+            <span class="pw-step">采购管理</span><span class="pw-arrow">→</span>
+            <span class="pw-step">企业咨询顾问</span><span class="pw-arrow">→</span>
+            <span class="pw-step hl">质量培训讲师</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="jsec">
+      <div class="jm-h"><span class="jm-no">捌</span><span class="jm-name">准入门槛</span><span class="jm-en">ENTRY</span></div>
+      <div class="ditem"><span class="dno">其一</span><div class="dt2"><div class="t">教育背景</div><div class="d">理工科相关专业本科及以上学历，如机械工程、电子工程、材料科学与工程、工业工程等。</div></div></div>
+      <div class="ditem"><span class="dno">其二</span><div class="dt2"><div class="t">专业知识与技能</div><div class="d">质量管理知识、供应链管理知识、行业知识，以及沟通协调能力与问题解决能力。</div></div></div>
+      <div class="ditem"><span class="dno">其三</span><div class="dt2"><div class="t">工作经验</div><div class="d">一般要求 3 年以上相关经验；有制造业、汽车、电子、医疗等行业经验者优先。</div></div></div>
+    </div>
+    <div class="jsec">
+      <div class="jm-h"><span class="jm-no">玖</span><span class="jm-name">专业优势</span><span class="jm-en">ADVANTAGE</span></div>
+      <div class="slist">
+        <div class="sitem">
+          <div><div class="si-t">广阔的就业前景</div><div class="si-d">制造业、电子、汽车等行业都需要供应商质量管理人员确保供应链质量稳定，就业机会广泛。</div></div>
+        </div>
+        <div class="sitem">
+          <div><div class="si-t">多样的发展路径</div><div class="si-d">可沿技术、管理方向发展，也可进入咨询公司、培训机构，为其他企业提供质量咨询与培训服务。</div></div>
+        </div>
+        <div class="sitem">
+          <div><div class="si-t">持续学习与成长</div><div class="si-d">与不同行业的供应商打交道，拓宽视野、丰富经验，促进个人职业成长。</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="folio">— <b>17</b> —</div>
+  </div>
+</section>
+
+<!-- ============ 对开 10 · 优势·适合·渠道·规划 X17d | 结语 X18 ============ -->
+<section class="spread" data-spread="job-3">
+  <div class="page left" data-layout="X17d">
+    <div class="col-title"><span class="ct-cn">下篇 · 岗位档案</span><span>JOB FILE · 01</span></div>
+    <div class="jsec">
+      <div class="jm-h"><span class="jm-no">拾</span><span class="jm-name">什么样的人更适合</span><span class="jm-en">FIT</span></div>
+      <div class="ditem"><span class="dno">其一</span><div class="dt2"><div class="t">具备专业知识和技能</div><div class="d">理工科背景更具优势；学习过质量管理工程、工业工程的人熟悉质量管理体系和各种质量工具方法，能够制定标准、推动改进。</div></div></div>
+      <div class="ditem"><span class="dno">其二</span><div class="dt2"><div class="t">拥有特定性格特质</div><div class="d">细心严谨、善于沟通协调、抗压能力强，是质量岗位长期胜任的关键性格特质。</div></div></div>
+    </div>
+    <div class="jsec">
+      <div class="jm-h"><span class="jm-no">拾壹</span><span class="jm-name">如何了解这个行业</span><span class="jm-en">RESOURCES</span></div>
+      <div class="slist">
+        <div class="sitem">
+          <div><div class="si-t">研究行业资料</div><div class="si-d">《质量管理学》《供应商管理手册》等书籍系统介绍质量管理概念、理论、方法与流程。</div></div>
+        </div>
+        <div class="sitem">
+          <div><div class="si-t">学习相关标准</div><div class="si-d">质量管理体系标准与行业特定标准，帮助更好地适应不同行业的供应商质量管理工作。</div></div>
+        </div>
+        <div class="sitem">
+          <div><div class="si-t">关注行业动态</div><div class="si-d">「中国质量新闻网」「供应链管理专业观察」等媒体，以及知名企业的质量管理成功案例。</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="folio">— <b>18</b> —</div>
+  </div>
+  <div class="page right" data-layout="X18">
+    <div class="dv-watermark" style="right:auto;left:6mm">终</div>
+    <div class="vt" style="position:absolute;top:40mm;right:auto;left:18mm;font-size:24pt;font-weight:700;letter-spacing:.3em">寄语</div>
+    <span class="seal" style="position:absolute;top:40mm;left:38mm;width:11mm;height:11mm;font-size:8pt">其壹</span>
+    <div style="position:absolute;left:60mm;right:14mm;top:44mm">
+      <div class="note" style="margin-bottom:4mm">卷末 · 其壹结语</div>
+      <div class="jsec">
+        <div class="jm-h"><span class="jm-no">拾贰</span><span class="jm-name">学习规划建议</span><span class="jm-en">PLAN</span></div>
+        <div class="slist">
+          <div class="sitem">
+            <div><div class="si-t">夯实质量管理基础</div><div class="si-d">学习质量管理的基本概念、原则和方法，掌握 ISO 9001 质量管理体系的要求与实施要点。</div></div>
+          </div>
+          <div class="sitem">
+            <div><div class="si-t">掌握统计分析工具</div><div class="si-d">学习统计学基础知识与基本的统计分析工具，支撑数据化的质量判断。</div></div>
+          </div>
+          <div class="sitem">
+            <div><div class="si-t">精通质量工具方法</div><div class="si-d">深入学习 SPC（统计过程控制）、MSA（测量系统分析）、FMEA（失效模式与影响分析）等质量工具的原理与应用。</div></div>
+          </div>
+          <div class="sitem">
+            <div><div class="si-t">积累实践与实习</div><div class="si-d">通过参与质量项目、企业实习积累工程经验，关注行业动态，为职业发展奠定基础。</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="pull" style="border-top:1.6px solid var(--ink);padding-top:5mm;font-size:13.5pt;line-height:1.9">
+        质量岗位是「入行门槛友好、成长路径清晰」的第一站——先入行，再成为骨干。
+        <div class="pull-src" style="margin-top:2mm">—— 编者按 · 其壹终</div>
+      </div>
+      <div class="note" style="margin-top:8mm">下一篇 · 其贰「新能源汽车设计工程师」—— 从整车设计到系统集成，页面 20。</div>
+    </div>
+    <div class="folio">— <b>19</b> —</div>
+  </div>
+</section>
+
+</main>
+</body>
+</html>

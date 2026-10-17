@@ -1,0 +1,17 @@
+[
+  {
+    "id": 1,
+    "prompt": "帮我们做一本产品目录，要送印刷厂的，中英双语",
+    "expected": "路由 D 模版；澄清文档类型/语言/主题/页数；写内容 JSON（bi 模式）；build --single；validate 0 错误；print-to-pdf + pdf_print_marks；提醒占位 logo/插图替换与价格核价铁律"
+  },
+  {
+    "id": 2,
+    "prompt": "我要一份 H13 模具钢的技术数据表，客户是德国的",
+    "expected": "识别 techdata + 外贸 bi 双语 + graphite 主题；成分/力学/热处理三张表用 D06/D07；文件控制页；交付 PDF 带 TrimBox；提醒技术数据须与正式文件一致、公司名全称"
+  },
+  {
+    "id": 3,
+    "prompt": "这本手册我直接微信发给客户行不行？",
+    "expected": "识别交付形态问题：目录版 html 必须连 fonts/ 打包否则掉字体；推荐 --single 单文件（1~2MB）或直接发送印 PDF；说明单文件依赖 fontTools、退化路径约 95MB"
+  }
+]

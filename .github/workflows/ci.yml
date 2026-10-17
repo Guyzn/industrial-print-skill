@@ -1,0 +1,72 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-and-validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Syntax check (all scripts)
+        run: |
+          for f in $(find . -name "*.mjs" -not -path "./.git/*"); do
+            node --check "$f" || exit 1
+          done
+          echo "mjs 语法全过"
+          python3 -m py_compile _shared/pdf_print_marks.py && echo "py 语法 OK"
+
+      - name: SKILL.md frontmatter
+        run: |
+          python3 - <<'PY'
+          import re, sys
+          s = open('SKILL.md', encoding='utf-8').read()
+          m = re.match(r'^---\n(.*?)\n---\n', s, re.S)
+          assert m, 'SKILL.md 缺 frontmatter'
+          fm = m.group(1)
+          assert re.search(r'^name:\s*\S', fm, re.M), 'frontmatter 缺 name'
+          assert re.search(r'^description:\s*\S', fm, re.M), 'frontmatter 缺 description'
+          print('frontmatter OK:', re.search(r'^name:\s*(\S+)', fm, re.M).group(1))
+          PY
+
+      # 不打 --single：CI 不装 fontTools，走目录版链路
+      - name: Build + validate D · catalog
+        run: |
+          mkdir -p dist
+          node templates/D-industrial/scripts/build.mjs \
+            templates/D-industrial/content/example-catalog.json dist/catalog.html
+          node templates/D-industrial/scripts/validate.mjs dist/catalog.html
+
+      - name: Build + validate D · techdata
+        run: |
+          node templates/D-industrial/scripts/build.mjs \
+            templates/D-industrial/content/example-techdata.json dist/techdata.html
+          node templates/D-industrial/scripts/validate.mjs dist/techdata.html
+
+      - name: Build + validate D · profile
+        run: |
+          node templates/D-industrial/scripts/build.mjs \
+            templates/D-industrial/content/example-profile.json dist/profile.html
+          node templates/D-industrial/scripts/validate.mjs dist/profile.html
+
+      - name: Build + validate B · editorial (education line)
+        run: |
+          node templates/B-editorial/scripts/build-magazine.mjs \
+            templates/B-editorial/content/example-xinnengyuan.json dist/magazine.html
+          node templates/B-editorial/scripts/validate-magazine.mjs dist/magazine.html
+
+      - name: Validate examples reference bundled fonts only
+        run: |
+          for f in dist/*.html; do
+            ext=$(grep -o 'url("\./fonts/[^"]*"' "$f" | wc -l)
+            echo "$f: 引用外挂字体 $ext 个"
+          done
+          grep -rl 'fonts.googleapis\|fonts.gstatic\|cdn\.' dist/ && exit 1 || echo "无外部字体/CDN 依赖"

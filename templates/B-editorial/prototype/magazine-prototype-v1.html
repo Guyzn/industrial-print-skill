@@ -1,0 +1,547 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>新能源汽车工程 · 职业发展手册（杂志编辑风原型）</title>
+<style>
+  /* ============================================================
+     模版 B · 杂志编辑风 — 关键页面成品原型（可送印水准）
+     物理规格与模版 A 同族：210×285 大16开，对开 420×285，
+     含 3mm 出血 → .spread 画布 432×291。四类关键页：
+       SPREAD 1  封面 + 本期导览（masthead 刊头 / cover lines / 目录）
+       SPREAD 2  章首引文（章节引言 + 大引文 + 眉脚系统）
+       SPREAD 3  数据/正文交错页（分栏正文 + 数据轨道 + 拉出表）
+       SPREAD 4  岗位结算页（岗位卡 + 页脚信息带）
+     风格锚点：刊头 masthead、期号角标、大引文 pull-quote、
+     分栏网格 + 发丝线、眉脚 folio、图文混排、杂志式大标题。
+     ============================================================ */
+
+  :root {
+    --bg: #f5f7fa;
+    --surface: #ffffff;
+    --fg: #16233b;
+    --muted: #5c6b82;
+    --border: #d7dde6;
+    --accent: #1f4e9a;
+    --accent-2: #5b8cc9;
+    --chart-1: var(--accent);
+    --chart-2: #a4773f;
+    --font: "MiSans", -apple-system, "PingFang SC", "Microsoft YaHei", "Noto Sans SC", "Helvetica Neue", Arial, sans-serif;
+    --disp: "Alibaba PuHuiTi 3", "MiSans", -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+    --bleed: 3mm;
+    --page-w: 210mm;
+    --page-h: 285mm;
+    --page-w-b: 216mm;
+    --page-h-b: 291mm;
+    --spread-w: 432mm;
+    --spread-h: 291mm;
+    --ink-top: 13mm;
+    --ink-outer: 12mm;
+    --ink-fold: 12mm;
+    --ink-bottom: 26mm;
+  }
+
+  @font-face { font-family: "MiSans"; src: url("../../../_shared/fonts/MiSans-Regular.ttf") format("truetype"); font-weight: 400; font-display: swap; }
+  @font-face { font-family: "MiSans"; src: url("../../../_shared/fonts/MiSans-Semibold.ttf") format("truetype"); font-weight: 600; font-display: swap; }
+  @font-face { font-family: "IBM Plex Mono"; src: url("../../../_shared/fonts/IBMPlexMono-Regular.woff2") format("woff2"); font-weight: 400; font-display: swap; }
+  @font-face { font-family: "Alibaba PuHuiTi 3"; src: url("../../../_shared/fonts/AlibabaPuHuiTi-3-55-Regular.woff2") format("woff2"); font-weight: 400; font-display: swap; }
+  @font-face { font-family: "Alibaba PuHuiTi 3"; src: url("../../../_shared/fonts/AlibabaPuHuiTi-3-65-Medium.woff2") format("woff2"); font-weight: 500; font-display: swap; }
+  @font-face { font-family: "Alibaba PuHuiTi 3"; src: url("../../../_shared/fonts/AlibabaPuHuiTi-3-85-Bold.woff2") format("woff2"); font-weight: 700; font-display: swap; }
+  @font-face { font-family: "Alibaba PuHuiTi 3"; src: url("../../../_shared/fonts/AlibabaPuHuiTi-3-95-ExtraBold.woff2") format("woff2"); font-weight: 800; font-display: swap; }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    background: #e8eaef;
+    color: var(--fg);
+    font-family: var(--font);
+    font-size: 10pt;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+  .stage {
+    width: max-content;
+    margin: 0 auto;
+    padding: 48px 0 120px;
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+  }
+  .spread {
+    position: relative;
+    width: var(--spread-w);
+    height: var(--spread-h);
+    background: var(--surface);
+    box-shadow: 0 12px 40px rgba(20, 30, 50, 0.14);
+    overflow: hidden;
+  }
+  .page {
+    position: absolute;
+    top: 0;
+    width: var(--page-w-b);
+    height: var(--page-h-b);
+    overflow: hidden;
+    background: var(--surface);
+  }
+  .page.left { left: 0; padding: var(--ink-top) var(--ink-fold) var(--ink-bottom) var(--ink-outer); }
+  .page.right { left: var(--page-w-b); padding: var(--ink-top) var(--ink-outer) var(--ink-bottom) var(--ink-fold); }
+
+  ::selection { background: rgba(31, 78, 154, 0.18); }
+
+  /* ============================================================
+     杂志编辑风组件 — masthead / kicker / folio / 引文 / 数据
+     ============================================================ */
+
+  .kicker {
+    font-family: var(--mono);
+    font-size: 8pt;
+    letter-spacing: 0.18em;
+    color: var(--accent);
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+  .kicker.muted { color: var(--muted); }
+  .ruled {
+    height: 1px;
+    background: var(--border);
+    border: none;
+  }
+  .ruled.thick { height: 3px; background: var(--accent); }
+
+  /* 大刊名 / 主体标题 */
+  .disp {
+    font-family: var(--disp);
+    font-weight: 800;
+    letter-spacing: 0.01em;
+    line-height: 1.28;
+  }
+  .disp.xl { font-size: 40pt; line-height: 1.3; }
+  .disp.lg { font-size: 27pt; line-height: 1.3; }
+  .disp.md { font-size: 20pt; line-height: 1.32; }
+
+  /* 引文块 pull-quote */
+  .pullquote {
+    border-left: 3px solid var(--accent);
+    padding: 0.6mm 0 0.6mm 7mm;
+  }
+  .pullquote .pq-cn {
+    font-family: var(--disp);
+    font-weight: 800;
+    font-size: 17pt;
+    line-height: 1.4;
+    color: var(--fg);
+    letter-spacing: 0;
+  }
+  .pullquote .pq-by {
+    font-family: var(--mono);
+    font-size: 7.5pt;
+    letter-spacing: 0.14em;
+    color: var(--muted);
+    margin-top: 4mm;
+  }
+
+  /* 眉脚 folio — 杂志式页码角标 */
+  .folio {
+    position: absolute;
+    bottom: 10mm;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-family: var(--mono);
+    font-size: 8pt;
+  }
+  .page.left .folio { left: var(--ink-outer); right: var(--ink-fold); flex-direction: row-reverse; }
+  .page.right .folio { left: var(--ink-fold); right: var(--ink-outer); }
+  .folio .fl-run { color: var(--muted); letter-spacing: 0.14em; }
+  .folio .fl-num { font-size: 11pt; color: var(--accent); font-weight: 700; }
+
+  .col-title {
+    display: flex;
+    align-items: baseline;
+    gap: 4mm;
+    padding-bottom: 2mm;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 5mm;
+  }
+  .col-title .ct-idx { font-family: var(--mono); font-size: 9pt; color: var(--accent); font-weight: 700; }
+  .col-title .ct-name { font-family: var(--mono); font-size: 8pt; letter-spacing: 0.14em; color: var(--muted); text-transform: uppercase; }
+
+  /* 正文分栏 — 杂志双栏 */
+  .body-col {
+    column-count: 2;
+    column-gap: 7mm;
+    column-rule: 1px solid var(--border);
+    text-align: justify;
+  }
+  .body-col p {
+    font-size: 9pt;
+    line-height: 1.85;
+    margin-bottom: 3mm;
+    text-indent: 2em;
+  }
+  .body-col p:first-of-type { text-indent: 0; }
+  .body-col p:first-of-type::first-letter {
+    font-family: var(--disp);
+    font-weight: 800;
+    font-size: 26pt;
+    float: left;
+    line-height: 0.9;
+    color: var(--accent);
+    padding-right: 2mm;
+    padding-top: 1mm;
+  }
+
+  /* 数据轨道 — 值全部由 --v/--max 计算 */
+  .track { margin-top: 1mm; }
+  .track-row { margin-bottom: 3.2mm; }
+  .track-row .tr-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 1.2mm;
+  }
+  .track-row .tr-head .tr-label { font-size: 8.5pt; color: var(--fg); font-weight: 600; }
+  .track-row .tr-head .tr-val { font-family: var(--mono); font-size: 8.5pt; color: var(--accent); font-weight: 700; }
+  .track-bar {
+    width: 100%;
+    height: 2.4mm;
+    background: #eef1f6;
+    position: relative;
+  }
+  .track-bar .tb-fill {
+    position: absolute;
+    left: 0; top: 0; height: 100%;
+    width: var(--v, 0);
+    background: var(--chart-1);
+  }
+
+  /* 拉出数据表 */
+  .xtable { border-collapse: collapse; width: 100%; }
+  .xtable th, .xtable td {
+    border-bottom: 1px solid var(--border);
+    padding: 2.4mm 0;
+    text-align: left;
+    font-size: 8.5pt;
+    vertical-align: top;
+  }
+  .xtable th { font-family: var(--mono); font-size: 7.5pt; letter-spacing: 0.1em; color: var(--muted); font-weight: 400; border-bottom: 2px solid var(--fg); }
+  .xtable td.num, .xtable th.num { text-align: right; font-family: var(--mono); }
+  .xtable .tot td { font-weight: 700; border-top: 2px solid var(--fg); border-bottom: none; }
+
+  /* 岗位卡 */
+  .job-col { display: flex; flex-direction: column; gap: 5mm; }
+  .job-card {
+    border: 1px solid var(--border);
+    border-top: 3px solid var(--accent);
+    padding: 5mm 6mm;
+  }
+  .job-card .jc-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 3mm; }
+  .job-card .jc-head .jc-name { font-family: var(--disp); font-weight: 700; font-size: 15pt; line-height: 1.3; }
+  .job-card .jc-head .jc-tag { font-family: var(--mono); font-size: 7.5pt; letter-spacing: 0.1em; color: var(--accent); }
+  .job-card .jc-row { display: flex; gap: 8mm; margin-top: 2mm; }
+  .job-card .jc-row .jc-item { flex: 1; }
+  .job-card .jc-row .jc-item .ji-k { font-family: var(--mono); font-size: 7pt; letter-spacing: 0.12em; color: var(--muted); margin-bottom: 1mm; }
+  .job-card .jc-row .jc-item .ji-v { font-size: 8.5pt; line-height: 1.55; }
+
+  /* 封面 masthead */
+  .masthead {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 0 0 2.5mm;
+    border-bottom: 3px solid var(--fg);
+  }
+  .masthead .mh-name {
+    font-family: var(--disp);
+    font-weight: 800;
+    font-size: 13pt;
+    letter-spacing: 0.12em;
+    color: var(--fg);
+  }
+  .masthead .mh-iss { font-family: var(--mono); font-size: 8pt; letter-spacing: 0.14em; color: var(--muted); }
+  .cover-module {
+    border-top: 1px solid var(--border);
+    padding: 3mm 0;
+  }
+  .cover-module .cm-k { font-family: var(--mono); font-size: 7.5pt; letter-spacing: 0.16em; color: var(--muted); text-transform: uppercase; }
+  .cover-module .cm-v { font-family: var(--disp); font-weight: 800; font-size: 16pt; line-height: 1.3; color: var(--fg); margin-top: 1mm; }
+  .cover-module .cm-v small { display: block; font-family: var(--font); font-weight: 400; font-size: 8.5pt; color: var(--muted); line-height: 1.6; margin-top: 1.5mm; }
+  .cover-module .cm-tags { display: flex; gap: 2.5mm; margin-top: 2mm; flex-wrap: wrap; }
+  .cover-module .cm-tags span { font-family: var(--mono); font-size: 7pt; letter-spacing: 0.1em; color: var(--accent); border: 1px solid var(--border); padding: 1mm 2.5mm; background: var(--surface); }
+
+  /* 章首 */
+  .spread.divider { background: var(--accent); }
+  .spread.divider .page { background: transparent; color: #ffffff; }
+  .divider-inner {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+  .divider-inner .dv-kicker { font-family: var(--mono); font-size: 9pt; letter-spacing: 0.2em; color: rgba(255,255,255,0.75); text-transform: uppercase; }
+  .divider-inner .dv-num {
+    font-family: var(--disp);
+    font-weight: 800;
+    font-size: 110pt;
+    line-height: 0.95;
+    color: rgba(255,255,255,0.16);
+    position: absolute;
+    top: 0;
+    right: 0;
+  }
+  .divider-inner .dv-title {
+    font-family: var(--disp);
+    font-weight: 800;
+    font-size: 34pt;
+    line-height: 1.3;
+  }
+  .divider-inner .dv-sub { color: rgba(255,255,255,0.85); font-size: 10pt; line-height: 1.8; }
+
+  .kv-rule { width: 100%; background: rgba(255,255,255,0.35); height: 1px; }
+
+  /* 图片占位（示意图位，原型用色块+字标注；正式模板接图自动替换） */
+  .img-placeholder {
+    background: #dfe6f0;
+    border: 1px dashed #a7b4c6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--mono);
+    font-size: 7.5pt;
+    letter-spacing: 0.14em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+</style>
+</head>
+<body>
+<div class="stage">
+
+  <!-- ================= SPREAD 1 · 封面 + 本期导览 ================= -->
+  <section class="spread" data-od-id="spread-cover" id="sp-cover">
+
+    <!-- 左页：封面 -->
+    <div class="page left" data-layout="M01" data-od-id="page-cover">
+      <div class="masthead">
+        <span class="mh-name">新能源汽车工程 · 职业发展手册</span>
+        <span class="mh-iss">VOL.2026 · ISSUE 01</span>
+      </div>
+
+      <div style="margin-top: 12mm;">
+        <div class="kicker">SCROLL OF CAREER · 2026</div>
+        <h1 class="disp xl" style="margin-top: 5mm; margin-bottom: 3mm;">从课堂到产业<br />如何找到你的路</h1>
+        <p style="font-size: 10pt; color: var(--muted); line-height: 1.8; max-width: 60%;">
+          一本写给新能源跨车工程专业学生的行业与职业地图：领域、岗位、数据与路径。
+        </p>
+      </div>
+
+      <div style="margin-top: 10mm;">
+        <div class="cover-module">
+          <div class="cm-k">FOCUS · 本期聚焦</div>
+          <div class="cm-v">6 大岗位方向 · 12 段式职业路径</div>
+          <div class="cm-tags"><span>整车研发</span><span>动力电池</span><span>电驱系统</span><span>智能座舱</span><span>自动驾驶</span><span>服务与营销</span></div>
+        </div>
+        <div class="cover-module">
+          <div class="cm-k">DATA · 行业速览</div>
+          <div class="cm-v">汽车产业加速电动化<small>2025 年新能源汽车渗透率持续攀升，整车与零部件人才需求结构性打开。</small></div>
+        </div>
+      </div>
+
+      <div style="position: absolute; left: var(--ink-outer); right: var(--ink-fold); bottom: 12mm;">
+        <hr class="ruled thick" />
+        <div style="display: flex; justify-content: space-between; margin-top: 3mm; font-family: var(--mono); font-size: 7.5pt; letter-spacing: 0.12em; color: var(--muted);">
+          <span>某理工大学 · 智能工程学院 · 编</span>
+          <span>P.01</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 右页：本期导览 -->
+    <div class="page right" data-layout="M02" id="page-toc" data-od-id="page-toc">
+      <div class="kicker">IN THIS ISSUE · 本期导览</div>
+      <h2 class="disp lg" style="margin-top: 4mm;">目录</h2>
+      <hr class="ruled" style="margin: 5mm 0;" />
+
+      <table class="xtable">
+        <tr><td class="num" style="width: 14mm;"><span style="font-family: var(--mono); color: var(--accent); font-weight: 700;">01</span></td><td><b>行业与职业图景</b><br /><span style="color: var(--muted);">产业现状 / 六大方向 / 需求结构</span></td></tr>
+        <tr><td class="num"><span style="font-family: var(--mono); color: var(--accent); font-weight: 700;">02</span></td><td><b>岗位全景速览</b><br /><span style="color: var(--muted);">研发 · 电池 · 电驱 · 座舱 · 智驾 · 服务</span></td></tr>
+        <tr><td class="num"><span style="font-family: var(--mono); color: var(--accent); font-weight: 700;">03</span></td><td><b>就业与薪酬数据</b><br /><span style="color: var(--muted);">去向统计 / 薪酬区间 / 城市分布</span></td></tr>
+        <tr><td class="num"><span style="font-family: var(--mono); color: var(--accent); font-weight: 700;">04</span></td><td><b>成长路径与能力清单</b><br /><span style="color: var(--muted);">贯通培养 / 技能标签 / 证书竞赛</span></td></tr>
+        <tr><td class="num"><span style="font-family: var(--mono); color: var(--accent); font-weight: 700;">05</span></td><td><b>附录：信息核对与索引</b><br /><span style="color: var(--muted);">就业单位 / 术语速查 / 页面索引</span></td></tr>
+      </table>
+
+      <div class="pullquote" style="margin-top: 9mm;">
+        <div class="pq-cn">选择行业，本质是选择它未来十年的加速度。</div>
+        <div class="pq-by">— 编者手记</div>
+      </div>
+
+      <div class="folio"><span class="fl-run">新能源跨车工程 · 2026</span><span class="fl-num">02</span></div>
+    </div>
+
+    <!-- 对开底部色条 -->
+    <div class="spread-bar" style="position: absolute; left: var(--ink-outer); right: var(--ink-outer); bottom: var(--bleed); height: 10px; background: var(--fg);"></div>
+
+  </section>
+
+  <!-- ================= SPREAD 2 · 章首引文 ================= -->
+  <section class="spread divider" data-od-id="spread-part1" id="sp-part1">
+    <div class="page left" data-layout="M03" style="background: transparent;">
+      <div class="divider-inner" style="position: relative;">
+        <span class="dv-num" style="left: var(--ink-outer);">01</span>
+        <div style="margin-top: auto; position: relative; z-index: 1;">
+          <div class="dv-kicker">PART 01 · OVERVIEW</div>
+          <div class="dv-title" style="margin-top: 5mm;">行业与<br />职业图景</div>
+          <div class="dv-sub" style="margin-top: 6mm; max-width: 75mm;">新能源汽车从产品创新转向体系化竞争，产业链对人才的需求正在从「够用」走向「要强」。</div>
+          <div class="kv-rule" style="margin-top: 8mm;"></div>
+        </div>
+      </div>
+    </div>
+    <div class="page right" data-layout="M04" style="background: transparent;">
+      <div class="divider-inner">
+        <div style="margin-top: 26mm; position: relative; z-index: 1;">
+          <div class="pullquote" style="border-color: rgba(255,255,255,0.7);">
+            <div class="pq-cn" style="color:#ffffff; font-size: 22pt; line-height: 1.45;">
+              一辆车的边界在缩小，<br />一代人的赛道在扩宽。
+            </div>
+            <div class="pq-by" style="color: rgba(255,255,255,0.65);">— 导语 · 行业与职业图景</div>
+          </div>
+          <p style="color: rgba(255,255,255,0.85); font-size: 9.5pt; line-height: 1.85; margin-top: 8mm; max-width: 78mm;">
+            本章先回答两个问题：这个行业在往哪里走？结构性增长最陡峭的岗位在哪里？
+            六张图与一组数据给出轮廓，正文详述每一类岗位的职责、能力与薪资锚。
+          </p>
+        </div>
+        <div class="folio" style="color: rgba(255,255,255,0.7);"><span class="fl-run" style="color: rgba(255,255,255,0.55);">PART 01 · 行业与职业图景</span><span style="font-size: 11pt; color: #ffffff; font-weight: 700;">03</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= SPREAD 3 · 数据 / 正文交错页 ================= -->
+  <section class="spread" data-od-id="spread-data" id="sp-data">
+
+    <div class="page left" data-layout="M05" id="pg-data-left">
+      <div class="col-title"><span class="ct-idx">03</span><span class="ct-name">就业与薪酬数据 · 就业去向</span></div>
+
+      <div class="body-col">
+        <p>就业质量的核心指标是去向结构。以 2025 届本科毕业生为样本，升学（境内境外合计）与直接就业的比例约为三七开；直接就业中，进入整车与核心零部件环节的比例过半，反映出专业培养方向与产业链岗位的高度咬合。</p>
+        <p>结构之外更值得关注的是动线。新能源产业链上游材料、中游制造、下游服务的人才流动性逐年加快，三年内更换岗位类型的学生占比接近四成——这既是行业扩张的信号，也是个人路径规划的起点。</p>
+        <p>因此本章给出三组「用数据锚定」的判断：去向构成、岗位薪酬、城市分布。每张图表都由同一套口径计算，数值可回溯。</p>
+      </div>
+
+      <div class="pullquote" style="margin-top: 4mm;">
+        <div class="pq-cn">升学与直就业三七开，产业链就业过半。</div>
+        <div class="pq-by">— 就业去向数据 · 2025 届</div>
+      </div>
+
+      <div class="track" style="margin-top: 6mm;">
+        <div style="font-family: var(--mono); font-size: 7.5pt; letter-spacing: 0.14em; color: var(--muted); margin-bottom: 3mm;">毕业去向构成 · 2025 届本科</div>
+        <div class="track-row"><div class="tr-head"><span class="tr-label">升学（境内读研）</span><span class="tr-val">21%</span></div><div class="track-bar"><div class="tb-fill" style="--v: 21%;"></div></div></div>
+        <div class="track-row"><div class="tr-head"><span class="tr-label">升学（境外深造）</span><span class="tr-val">9%</span></div><div class="track-bar"><div class="tb-fill" style="--v: 9%;"></div></div></div>
+        <div class="track-row"><div class="tr-head"><span class="tr-label">直接就业 · 产业链</span><span class="tr-val">52%</span></div><div class="track-bar"><div class="tb-fill" style="--v: 52%;"></div></div></div>
+        <div class="track-row"><div class="tr-head"><span class="tr-label">灵活就业及其他</span><span class="tr-val">18%</span></div><div class="track-bar"><div class="tb-fill" style="--v: 18%;"></div></div></div>
+      </div>
+
+      <div class="folio"><span class="fl-run">PART 03 · 就业与薪酬数据</span><span class="fl-num">05</span></div>
+    </div>
+
+    <div class="page right" data-layout="M06" id="pg-data-right">
+      <div class="col-title"><span class="ct-idx">03</span><span class="ct-name">岗位薪酬锚 · 毕业生起薪区间</span></div>
+
+      <table class="xtable" style="margin-bottom: 6mm;">
+        <tr><th>岗位方向</th><th class="num">应届起薪 / 月</th><th class="num">3 年区间</th></tr>
+        <tr><td>整车 · 整车集成</td><td class="num">9–13k</td><td class="num">15–24k</td></tr>
+        <tr><td>动力电池 · 电池系统</td><td class="num">10–15k</td><td class="num">16–26k</td></tr>
+        <tr><td>电驱 · 电控系统</td><td class="num">10–14k</td><td class="num">17–27k</td></tr>
+        <tr><td>智能座舱</td><td class="num">11–16k</td><td class="num">18–28k</td></tr>
+        <tr><td>自动驾驶</td><td class="num">12–18k</td><td class="num">20–32k</td></tr>
+        <tr><td>服务与营销</td><td class="num">8–11k</td><td class="num">12–20k</td></tr>
+        <tr class="tot"><td>全方向中位数</td><td class="num">11k</td><td class="num">19k</td></tr>
+      </table>
+
+      <div class="body-col">
+        <p>薪酬数据只是参考系，不是结论。它背后的信息是产业结构：智能座舱与自动驾驶偏向软件与算法，起薪与三年涨幅都处于序列上沿；服务与营销进入门槛低、样本量大，为孩子职业数字化技能留出了转向空间。</p>
+      </div>
+
+      <div class="pullquote" style="margin-top: 4mm;">
+        <div class="pq-cn">看薪酬，更要看它背后的产业链结构。</div>
+        <div class="pq-by">— 编者按</div>
+      </div>
+
+      <div class="folio"><span class="fl-run">PART 03 · 就业与薪酬数据</span><span class="fl-num">06</span></div>
+    </div>
+
+  </section>
+
+  <!-- ================= SPREAD 4 · 岗位结算页 ================= -->
+  <section class="spread" data-od-id="spread-jobs" id="sp-jobs">
+
+    <div class="page left" data-layout="M07">
+      <div class="col-title"><span class="ct-idx">04</span><span class="ct-name">成长路径与能力清单 · 岗位卡</span></div>
+
+      <div class="job-col">
+        <div class="job-card">
+          <div class="jc-head"><span class="jc-name">整车集成工程师</span><span class="jc-tag">JOB · 01</span></div>
+          <div class="jc-row">
+            <div class="jc-item"><div class="ji-k">核心职责</div><div class="ji-v">整车布置、平台架构、性能目标分解与集成验证</div></div>
+            <div class="jc-item"><div class="ji-k">能力标签</div><div class="ji-v">机械基础 · CAE 分析 · 跨专业协调</div></div>
+          </div>
+        </div>
+        <div class="job-card">
+          <div class="jc-head"><span class="jc-name">动力电池系统工程师</span><span class="jc-tag">JOB · 02</span></div>
+          <div class="jc-row">
+            <div class="jc-item"><div class="ji-k">核心职责</div><div class="ji-v">电芯选型、成组结构、热管理与安全设计</div></div>
+            <div class="jc-item"><div class="ji-k">能力标签</div><div class="ji-v">电化学 · 结构设计 · BMS 逻辑</div></div>
+          </div>
+        </div>
+        <div class="job-card">
+          <div class="jc-head"><span class="jc-name">电驱电控工程师</span><span class="jc-tag">JOB · 03</span></div>
+          <div class="jc-row">
+            <div class="jc-item"><div class="ji-k">核心职责</div><div class="ji-v">电机本体、控制器硬件与软件调试</div></div>
+            <div class="jc-item"><div class="ji-k">能力标签</div><div class="ji-v">电力电子 · 嵌入式 · 电磁设计</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="folio"><span class="fl-run">PART 04 · 成长路径与能力清单</span><span class="fl-num">07</span></div>
+    </div>
+
+    <div class="page right" data-layout="M08">
+      <div class="col-title"><span class="ct-idx">04</span><span class="ct-name">岗位一览 · 与课程呼应</span></div>
+
+      <table class="xtable">
+        <tr><th>岗位方向</th><th>对口课程</th><th class="num">岗位需求量</th></tr>
+        <tr><td>整车集成</td><td>汽车构造 / 汽车理论 / CAD 工程</td><td class="num">持续增长</td></tr>
+        <tr><td>动力电池</td><td>化学电源 / 电池系统设计</td><td class="num">高速增长</td></tr>
+        <tr><td>电驱电控</td><td>电力电子 / 电机与拖动</td><td class="num">高速增长</td></tr>
+        <tr><td>智能座舱</td><td>嵌入式 / 人机交互 / 软件工程</td><td class="num">高速增长</td></tr>
+        <tr><td>自动驾驶</td><td>机器学习 / 传感器 / 控制理论</td><td class="num">高速增长</td></tr>
+        <tr><td>服务与营销</td><td>营销学 / 客户关系管理</td><td class="num">平稳</td></tr>
+      </table>
+
+      <div class="img-placeholder" style="margin-top: 6mm; height: 34mm;">IMAGE · 岗位场景图位</div>
+
+      <div style="margin-top: 6mm; border-top: 1px solid var(--border); padding-top: 3mm;">
+        <div style="font-family: var(--mono); font-size: 7.5pt; letter-spacing: 0.14em; color: var(--muted);">READ MORE · 延伸阅读</div>
+        <p style="font-size: 9pt; line-height: 1.8; margin-top: 2mm;">详细岗位说明书与 12 段式职业路径请见本册第二部分；术语速查与就业信息来源见附录。</p>
+      </div>
+
+      <div class="folio"><span class="fl-run">PART 04 · 成长路径与能力清单</span><span class="fl-num">08</span></div>
+    </div>
+
+    <div class="spread-bar" style="position: absolute; left: var(--ink-outer); right: var(--ink-outer); bottom: var(--bleed); height: 10px; background: var(--fg);"></div>
+
+  </section>
+
+</div>
+
+<script>
+  /* 可视锚点导航：右上角悬浮目录（原型仅示意，正式模板同机制） */
+  const spreads = [...document.querySelectorAll('.spread')];
+  const labels = ['封面 · 导览', '章首 · 01 行业图景', '数据 · 03 就业薪酬', '岗位 · 04 能力清单'];
+  const nav = document.createElement('nav');
+  nav.style.cssText = 'position:fixed;top:16px;right:16px;background:rgba(255,255,255,0.94);border:1px solid #d7dde6;border-radius:6px;padding:4px 10px;font:12px "IBM Plex Mono",monospace;z-index:99;line-height:2;box-shadow:0 2px 10px rgba(20,30,50,.1)';
+  nav.innerHTML = '<div style="font-size:10px;color:#5c6b82;letter-spacing:.12em">MAGAZINE PROTOTYPE</div>' + labels.map((l, i) => `<a href="#${spreads[i].id}" style="display:block;color:#16233b;text-decoration:none">${String(i + 1).padStart(2, '0')} · ${l}</a>`).join('');
+  document.body.appendChild(nav);
+</script>
+</body>
+</html>

@@ -1,0 +1,258 @@
+{
+  "meta": {
+    "std": "0.2",
+    "doc": "profile",
+    "lang": "bi",
+    "theme": "steel-blue",
+    "paper": "a4",
+    "doc_no": "EX-PROF-2026-01",
+    "year": "2026",
+    "title": { "zh": "企业介绍", "en": "Company Profile" },
+    "company": { "zh": "示例特钢有限公司", "en": "Example Special Steel Co., Ltd." },
+    "org_line": { "zh": "模具钢 · 特种合金 · 英制规格 · 全球交付", "en": "Tool & special steels · imperial sizes · worldwide delivery" },
+    "logo": "images/logo-placeholder.svg",
+    "footer": "EXAMPLE SPECIAL STEEL · EX-PROF-2026-01",
+    "toc_title": { "zh": "目录", "en": "Contents" },
+    "cover": {
+      "kind": { "zh": "企业介绍", "en": "Company Profile" },
+      "title": { "zh": "示例特钢\n企业介绍", "en": "Example Special Steel\nCompany Profile" },
+      "sub": {
+        "zh": "专注特殊钢外贸：模具钢与特种合金，英制规格与全套认证文件交付。",
+        "en": "Special-steel trading house: tool and special alloy steels, imperial sizing, fully documented delivery."
+      },
+      "stats": [
+        { "v": "HK", "label": { "zh": "签约主体", "en": "Contracting entity" } },
+        { "v": "锻造", "label": { "zh": "自有产能", "en": "Own forging capacity" } },
+        { "v": "AMS/EN", "label": { "zh": "标准覆盖", "en": "Standards covered" } },
+        { "v": "30+", "label": { "zh": "出口国家", "en": "Export markets" } }
+      ]
+    }
+  },
+  "note": "本文件为版式演示示例，公司数据为占位内容，正式企业介绍须经 Guy 审核后使用。",
+  "sections": [
+    {
+      "id": "p1",
+      "no": "01",
+      "title": { "zh": "我们是谁", "en": "Who We Are" },
+      "title_en": "Who We Are",
+      "lede": {
+        "zh": "示例公司是一家专注特殊钢的贸易公司：只做模具钢与特种合金，不做建筑用钢。",
+        "en": "Example Steel is a special-steel trading house: tool and special alloy steels only — no construction steel."
+      },
+      "spreads": [
+        {
+          "id": "sp-pf-image",
+          "layout": "D10",
+          "side": "both",
+          "blocks": [
+            {
+              "type": "image",
+              "mode": "full",
+              "src": "images/placeholder-wide.svg",
+              "no": "FIG.01",
+              "caption": {
+                "zh": "锻造生产线（示意图，送印前替换为实拍图 ≥300dpi 全出血）",
+                "en": "Forging line (placeholder — replace with on-site photo ≥300dpi full bleed before printing)"
+              }
+            }
+          ]
+        },
+        {
+          "id": "sp-pf-text",
+          "layout": "D04",
+          "side": "both",
+          "blocks": [
+            {
+              "type": "text",
+              "cols": 2,
+              "title": { "zh": "定位与边界", "en": "Positioning & Boundaries" },
+              "paras": [
+                {
+                  "zh": "我们把资源集中在一件事上：特殊钢。模具钢、特种合金、航空与结构合金，按英制或公制规格交付，附带全套认证文件。建筑用钢出口税负没有优势，我们不做。",
+                  "en": "We concentrate on one thing: special steels. Tool, special, aero and structural alloys, delivered in imperial or metric sizes with full documentation. Construction steel carries no export advantage — we do not trade it."
+                },
+                {
+                  "zh": "差异化不在价格。英制规格在中国钢材市场是一道裂缝，多数钢厂以公制为默认生产语言；稳定供应英制尺寸加冷轧表面，需要单独的排产与公差控制能力。",
+                  "en": "The differentiator is not price. Imperial sizing is a crack in the Chinese steel market: most mills default to metric. Stable imperial supply with cold-rolled finish requires dedicated scheduling and tolerance control."
+                },
+                {
+                  "zh": "客户买的不是公差，是确定感。文件怎么写，货就怎么交；这一条没有商量余地。",
+                  "en": "Customers buy certainty, not tolerance. The documents match the goods. This is not negotiable."
+                }
+              ],
+              "pull": {
+                "q": { "zh": "777 件标准件询盘，不值一个知道该把 9310 卖给谁的大脑。", "en": "Seven hundred commodity RFQs are worth less than one mind that knows who needs 9310." },
+                "who": { "zh": "经营口径", "en": "Operating principle" }
+              }
+            }
+          ]
+        },
+        {
+          "id": "sp-pf-stats",
+          "layout": "D11",
+          "side": "both",
+          "blocks": [
+            {
+              "type": "stats",
+              "cols": 4,
+              "title": { "zh": "关键数字", "en": "Key Figures" },
+              "cells": [
+                { "v": "HK", "label": { "zh": "香港签约主体", "en": "HK contracting entity" } },
+                { "v": "江苏", "label": { "zh": "锻造工厂所在地", "en": "Forging plant location" } },
+                { "v": "≥4", "label": { "zh": "锻造比下限", "en": "Min. forging ratio" } },
+                { "v": "100%", "label": { "zh": "随货 MTC 覆盖率", "en": "MTC coverage" } }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "p2",
+      "no": "02",
+      "title": { "zh": "能力与产能", "en": "Capability & Capacity" },
+      "title_en": "Capability",
+      "lede": {
+        "zh": "贸易前端 + 锻造后端。前端管询价、核价、单据与交付；后端保熔炼、锻制与热处理。",
+        "en": "Trading front end plus forging back end: the front handles enquiry, costing, documentation and delivery; the back secures melting, forging and heat treatment."
+      },
+      "spreads": [
+        {
+          "id": "sp-pf-flow",
+          "layout": "D08",
+          "side": "both",
+          "blocks": [
+            {
+              "type": "flow",
+              "dir": "h",
+              "title": { "zh": "交付链路", "en": "Delivery Chain" },
+              "steps": [
+                {
+                  "title": { "zh": "询价与核价", "en": "Enquiry & costing" },
+                  "desc": { "zh": "仓库/采购内部核价后出正式报价", "en": "Formal quotation after internal verification" }
+                },
+                {
+                  "title": { "zh": "订单与 PI", "en": "Order & PI" },
+                  "desc": { "zh": "条款、交期、收款方式锁定", "en": "Terms, lead time and payment locked" }
+                },
+                {
+                  "title": { "zh": "熔炼与锻制", "en": "Melting & forging" },
+                  "desc": { "zh": "LF+VD 或 ESR，锻造比 ≥ 4", "en": "LF+VD or ESR, forging ratio ≥ 4" }
+                },
+                {
+                  "title": { "zh": "热处理", "en": "Heat treatment" },
+                  "desc": { "zh": "退火/调质，炉次记录留档", "en": "Annealing / Q&T, batch records kept" }
+                },
+                {
+                  "title": { "zh": "检测与单据", "en": "Testing & documents" },
+                  "desc": { "zh": "MTC / 3.1 / UT / MT 全套", "en": "MTC / 3.1 / UT / MPI package" }
+                },
+                {
+                  "title": { "zh": "出口交付", "en": "Export delivery" },
+                  "desc": { "zh": "报关、海运、单证闭环", "en": "Customs, shipping, documentation closed" }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "sp-pf-certs",
+          "layout": "D12",
+          "side": "both",
+          "blocks": [
+            {
+              "type": "certs",
+              "title": { "zh": "随货文件与资质", "en": "Documents & Qualifications" },
+              "cells": [
+                { "code": "MTC", "name": { "zh": "材料测试证书", "en": "Mill Test Certificate" } },
+                { "code": "3.1", "name": { "zh": "EN 10204 3.1", "en": "EN 10204 3.1" } },
+                { "code": "UT", "name": { "zh": "超声波检测", "en": "Ultrasonic testing" } },
+                { "code": "MT", "name": { "zh": "磁粉检测", "en": "Magnetic particle" } },
+                { "code": "PMI", "name": { "zh": "光谱验证", "en": "Spectro verification" } },
+                { "code": "SGS", "name": { "zh": "第三方验货", "en": "Third-party inspection" } },
+                { "code": "原产地", "name": { "zh": "CO / FORM", "en": "CO / FORM" } },
+                { "code": "报关", "name": { "zh": "出口报关文件", "en": "Export customs docs" } }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "p3",
+      "no": "03",
+      "title": { "zh": "历程与联系", "en": "Milestones & Contact" },
+      "title_en": "Milestones & Contact",
+      "spreads": [
+        {
+          "id": "sp-pf-tl",
+          "layout": "D13",
+          "side": "both",
+          "blocks": [
+            {
+              "type": "timeline",
+              "title": { "zh": "发展历程", "en": "Milestones" },
+              "events": [
+                {
+                  "yr": "—",
+                  "title": { "zh": "公司成立（示例占位）", "en": "Company founded (placeholder)" },
+                  "desc": { "zh": "以模具钢贸易起步，聚焦珠三角客户。", "en": "Started as a tool-steel trader serving the Pearl River Delta." }
+                },
+                {
+                  "yr": "—",
+                  "title": { "zh": "香港签约主体设立（示例占位）", "en": "HK contracting entity (placeholder)" },
+                  "desc": { "zh": "对外签约与收款统一走香港主体。", "en": "External contracting and collection consolidated under the HK entity." }
+                },
+                {
+                  "yr": "—",
+                  "title": { "zh": "江苏锻造工厂（示例占位）", "en": "Jiangsu forging plant (placeholder)" },
+                  "desc": { "zh": "向后端延伸，掌握熔炼与锻制环节。", "en": "Extended upstream to control melting and forging." }
+                },
+                {
+                  "yr": "—",
+                  "title": { "zh": "特种合金线（示例占位）", "en": "Special alloy line (placeholder)" },
+                  "desc": { "zh": "从模具钢扩展到航空与结构合金。", "en": "Expanded from tool steel into aero and structural alloys." }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "sp-pf-contact",
+          "layout": "D14",
+          "side": "both",
+          "blocks": [
+            {
+              "type": "contact",
+              "title": { "zh": "联系我们", "en": "Contact Us" },
+              "cols": [
+                {
+                  "title": { "zh": "商务联系", "en": "Commercial Contact" },
+                  "rows": [
+                    { "k": "NAME", "v": { "zh": "李明", "en": "Li Ming" } },
+                    { "k": "TITLE", "v": { "zh": "贸易经理", "en": "Trade Manager" } },
+                    { "k": "EMAIL", "v": "sales@example.com" },
+                    { "k": "WEB", "v": "www.example.com" },
+                    { "k": "TEL", "v": "+86-000 0000 0000" }
+                  ]
+                },
+                {
+                  "title": { "zh": "地址", "en": "Address" },
+                  "rows": [
+                    { "k": "CN", "v": { "zh": "广东省某市某区示例路 1 号", "en": "No. 1 Example Rd., Some District, Guangdong, China" } },
+                    { "k": "PLANT", "v": { "zh": "某省锻造工厂（示例）", "en": "Forging plant (example)" } },
+                    { "k": "HK", "v": { "zh": "Example Special Steel Co., Ltd.", "en": "Example Special Steel Co., Ltd." } }
+                  ]
+                }
+              ],
+              "sign": {
+                "name": { "zh": "Example Special Steel Co., Ltd.", "en": "Example Special Steel Co., Ltd." },
+                "line": { "zh": "本企业介绍为示例文件，正式版以 Guy 审核签发的版本为准。", "en": "Sample profile document; the released version prevails as signed off by Guy." }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

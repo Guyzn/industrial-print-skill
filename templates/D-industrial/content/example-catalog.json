@@ -1,0 +1,942 @@
+{
+  "meta": {
+    "std": "0.2",
+    "doc": "catalog",
+    "lang": "bi",
+    "theme": "steel-blue",
+    "paper": "a4",
+    "doc_no": "EX-CAT-2026-01",
+    "year": "2026",
+    "title": {
+      "zh": "特种合金产品目录",
+      "en": "Special Alloy Product Catalogue"
+    },
+    "company": {
+      "zh": "示例特钢有限公司",
+      "en": "Example Special Steel Co., Ltd."
+    },
+    "logo": "images/logo-placeholder.svg",
+    "footer": "EXAMPLE SPECIAL STEEL · EX-CAT-2026-01",
+    "toc_title": {
+      "zh": "目录",
+      "en": "Contents"
+    },
+    "cover": {
+      "kind": {
+        "zh": "产品目录",
+        "en": "Product Catalogue"
+      },
+      "title": {
+        "zh": "特种合金\n产品目录",
+        "en": "Special Alloys\nProduct Catalogue"
+      },
+      "sub": {
+        "zh": "模具钢与特种合金 · 英制规格 · 冷轧交付 · 全套认证文件",
+        "en": "Tool & special steels · imperial sizes · cold-rolled delivery · full certification"
+      },
+      "stats": [
+        {
+          "v": "AMS",
+          "label": {
+            "zh": "航空标准",
+            "en": "Aerospace specs"
+          }
+        },
+        {
+          "v": "EN/AISI",
+          "label": {
+            "zh": "欧标/美标",
+            "en": "Euro / US grades"
+          }
+        },
+        {
+          "v": "UT+MT",
+          "label": {
+            "zh": "超声+磁粉",
+            "en": "Ultrasonic + MPI"
+          }
+        },
+        {
+          "v": "FOB/CIF",
+          "label": {
+            "zh": "全球交付",
+            "en": "Worldwide"
+          }
+        }
+      ]
+    },
+    "org_line": {
+      "zh": "模具钢 · 特种合金 · 英制规格 · 全球交付",
+      "en": "Tool & special steels · imperial sizes · worldwide delivery"
+    }
+  },
+  "note": "本文件为版式演示示例，牌号与数据取自公开标准口径，非报价单；正式目录数据须经仓库/采购核价后填入。",
+  "sections": [
+    {
+      "id": "s1",
+      "no": "01",
+      "title": {
+        "zh": "牌号总览",
+        "en": "Grade Overview"
+      },
+      "title_en": "Grade Overview",
+      "lede": {
+        "zh": "覆盖热作、冷作、塑料模具钢与航空/结构合金四大类，全部支持英制规格与冷轧表面交付。",
+        "en": "Hot-work, cold-work, plastic mould steels and aero/structural alloys — all available in imperial sizes with cold-rolled finish."
+      },
+      "guide": [
+        {
+          "no": "01",
+          "title": {
+            "zh": "牌号总览",
+            "en": "Grade Overview"
+          }
+        },
+        {
+          "no": "02",
+          "title": {
+            "zh": "规格与交付形态",
+            "en": "Sizes & Delivery"
+          }
+        }
+      ],
+      "spreads": [
+        {
+          "id": "sp-grades-1",
+          "layout": "D05",
+          "side": "both",
+          "blocks": [
+            {
+              "type": "grades",
+              "cols": 3,
+              "cards": [
+                {
+                  "code": "H13",
+                  "code_en": "AISI H13 / 1.2344",
+                  "name": {
+                    "zh": "热作模具钢",
+                    "en": "Hot-work tool steel"
+                  },
+                  "rows": [
+                    [
+                      "标准",
+                      {
+                        "zh": "ASTM A681",
+                        "en": "ASTM A681"
+                      }
+                    ],
+                    [
+                      "近似牌号",
+                      {
+                        "zh": "4Cr5MoSiV1 / SKD61",
+                        "en": "4Cr5MoSiV1 / SKD61"
+                      }
+                    ],
+                    [
+                      "硬度",
+                      "40–52 HRC"
+                    ],
+                    [
+                      "形态",
+                      {
+                        "zh": "圆棒 / 扁钢 / 模块",
+                        "en": "Round / flat / block"
+                      }
+                    ]
+                  ],
+                  "badges": [
+                    "ESR",
+                    "UT",
+                    "MTC"
+                  ]
+                },
+                {
+                  "code": "P20",
+                  "code_en": "AISI P20 / 1.2311",
+                  "name": {
+                    "zh": "预硬塑料模具钢",
+                    "en": "Pre-hardened mould steel"
+                  },
+                  "rows": [
+                    [
+                      "标准",
+                      {
+                        "zh": "ASTM A681",
+                        "en": "ASTM A681"
+                      }
+                    ],
+                    [
+                      "预硬硬度",
+                      "28–34 HRC"
+                    ],
+                    [
+                      "形态",
+                      {
+                        "zh": "模块 / 扁钢",
+                        "en": "Block / flat"
+                      }
+                    ]
+                  ],
+                  "badges": [
+                    "MTC"
+                  ]
+                },
+                {
+                  "code": "718H",
+                  "code_en": "AISI P20+Ni / 1.2738",
+                  "name": {
+                    "zh": "高抛光塑料模具钢",
+                    "en": "High-polish mould steel"
+                  },
+                  "rows": [
+                    [
+                      "标准",
+                      {
+                        "zh": "ASTM A681",
+                        "en": "ASTM A681"
+                      }
+                    ],
+                    [
+                      "预硬硬度",
+                      "32–38 HRC"
+                    ],
+                    [
+                      "特性",
+                      {
+                        "zh": "镜面抛光、可氮化",
+                        "en": "Mirror polish, nitridable"
+                      }
+                    ]
+                  ],
+                  "badges": [
+                    "MTC"
+                  ]
+                },
+                {
+                  "code": "4140",
+                  "code_en": "AISI 4140 / 1.7225",
+                  "name": {
+                    "zh": "合金结构钢",
+                    "en": "Alloy structural steel"
+                  },
+                  "rows": [
+                    [
+                      "标准",
+                      {
+                        "zh": "ASTM A29",
+                        "en": "ASTM A29"
+                      }
+                    ],
+                    [
+                      "状态",
+                      {
+                        "zh": "退火 / 调质",
+                        "en": "Annealed / Q&T"
+                      }
+                    ],
+                    [
+                      "抗拉",
+                      "≥ 655 MPa"
+                    ]
+                  ],
+                  "badges": [
+                    "MTC",
+                    "3.1"
+                  ]
+                },
+                {
+                  "code": "4340",
+                  "code_en": "AISI 4340 / 1.6511",
+                  "name": {
+                    "zh": "高强合金钢",
+                    "en": "High-strength alloy steel"
+                  },
+                  "rows": [
+                    [
+                      "标准",
+                      {
+                        "zh": "ASTM A29",
+                        "en": "ASTM A29"
+                      }
+                    ],
+                    [
+                      "状态",
+                      {
+                        "zh": "调质 / 正火",
+                        "en": "Q&T / normalised"
+                      }
+                    ],
+                    [
+                      "抗拉",
+                      "≥ 745 MPa"
+                    ]
+                  ],
+                  "badges": [
+                    "MTC",
+                    "3.1"
+                  ]
+                },
+                {
+                  "code": "A286",
+                  "code_en": "AMS 5737 / A286",
+                  "name": {
+                    "zh": "铁基高温合金",
+                    "en": "Fe-based superalloy"
+                  },
+                  "rows": [
+                    [
+                      "标准",
+                      "AMS 5737"
+                    ],
+                    [
+                      "状态",
+                      {
+                        "zh": "固溶 + 时效",
+                        "en": "Solution + aged"
+                      }
+                    ],
+                    [
+                      "抗拉",
+                      "≥ 895 MPa"
+                    ]
+                  ],
+                  "badges": [
+                    "AMS",
+                    "MTC"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "s2",
+      "no": "02",
+      "title": {
+        "zh": "规格与交付形态",
+        "en": "Sizes & Delivery Forms"
+      },
+      "title_en": "Sizes & Delivery",
+      "lede": {
+        "zh": "英制与公制双规格，公差按订单约定执行；交付形态从光棒到精车件分四级。",
+        "en": "Imperial and metric sizes with order-specific tolerances; four delivery levels from bright bar to finish-machined parts."
+      },
+      "spreads": [
+        {
+          "id": "sp-spec",
+          "layout": "D06",
+          "side": "both",
+          "blocks": [
+            {
+              "type": "table",
+              "title": {
+                "zh": "供货范围与交付形态",
+                "en": "Supply Range & Delivery Forms"
+              },
+              "tables": [
+                {
+                  "caption": {
+                    "zh": "圆棒与扁钢供货范围",
+                    "en": "Round Bar & Flat Supply Range"
+                  },
+                  "cols": [
+                    {
+                      "k": "牌号",
+                      "en": "Grade",
+                      "num": false
+                    },
+                    {
+                      "k": "圆棒直径",
+                      "en": "Round Ø",
+                      "num": true
+                    },
+                    {
+                      "k": "扁钢厚度",
+                      "en": "Flat T",
+                      "num": true
+                    },
+                    {
+                      "k": "宽度",
+                      "en": "Width",
+                      "num": true
+                    },
+                    {
+                      "k": "长度",
+                      "en": "Length",
+                      "num": true
+                    },
+                    {
+                      "k": "表面",
+                      "en": "Finish"
+                    }
+                  ],
+                  "rows": [
+                    [
+                      "H13",
+                      "20–350 mm",
+                      "20–120 mm",
+                      "100–610 mm",
+                      "1000–6000 mm",
+                      {
+                        "zh": "锻制/车削",
+                        "en": "Forged / turned"
+                      }
+                    ],
+                    [
+                      "P20 / 718H",
+                      "50–400 mm",
+                      "30–150 mm",
+                      "150–810 mm",
+                      "1000–6000 mm",
+                      {
+                        "zh": "预硬模块",
+                        "en": "Pre-hard block"
+                      }
+                    ],
+                    [
+                      "4140 / 4340",
+                      "16–400 mm",
+                      "10–150 mm",
+                      "100–1010 mm",
+                      "1000–6000 mm",
+                      {
+                        "zh": "冷拉/磨光",
+                        "en": "Cold-drawn / ground"
+                      }
+                    ],
+                    [
+                      "A286",
+                      "10–250 mm",
+                      "6–80 mm",
+                      "100–610 mm",
+                      "1000–4000 mm",
+                      {
+                        "zh": "车削/酸洗",
+                        "en": "Turned / pickled"
+                      }
+                    ]
+                  ]
+                },
+                {
+                  "caption": {
+                    "zh": "交付形态四级",
+                    "en": "Four Delivery Levels"
+                  },
+                  "cols": [
+                    {
+                      "k": "级别",
+                      "en": "Level"
+                    },
+                    {
+                      "k": "形态",
+                      "en": "Form"
+                    },
+                    {
+                      "k": "公差",
+                      "en": "Tolerance",
+                      "num": true
+                    },
+                    {
+                      "k": "适用",
+                      "en": "Application"
+                    }
+                  ],
+                  "rows": [
+                    [
+                      "L1",
+                      {
+                        "zh": "光棒交货",
+                        "en": "Bright bar"
+                      },
+                      "h9/h11",
+                      {
+                        "zh": "通用加工",
+                        "en": "General machining"
+                      }
+                    ],
+                    [
+                      "L2",
+                      {
+                        "zh": "粗车交货",
+                        "en": "Rough turned"
+                      },
+                      "±0.10 mm",
+                      {
+                        "zh": "减少余量",
+                        "en": "Reduced stock"
+                      }
+                    ],
+                    [
+                      "L3",
+                      {
+                        "zh": "精车+倒角",
+                        "en": "Finish turned + chamfer"
+                      },
+                      "±0.05 mm",
+                      {
+                        "zh": "近净成形",
+                        "en": "Near-net shape"
+                      }
+                    ],
+                    [
+                      "L4",
+                      {
+                        "zh": "激光打标+真空包装",
+                        "en": "Laser mark + vacuum pack"
+                      },
+                      "—",
+                      {
+                        "zh": "出口交付",
+                        "en": "Export delivery"
+                      }
+                    ]
+                  ],
+                  "compact": true
+                }
+              ],
+              "note": {
+                "zh": "注：上表为示例口径。实际供货范围与公差以正式报价单为准，须经内部核价后确认。",
+                "en": "Note: indicative only. Actual supply range and tolerances are confirmed in the formal quotation after internal cost verification."
+              }
+            }
+          ]
+        },
+        {
+          "id": "sp-process",
+          "layout": "D08",
+          "side": "both",
+          "blocks": [
+            {
+              "type": "flow",
+              "dir": "h",
+              "title": {
+                "zh": "从订单到交付",
+                "en": "Order to Delivery"
+              },
+              "steps": [
+                {
+                  "title": {
+                    "zh": "询价核价",
+                    "en": "Enquiry & costing"
+                  },
+                  "desc": {
+                    "zh": "仓库/采购内部核价后出正式报价",
+                    "en": "Formal quotation after internal verification"
+                  }
+                },
+                {
+                  "title": {
+                    "zh": "订单确认",
+                    "en": "Order confirmation"
+                  },
+                  "desc": {
+                    "zh": "PI 签发、收款条款与交期锁定",
+                    "en": "PI issued, payment terms and lead time locked"
+                  }
+                },
+                {
+                  "title": {
+                    "zh": "冶炼与锻制",
+                    "en": "Melting & forging"
+                  },
+                  "desc": {
+                    "zh": "ESR/LF+VD 路线，锻造比 ≥ 4",
+                    "en": "ESR / LF+VD route, forging ratio ≥ 4"
+                  }
+                },
+                {
+                  "title": {
+                    "zh": "热处理",
+                    "en": "Heat treatment"
+                  },
+                  "desc": {
+                    "zh": "退火/淬火/回火，炉次记录留档",
+                    "en": "Annealing / quench / temper, batch records kept"
+                  }
+                },
+                {
+                  "title": {
+                    "zh": "检测与认证",
+                    "en": "Testing & certification"
+                  },
+                  "desc": {
+                    "zh": "UT + MT + 化学成分 + 力学，出 MTC",
+                    "en": "UT + MPI + chemistry + mechanical, MTC issued"
+                  }
+                },
+                {
+                  "title": {
+                    "zh": "加工与包装",
+                    "en": "Machining & packing"
+                  },
+                  "desc": {
+                    "zh": "按 L1–L4 形态加工、标识、防锈包装",
+                    "en": "Machined to L1–L4, marked, rust-proof packed"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "s3",
+      "no": "03",
+      "title": {
+        "zh": "化学成分与力学性能",
+        "en": "Chemistry & Mechanical Properties"
+      },
+      "title_en": "Chemistry & Mechanical",
+      "spreads": [
+        {
+          "id": "sp-chem",
+          "layout": "D07",
+          "side": "both",
+          "blocks": [
+            {
+              "type": "twin",
+              "wideLeft": true,
+              "title": {
+                "zh": "H13 / 1.2344 典型值",
+                "en": "H13 / 1.2344 Typical Values"
+              },
+              "tables": [
+                {
+                  "caption": {
+                    "zh": "化学成分（wt%）",
+                    "en": "Chemical Composition (wt%)"
+                  },
+                  "cols": [
+                    {
+                      "k": "元素",
+                      "en": "El."
+                    },
+                    {
+                      "k": "C",
+                      "num": true
+                    },
+                    {
+                      "k": "Si",
+                      "num": true
+                    },
+                    {
+                      "k": "Mn",
+                      "num": true
+                    },
+                    {
+                      "k": "Cr",
+                      "num": true
+                    },
+                    {
+                      "k": "Mo",
+                      "num": true
+                    },
+                    {
+                      "k": "V",
+                      "num": true
+                    }
+                  ],
+                  "rows": [
+                    [
+                      "典型",
+                      "0.38",
+                      "1.00",
+                      "0.40",
+                      "5.00",
+                      "1.30",
+                      "0.90"
+                    ],
+                    [
+                      "上限",
+                      "0.42",
+                      "1.10",
+                      "0.50",
+                      "5.50",
+                      "1.50",
+                      "1.10"
+                    ],
+                    [
+                      "下限",
+                      "0.32",
+                      "0.80",
+                      "0.20",
+                      "4.75",
+                      "1.10",
+                      "0.80"
+                    ]
+                  ],
+                  "compact": true
+                },
+                {
+                  "caption": {
+                    "zh": "力学性能（调质态）",
+                    "en": "Mechanical (Q&T)"
+                  },
+                  "cols": [
+                    {
+                      "k": "项目",
+                      "en": "Item"
+                    },
+                    {
+                      "k": "数值",
+                      "en": "Value",
+                      "num": true
+                    },
+                    {
+                      "k": "单位",
+                      "en": "Unit"
+                    }
+                  ],
+                  "rows": [
+                    [
+                      "抗拉强度 Rm",
+                      "1290",
+                      "MPa"
+                    ],
+                    [
+                      "屈服强度 Rp0.2",
+                      "1000",
+                      "MPa"
+                    ],
+                    [
+                      "伸长率 A",
+                      "12",
+                      "%"
+                    ],
+                    [
+                      "冲击功 KV",
+                      "35",
+                      "J"
+                    ]
+                  ],
+                  "compact": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "sp-chart",
+          "layout": "D09",
+          "side": "both",
+          "blocks": [
+            {
+              "type": "chart",
+              "title": {
+                "zh": "牌号应用分布与产能结构",
+                "en": "Application Mix & Capacity Structure"
+              },
+              "bars": {
+                "max": 100,
+                "rows": [
+                  {
+                    "label": {
+                      "zh": "压铸/热锻模具",
+                      "en": "Die-cast / hot forging"
+                    },
+                    "v": 34,
+                    "val": "34%"
+                  },
+                  {
+                    "label": {
+                      "zh": "塑料模具",
+                      "en": "Plastic mould"
+                    },
+                    "v": 26,
+                    "val": "26%"
+                  },
+                  {
+                    "label": {
+                      "zh": "机械结构件",
+                      "en": "Machine structures"
+                    },
+                    "v": 21,
+                    "val": "21%"
+                  },
+                  {
+                    "label": {
+                      "zh": "航空/能源",
+                      "en": "Aero / energy"
+                    },
+                    "v": 12,
+                    "val": "12%"
+                  },
+                  {
+                    "label": {
+                      "zh": "其他",
+                      "en": "Others"
+                    },
+                    "v": 7,
+                    "val": "7%"
+                  }
+                ]
+              },
+              "donut": {
+                "max": 100,
+                "v": 78,
+                "label": "78%",
+                "legend": [
+                  {
+                    "k": {
+                      "zh": "ESR 路线",
+                      "en": "ESR route"
+                    },
+                    "v": "78%",
+                    "s": 1
+                  },
+                  {
+                    "k": {
+                      "zh": "LF+VD 路线",
+                      "en": "LF+VD route"
+                    },
+                    "v": "22%",
+                    "s": 2
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "s4",
+      "no": "04",
+      "title": {
+        "zh": "认证与检测能力",
+        "en": "Certification & Testing"
+      },
+      "title_en": "Certification & Testing",
+      "spreads": [
+        {
+          "id": "sp-certs",
+          "layout": "D12",
+          "side": "both",
+          "blocks": [
+            {
+              "type": "certs",
+              "title": {
+                "zh": "随货文件与检测项目",
+                "en": "Documents & Test Items"
+              },
+              "cells": [
+                {
+                  "code": "MTC",
+                  "name": {
+                    "zh": "材料测试证书",
+                    "en": "Mill Test Certificate"
+                  }
+                },
+                {
+                  "code": "3.1",
+                  "name": {
+                    "zh": "EN 10204 3.1",
+                    "en": "EN 10204 3.1"
+                  }
+                },
+                {
+                  "code": "UT",
+                  "name": {
+                    "zh": "超声波检测",
+                    "en": "Ultrasonic testing"
+                  }
+                },
+                {
+                  "code": "MT",
+                  "name": {
+                    "zh": "磁粉检测",
+                    "en": "Magnetic particle"
+                  }
+                },
+                {
+                  "code": "PMI",
+                  "name": {
+                    "zh": "光谱成分验证",
+                    "en": "Spectro verification"
+                  }
+                },
+                {
+                  "code": "MECH",
+                  "name": {
+                    "zh": "力学性能试验",
+                    "en": "Mechanical testing"
+                  }
+                },
+                {
+                  "code": "DIM",
+                  "name": {
+                    "zh": "尺寸全检报告",
+                    "en": "Dimensional report"
+                  }
+                },
+                {
+                  "code": "SGS",
+                  "name": {
+                    "zh": "第三方验货",
+                    "en": "Third-party inspection"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "sp-quality",
+          "layout": "D04",
+          "side": "both",
+          "blocks": [
+            {
+              "type": "text",
+              "cols": 2,
+              "title": {
+                "zh": "质量承诺",
+                "en": "Quality Commitment"
+              },
+              "paras": [
+                {
+                  "zh": "每一批货附 MTC，成分按炉次出具，力学性能按验收标准抽样。客户对检测报告有疑问时，我们保留同炉余样供复检。",
+                  "en": "Every shipment carries an MTC with heat-specific chemistry and sampled mechanical results. Retained coupons from the same heat are kept for re-testing."
+                },
+                {
+                  "zh": "英制规格是我们的差异化能力：多数钢厂以公制为默认生产语言，稳定供应英制尺寸加冷轧表面，需要单独的排产与公差控制。",
+                  "en": "Imperial sizing is our differentiator: most mills default to metric. Stable imperial supply with cold-rolled finish requires dedicated scheduling and tolerance control."
+                },
+                {
+                  "zh": "文件不造假，不补签。报告怎么写，货就怎么交。这一条没有商量余地。",
+                  "en": "No falsified or back-dated documents. The report matches the goods. This is not negotiable."
+                }
+              ],
+              "pull": {
+                "q": {
+                  "zh": "客户买的不是公差，是确定感。",
+                  "en": "What the customer buys is not tolerance — it is certainty."
+                },
+                "who": {
+                  "zh": "内部质量口径",
+                  "en": "Example quality policy"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "dividers": [
+    {
+      "no": "END",
+      "title": {
+        "zh": "联系与询价",
+        "en": "Contact & Enquiry"
+      },
+      "title_en": "Contact",
+      "note": {
+        "zh": "正式报价须经内部仓库/采购核价后出具。本目录所列数据为公开标准口径，示例文件不构成报价。",
+        "en": "Formal quotations are issued after internal verification. Data herein reflects published standards and does not constitute an offer."
+      }
+    }
+  ]
+}

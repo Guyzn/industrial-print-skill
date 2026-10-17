@@ -1,0 +1,624 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>[必填] 替换为手册标题 · 职业发展手册</title>
+<style>
+  /* ============================================================
+     模版 B · 杂志编辑风 — 种子模板（版式锁，勿改框架层）
+     物理规格与模版 A 同族：210×285 大16开单页；打印对开 420×285，
+     含 3mm 出血 → .spread 画布 432×291。
+     换肤只有两处合法入口：
+       1. `:root` 中「SLOT: theme tokens」块（build 脚本整体替换；
+          accent 取主题 --cov-ink 深色值，--chart-2..4 为固定图表辅色）
+       2. 「SLOT: 页面骨架占位」内的 .spread 块（build 脚本整体替换）
+     风格锚点：衬线刊头 masthead、期号角标 kicker、首字下沉、
+     大引文 pull-quote、分栏正文 + 栏间发丝线、眉脚 folio、
+     整版出血图 + 角注 caption-chip、拉出表 xtable。
+     字体三层：标题 Noto Serif SC（衬线）/ 正文 MiSans /
+     角标·数字·页脚 IBM Plex Mono；封面辅助字阿里巴巴普惠体 3。
+     ============================================================ */
+
+  /* SLOT: theme tokens — 唯一允许换色的地方（build 脚本整体替换这套变量；
+     accent 默认取「工程陶橙」的 --cov-ink 深色值 #75380f） */
+  :root {
+    --bg: #f7f5f0;
+    --surface: #fffefb;
+    --fg: #1c1e26;
+    --muted: #6d6a63;
+    --border: #dcd7cc;
+    --accent: #75380f;
+    /* 图表色板：主系列跟随 --accent；c2–c4 为低饱和功能色，仅限数据可视化使用 */
+    --chart-2: #a4835e;
+    --chart-3: #2f6b5f;
+    --chart-4: #3d5a80;
+
+    --font: "MiSans", -apple-system, "PingFang SC", "Microsoft YaHei", "Noto Sans SC", "Helvetica Neue", Arial, sans-serif;
+    --disp: "Noto Serif SC", "Songti SC", "STSong", "SimSun", serif;
+    --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+    --bleed: 3mm;
+    --page-w-b: 216mm;
+    --page-h-b: 291mm;
+    --spread-w: 432mm;
+    --spread-h: 291mm;
+    --ink-top: 13mm;
+    --ink-outer: 12mm;
+    --ink-fold: 12mm;
+    --ink-bottom: 26mm;
+  }
+
+  @font-face { font-family: "MiSans"; src: url("./fonts/MiSans-Regular.ttf") format("truetype"); font-weight: 400; font-display: swap; }
+  @font-face { font-family: "MiSans"; src: url("./fonts/MiSans-Semibold.ttf") format("truetype"); font-weight: 600; font-display: swap; }
+  @font-face { font-family: "IBM Plex Mono"; src: url("./fonts/IBMPlexMono-Regular.woff2") format("woff2"); font-weight: 400; font-display: swap; }
+  @font-face { font-family: "Noto Serif SC"; src: url("./fonts/NotoSerifSC-Var.ttf") format("truetype"); font-weight: 200 900; font-display: swap; }
+  @font-face { font-family: "Alibaba PuHuiTi 3"; src: url("./fonts/AlibabaPuHuiTi-3-45-Light.woff2") format("woff2"); font-weight: 300; font-display: swap; }
+  @font-face { font-family: "Alibaba PuHuiTi 3"; src: url("./fonts/AlibabaPuHuiTi-3-65-Medium.woff2") format("woff2"); font-weight: 500; font-display: swap; }
+  @font-face { font-family: "Alibaba PuHuiTi 3"; src: url("./fonts/AlibabaPuHuiTi-3-85-Bold.woff2") format("woff2"); font-weight: 700; font-display: swap; }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    background: #e9e6df;
+    color: var(--fg);
+    font-family: var(--font);
+    font-size: 10pt;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+  .stage { width: max-content; margin: 0 auto; padding: 48px 0 120px; display: flex; flex-direction: column; gap: 40px; }
+  .spread { position: relative; width: var(--spread-w); height: var(--spread-h); background: var(--surface); box-shadow: 0 12px 40px rgba(30, 28, 22, 0.16); overflow: hidden; }
+  .page { position: absolute; top: 0; width: var(--page-w-b); height: var(--page-h-b); overflow: hidden; background: var(--surface); }
+  .page.left { left: 0; padding: var(--ink-top) var(--ink-fold) var(--ink-bottom) var(--ink-outer); }
+  .page.right { left: var(--page-w-b); padding: var(--ink-top) var(--ink-outer) var(--ink-bottom) var(--ink-fold); }
+
+  ::selection { background: color-mix(in srgb, var(--accent) 16%, transparent); }
+
+  /* ---------- 基础组件 ---------- */
+  .kicker { font-family: var(--mono); font-size: 8pt; letter-spacing: 0.18em; color: var(--accent); font-weight: 700; text-transform: uppercase; }
+  .kicker.muted { color: var(--muted); }
+  .ruled { height: 1px; background: var(--border); border: none; }
+  .ruled.ink { height: 3px; background: var(--fg); }
+
+  .disp { font-family: var(--disp); font-weight: 900; line-height: 1.32; letter-spacing: 0; }
+  .disp.xl { font-size: 37pt; line-height: 1.32; }
+  .disp.lg { font-size: 26pt; line-height: 1.32; }
+  .disp.md { font-size: 22pt; line-height: 1.35; }
+  .disp.sm { font-size: 13pt; line-height: 1.4; font-weight: 700; }
+
+  .pullquote { border-left: 3px solid var(--accent); padding: 0.6mm 0 0.6mm 7mm; }
+  .pullquote.tint { background: color-mix(in srgb, var(--accent) 5%, transparent); padding: 5mm 6mm 5.5mm 7mm; }
+  .pullquote .pq-cn { font-family: var(--disp); font-weight: 700; font-size: 16pt; line-height: 1.45; color: var(--fg); }
+  .pullquote .pq-by { font-family: var(--mono); font-size: 7.5pt; letter-spacing: 0.14em; color: var(--muted); margin-top: 3.5mm; }
+
+  .folio { position: absolute; bottom: 10mm; display: flex; justify-content: space-between; align-items: baseline; font-family: var(--mono); font-size: 8pt; }
+  .page.left > .folio { left: var(--ink-outer); right: var(--ink-fold); flex-direction: row-reverse; }
+  .page.right > .folio { left: var(--ink-fold); right: var(--ink-outer); }
+  .folio .fl-run { color: var(--muted); letter-spacing: 0.14em; }
+  .folio .fl-num { font-size: 11pt; color: var(--accent); font-weight: 700; }
+
+  .col-title { display: flex; align-items: baseline; gap: 4mm; padding-bottom: 2.5mm; border-bottom: 1px solid var(--border); margin-bottom: 7mm; }
+  .col-title .ct-idx { font-family: var(--mono); font-size: 9pt; color: var(--accent); font-weight: 700; }
+  .col-title .ct-name { font-family: var(--mono); font-size: 8pt; letter-spacing: 0.14em; color: var(--muted); text-transform: uppercase; }
+
+  .body-col { column-count: 2; column-gap: 7mm; column-rule: 1px solid var(--border); text-align: justify; }
+  .body-col p { font-size: 9.5pt; line-height: 1.85; margin-bottom: 3mm; text-indent: 2em; }
+  .body-col p:first-of-type { text-indent: 0; }
+  .body-col.dropcap p:first-of-type::first-letter { font-family: var(--disp); font-weight: 900; font-size: 26pt; float: left; line-height: 0.9; color: var(--accent); padding-right: 2mm; padding-top: 1mm; }
+
+  .track-row { margin-bottom: 4.6mm; }
+  .track-row .tr-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 1.4mm; }
+  .track-row .tr-label { font-size: 9pt; color: var(--fg); font-weight: 600; }
+  .track-row .tr-val { font-family: var(--mono); font-size: 8.5pt; color: var(--accent); font-weight: 700; }
+  .track-bar { width: 100%; height: 3mm; background: #ece8df; position: relative; }
+  .track-bar .tb-fill { position: absolute; left: 0; top: 0; height: 100%; width: var(--v, 0); background: var(--accent); }
+  .track-bar .tb-fill.t2 { background: var(--chart-2); }
+  .track-bar .tb-fill.t3 { background: var(--chart-3); }
+  .track-bar .tb-fill.t4 { background: var(--chart-4); }
+
+  .mod + .mod { margin-top: 6mm; }
+  .mod-grid { display: grid; grid-template-columns: 1fr 1fr; column-gap: 9mm; row-gap: 6.5mm; }
+  .mod-grid .mod + .mod { margin-top: 0; }
+  .mod-grid.cols-3 { grid-template-columns: 1fr 1fr 1fr; column-gap: 8mm; }
+  .mod-h { display: flex; justify-content: space-between; align-items: baseline; border-bottom: .5pt solid var(--border); padding-bottom: 1.8mm; margin-bottom: 2.6mm; }
+  .mod-h .mh-name, .mod-h .mh-t { font-family: var(--disp); font-weight: 700; font-size: 11pt; color: var(--accent); }
+  .mod-h .mh-stat { font-family: var(--mono); font-size: 8pt; letter-spacing: 0.06em; color: var(--muted); }
+  .mod p { font-size: 9.5pt; line-height: 1.85; text-align: justify; margin: 0; }
+
+  .donut-row { display: flex; gap: 10mm; align-items: flex-start; }
+  .donut-side { flex: 0 0 60mm; }
+  .donut-svg { width: 48mm; height: 48mm; display: block; }
+  .donut-legend { margin-top: 4mm; }
+  .dl-row { display: flex; align-items: baseline; gap: 2.5mm; font-size: 8.5pt; padding: 1.5mm 0; border-bottom: .25pt solid var(--border); }
+  .dl-dot { width: 2.6mm; height: 2.6mm; flex: 0 0 auto; align-self: center; }
+  .dl-label { flex: 1; }
+  .dl-val { font-family: var(--mono); font-size: 8pt; color: var(--muted); }
+
+  .xtable { border-collapse: collapse; width: 100%; }
+  .xtable th, .xtable td { border-bottom: 1px solid var(--border); padding: 2.4mm 0; text-align: left; font-size: 8.5pt; vertical-align: top; }
+  .xtable th { font-family: var(--mono); font-size: 7.5pt; letter-spacing: 0.1em; color: var(--muted); font-weight: 400; border-bottom: 2px solid var(--fg); }
+  .xtable td.num, .xtable th.num { text-align: right; font-family: var(--mono); }
+  .xtable .tot td { font-weight: 700; border-top: 2px solid var(--fg); border-bottom: none; }
+
+  .bignum .bn-v { font-family: var(--disp); font-weight: 900; font-size: 44pt; line-height: 1.1; color: var(--accent); }
+  .bignum .bn-v small { font-size: 14pt; font-weight: 700; }
+  .bignum .bn-k { font-family: var(--mono); font-size: 7.5pt; letter-spacing: 0.14em; color: var(--muted); margin-top: 2mm; }
+
+  .note { font-size: 8.5pt; color: var(--muted); line-height: 1.7; border-top: 1px solid var(--border); padding-top: 2.5mm; }
+  .note.mt { border-top: none; padding-top: 0; margin-top: 2.5mm; }
+
+  .stack-bar { display: flex; height: 14mm; }
+  .stack-bar .sb-seg { width: var(--w); display: flex; align-items: center; overflow: hidden; }
+  .stack-bar .sb-in { font-family: var(--mono); font-size: 8pt; letter-spacing: 0.06em; color: #fff; padding: 0 3mm; white-space: nowrap; }
+
+  .col-chart { display: flex; align-items: flex-end; gap: 8mm; height: 60mm; padding: 0 4mm; border-bottom: .5pt solid var(--border); }
+  .ccol { flex: 1; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; }
+  .ccol .v { font-family: var(--mono); font-size: 8.5pt; letter-spacing: .04em; color: var(--fg); margin-bottom: 1.5mm; }
+  .ccol .v strong { font-family: var(--disp); font-weight: 700; font-size: 13pt; color: var(--accent); }
+  .ccol .bar { width: 100%; background: var(--accent); }
+  .ccol-labels { display: flex; gap: 8mm; padding: 2mm 4mm 0; }
+  .ccol-labels > span { flex: 1; text-align: center; font-size: 8pt; color: var(--fg); }
+  .ccol-labels > span em { display: block; font-style: normal; font-family: var(--mono); font-size: 6.5pt; letter-spacing: .06em; color: var(--muted); margin-top: .5mm; }
+
+  .page.flex-fill { display: flex; flex-direction: column; }
+  .page.flex-fill > .pin-bottom { margin-top: auto; }
+
+  .sec { margin-bottom: 12mm; }
+  .sec-roomy .sec { margin-bottom: 17mm; }
+  .sec-roomy .sec:last-of-type { margin-bottom: 0; }
+  .sec-tight .sec { margin-bottom: 9mm; }
+  .sec-tight .sec:last-of-type { margin-bottom: 0; }
+  .sec .sec-head { display: flex; align-items: center; gap: 3mm; margin-bottom: 4.5mm; }
+  .sec .sec-no { font-family: var(--mono); font-size: 8.5pt; font-weight: 700; letter-spacing: 0.06em; color: #ffffff; background: var(--accent); padding: 1.3mm 2.2mm; }
+  .sec .sec-title { font-family: var(--disp); font-weight: 700; font-size: 14pt; line-height: 1.35; }
+  .sec p { font-size: 10pt; line-height: 2.0; margin-bottom: 2.5mm; }
+
+  /* 岗位档案组件：导语（首字下沉） */
+  .lede { font-size: 10pt; line-height: 1.95; }
+  .lede::first-letter { font-family: var(--disp); font-weight: 900; font-size: 30pt; line-height: 1; color: var(--accent); float: left; padding: 1.2mm 2.8mm 0 0; }
+
+  /* 岗位档案组件：一天 · 色块表格 */
+  .day { display: grid; row-gap: 1.5mm; }
+  .day-row { display: grid; grid-template-columns: 22mm 1fr; }
+  .day-t { background: var(--accent); font-family: var(--mono); font-size: 8pt; font-weight: 700; letter-spacing: 0.1em; color: #ffffff; padding: 3mm; display: flex; align-items: center; justify-content: center; text-align: center; }
+  .day-b { background: color-mix(in srgb, var(--accent) 8%, transparent); padding: 3mm 4.5mm; font-size: 9pt; line-height: 1.8; color: var(--fg); display: flex; align-items: center; }
+
+  /* 岗位档案组件：发展路径图 */
+  .pathmap { border-top: 2px solid var(--fg); padding-top: 4mm; }
+  .pathmap svg { display: block; width: 100%; height: auto; }
+  .path-cols { display: grid; grid-template-columns: repeat(4, 1fr); column-gap: 5mm; margin-top: 3mm; }
+  .path-cols p { font-size: 8pt; line-height: 1.75; color: var(--fg); margin: 0; }
+
+  /* 岗位档案组件：优势色带（09） */
+  .adv-band { background: color-mix(in srgb, var(--chart-2) 12%, transparent); border-top: 3px solid var(--chart-2); padding: 5mm 6mm 5.5mm; display: grid; grid-template-columns: repeat(4, 1fr); column-gap: 6mm; }
+  .adv-cell .adv-no { font-family: var(--mono); font-size: 7.5pt; font-weight: 700; letter-spacing: 0.12em; color: var(--chart-2); }
+  .adv-cell .adv-t { font-family: var(--disp); font-weight: 900; font-size: 13pt; line-height: 1.4; margin: 1.6mm 0 1.6mm; }
+  .adv-cell p { font-size: 8pt; line-height: 1.75; color: var(--fg); margin: 0; }
+
+  /* 岗位档案组件：特质色块卡（10） */
+  .trait { display: grid; grid-template-columns: 1fr 1fr 1fr; column-gap: 5mm; row-gap: 5mm; }
+  .trait-cell { background: color-mix(in srgb, var(--accent) 6%, transparent); border-top: 2.5px solid var(--accent); padding: 3.5mm 4mm 4mm; }
+  .trait-cell:nth-child(even) { background: color-mix(in srgb, var(--chart-3) 7%, transparent); border-top-color: var(--chart-3); }
+  .trait-t { font-family: var(--disp); font-weight: 700; font-size: 10.5pt; line-height: 1.4; margin-bottom: 1.6mm; }
+  .trait-cell p { font-size: 8pt; line-height: 1.75; color: var(--fg); margin: 0; }
+
+  /* 岗位档案组件：职责编号列表 */
+  .duty { display: grid; grid-template-columns: 1fr 1fr; column-gap: 9mm; row-gap: 5mm; }
+  .duty-item { border-top: 1.5px solid var(--fg); padding-top: 2.2mm; }
+  .duty-no { font-family: var(--disp); font-weight: 900; font-size: 13pt; color: var(--accent); line-height: 1; }
+  .duty-item:nth-child(even) .duty-no { color: var(--chart-2); }
+  .duty-t { font-family: var(--disp); font-weight: 700; font-size: 10pt; margin: 1.6mm 0 1.4mm; }
+  .duty-item p { font-size: 8.5pt; line-height: 1.8; color: var(--fg); margin: 0; }
+
+  /* 通用胶囊标签 */
+  .chips { display: flex; flex-wrap: wrap; gap: 2mm; }
+  .chip { border: .75pt solid var(--accent); color: var(--accent); border-radius: 999px; padding: 1.1mm 3.2mm; font-size: 8pt; line-height: 1.5; }
+
+  .bleed-img { position: absolute; left: 0; top: 0; width: 100%; height: 100%; overflow: hidden; }
+  .bleed-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .bleed-img.rel { position: relative; }
+  .caption-chip { position: absolute; left: var(--ink-outer); bottom: 12mm; background: rgba(255, 254, 251, 0.92); padding: 2.5mm 4mm; font-family: var(--mono); font-size: 7.5pt; letter-spacing: 0.12em; color: var(--fg); box-shadow: 0 2px 10px rgba(28, 30, 38, 0.18); }
+  .caption-chip.fold { left: var(--ink-fold); }
+
+  .masthead { display: flex; justify-content: space-between; align-items: baseline; padding-bottom: 2.5mm; border-bottom: 3px solid var(--fg); }
+  .masthead .mh-name { font-family: var(--disp); font-weight: 900; font-size: 13pt; letter-spacing: 0.08em; }
+  .masthead .mh-iss { font-family: var(--mono); font-size: 8pt; letter-spacing: 0.14em; color: var(--muted); }
+
+  /* ---------- 封面 / 封底（主色整版铺底） ---------- */
+  .page.cov { background: var(--accent); color: #ffffff; padding: 0; }
+  .cov .cov-meta { font-family: "Alibaba PuHuiTi 3", var(--font); font-weight: 300; font-size: 9pt; letter-spacing: 0.04em; color: #ffffff; }
+  .cov .cov-kicker { font-family: "Alibaba PuHuiTi 3", var(--font); font-weight: 500; font-size: 9pt; letter-spacing: 0.14em; color: #ffffff; }
+  .cov .cov-title { font-family: var(--disp); font-weight: 700; font-size: 44pt; line-height: 1.34; letter-spacing: 0; color: #ffffff; }
+  .cov .cov-year { font-family: var(--disp); font-weight: 900; font-size: 56pt; line-height: 1.1; color: color-mix(in srgb, var(--accent) 45%, #ffffff); }
+  .cov .cov-sub { font-family: var(--disp); font-weight: 700; font-size: 14pt; line-height: 1.45; color: #ffffff; }
+  .cov .cov-stats { font-family: "Alibaba PuHuiTi 3", var(--font); font-weight: 700; font-size: 9pt; color: #ffffff; display: flex; align-items: center; gap: 4mm; }
+  .cov .cov-stats .sep { width: 1px; height: 3mm; background: rgba(255, 255, 255, 0.55); }
+  .cov .cov-rule { height: 1px; background: rgba(255, 255, 255, 0.85); border: none; }
+  .cov .cov-deco { position: absolute; right: 0; top: 52mm; bottom: 0; width: 50mm; overflow: hidden; }
+  .cov .cov-deco img { width: 100%; height: 100%; object-fit: cover; object-position: left top; display: block; mix-blend-mode: screen; opacity: 0.5; }
+  .cov .cov-year-svg { height: 16.1mm; width: auto; display: block; }
+
+  .cover-module { border-top: 1px solid var(--border); padding: 3mm 0; }
+  .cover-module .cm-k { font-family: var(--mono); font-size: 7.5pt; letter-spacing: 0.16em; color: var(--muted); text-transform: uppercase; }
+  .cover-module .cm-v { font-family: var(--disp); font-weight: 700; font-size: 14.5pt; line-height: 1.35; margin-top: 1mm; }
+  .cover-module .cm-v small { display: block; font-family: var(--font); font-weight: 400; font-size: 8.5pt; color: var(--muted); line-height: 1.6; margin-top: 1.5mm; }
+  .cm-tags { display: flex; gap: 2.5mm; margin-top: 2mm; flex-wrap: wrap; }
+  .cm-tags span { font-family: var(--mono); font-size: 7pt; letter-spacing: 0.08em; color: var(--accent); border: 1px solid var(--border); padding: 1mm 2.5mm; background: var(--surface); }
+
+  .spread.navy { background: var(--accent); }
+  .spread.navy .page { background: transparent; color: #ffffff; }
+  .dv-num { font-family: var(--disp); font-weight: 900; font-size: 110pt; line-height: 0.95; color: rgba(255, 255, 255, 0.16); }
+  .dv-kicker { font-family: var(--mono); font-size: 9pt; letter-spacing: 0.2em; color: rgba(255, 255, 255, 0.75); text-transform: uppercase; }
+  .dv-title { font-family: var(--disp); font-weight: 900; font-size: 33pt; line-height: 1.32; }
+  .dv-sub { color: rgba(255, 255, 255, 0.85); font-size: 10pt; line-height: 1.8; }
+  .kv-rule { width: 100%; background: rgba(255, 255, 255, 0.35); height: 1px; }
+  .folio.on-dark .fl-run { color: rgba(255, 255, 255, 0.55); }
+  .folio.on-dark .fl-num { color: #ffffff; }
+
+  .toc-part { font-family: var(--mono); font-size: 8pt; letter-spacing: 0.16em; color: var(--muted); margin: 4mm 0 1mm; }
+  .toc .toc-row:last-child { border-bottom: none; }
+  .toc.compact .toc-row { padding: 2.8mm 0; }
+  .toc.compact .toc-part { margin: 3.5mm 0 1.2mm; }
+  .toc.compact .tr-t { font-size: 11pt; }
+  .toc.compact .tr-d { display: none; }
+  .toc-row { display: flex; align-items: baseline; gap: 5mm; padding: 3mm 0; border-bottom: 1px solid var(--border); }
+  .toc-row .tr-no { font-family: var(--mono); font-size: 9pt; color: var(--accent); font-weight: 700; width: 12mm; flex: none; }
+  .toc-row .tr-main { flex: 1; }
+  .toc-row .tr-t { font-family: var(--disp); font-weight: 700; font-size: 12pt; line-height: 1.35; }
+  .toc-row .tr-d { font-size: 8pt; color: var(--muted); margin-top: 0.8mm; }
+  .toc-row .tr-pg { font-family: var(--mono); font-size: 9pt; color: var(--fg); }
+
+  .pcol { position: relative; padding: 7mm 6.5mm 6mm; }
+  .pcol::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+  .pcol-1 { background: color-mix(in srgb, var(--accent) 9%, transparent); }
+  .pcol-1::before { background: var(--accent); }
+  .pcol-1 .pcol-idx, .pcol-1 .pcol-tags span { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 45%, transparent); }
+  .pcol-2 { background: color-mix(in srgb, var(--chart-3) 10%, transparent); }
+  .pcol-2::before { background: var(--chart-3); }
+  .pcol-2 .pcol-idx, .pcol-2 .pcol-tags span { color: var(--chart-3); border-color: color-mix(in srgb, var(--chart-3) 45%, transparent); }
+  .pcol-3 { background: color-mix(in srgb, var(--chart-2) 13%, transparent); }
+  .pcol-3::before { background: var(--chart-2); }
+  .pcol-3 .pcol-idx, .pcol-3 .pcol-tags span { color: var(--chart-2); border-color: color-mix(in srgb, var(--chart-2) 45%, transparent); }
+  .pcol-idx { font-family: var(--mono); font-size: 8pt; letter-spacing: 0.16em; }
+  .pcol-t { font-family: var(--disp); font-weight: 700; font-size: 16pt; line-height: 1.3; margin-top: 3mm; }
+  .pcol-d { font-size: 9.5pt; line-height: 1.85; margin-top: 3.5mm; text-align: justify; }
+  .pcol-tags { display: flex; gap: 2mm; flex-wrap: wrap; margin-top: 4mm; }
+  .pcol-tags span { font-family: var(--mono); font-size: 7.5pt; letter-spacing: 0.08em; padding: 1.2mm 2.6mm; border: 1px solid; border-radius: 999px; }
+
+  .meta-grid { display: grid; grid-template-columns: 1fr 1fr; border-top: 1px solid var(--border); border-left: 1px solid var(--border); }
+  .meta-grid .mg-item { border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 5mm 4.5mm; }
+  .meta-grid .mg-k { font-family: var(--mono); font-size: 7pt; letter-spacing: 0.12em; color: var(--muted); margin-bottom: 1.2mm; }
+  .meta-grid .mg-v { font-size: 8.5pt; line-height: 1.55; font-weight: 600; }
+
+  /* ---------- 打印 ---------- */
+  @page { size: 432mm 291mm; margin: 0; }
+  @media print {
+    html, body { background: none; }
+    .stage { padding: 0; gap: 0; }
+    .spread { box-shadow: none; page-break-after: always; }
+    .toolbar { display: none !important; }
+  }
+</style>
+</head>
+<body>
+<main class="stage">
+
+  <!--
+    SLOT: 页面骨架占位 — 从这里开始放 .spread 块。
+    以下 8 个对开是全部 18 个骨架（M00–M17）的种子示例，
+    文案中的 [必填] 由内容 JSON 替换；build 脚本会整体替换本区域。
+    骨架完整代码见 references/layouts.md。
+  -->
+
+  <!-- 对开 · 封底 M00 | 封面 M01 -->
+  <section class="spread" id="sp-cover">
+    <div class="page left cov" data-layout="M00">
+      <div class="cov-meta" style="position: absolute; left: var(--ink-outer); top: var(--ink-top);">[必填] 刊名英文 · VOL. 期号</div>
+      <div style="position: absolute; left: var(--ink-outer); right: var(--ink-fold); bottom: 24mm; font-family: 'Alibaba PuHuiTi 3', var(--font); font-weight: 400; font-size: 9pt; line-height: 2.0; color: #ffffff;">
+        [必填] 编写：编写组名称<br />
+        [必填] 出品：学校 · 学院<br />
+        [必填] 数据来源说明
+      </div>
+      <hr class="cov-rule" style="position: absolute; left: var(--ink-outer); right: var(--ink-fold); bottom: 15mm;" />
+    </div>
+    <div class="page right cov" data-layout="M01">
+      <div class="cov-meta" style="position: absolute; right: var(--ink-outer); top: var(--ink-top);">VOL. [必填] 年份</div>
+      <div style="position: absolute; left: var(--ink-fold); top: 58mm;">
+        <div class="cov-kicker">[必填] 英文角标</div>
+        <h1 class="cov-title" style="margin-top: 7mm;">[必填] 专业名称<br />[必填] 手册名称。</h1>
+        <div class="cov-year">[必填] 年份</div>
+      </div>
+      <div style="position: absolute; left: var(--ink-fold); top: 152mm; display: flex; gap: 7mm; align-items: stretch;">
+        <div style="width: 1px; background: #ffffff;"></div>
+        <div style="display: flex; flex-direction: column; justify-content: center; gap: 5mm; padding: 1mm 0;">
+          <div class="cov-sub">[必填] 副题一句话</div>
+          <div class="cov-stats">
+            <span>[必填] 数据点一</span>
+            <span class="sep"></span>
+            <span>[必填] 数据点二</span>
+            <span class="sep"></span>
+            <span>[必填] 数据点三</span>
+          </div>
+        </div>
+      </div>
+      <div class="cov-meta" style="position: absolute; left: var(--ink-fold); bottom: 18mm;">[必填] 底部一行说明</div>
+    </div>
+  </section>
+
+  <!-- 对开 · 序 M02 | 序图 M03 -->
+  <section class="spread" id="sp-preface">
+    <div class="page left" data-layout="M02">
+      <div class="col-title"><span class="ct-idx">P</span><span class="ct-name">PREFACE · 序</span></div>
+      <h2 class="disp lg">[必填] 序标题<br />[必填] 第二行</h2>
+      <div class="pullquote tint" style="margin: 7mm 0 8mm;">
+        <div class="pq-cn" style="white-space: nowrap;">[必填] 一句单行引文（不折行，19 字内）</div>
+        <div class="pq-by">EDITOR'S NOTE · 编者手记</div>
+      </div>
+      <div class="body-col dropcap">
+        <p>[必填] 序正文第一段（首字自动下沉）。</p>
+        <p>[必填] 序正文第二段。</p>
+      </div>
+      <div style="text-align: right; margin-top: 6mm;">
+        <div style="font-family: var(--disp); font-weight: 700; font-size: 11pt;">[必填] 编写组署名</div>
+        <div style="font-family: var(--mono); font-size: 8pt; letter-spacing: 0.12em; color: var(--muted); margin-top: 1.5mm;">[必填] 日期</div>
+      </div>
+      <div class="folio"><span class="fl-run">[必填] 手册名 · 年份</span><span class="fl-num">02</span></div>
+    </div>
+    <div class="page right" data-layout="M03" style="padding: 0;">
+      <div class="bleed-img">
+        <img src="images/preface.jpg" alt="[必填] 图注描述（示意图）" style="object-position: center 40%;" />
+      </div>
+      <div class="caption-chip fold">IMAGE · [必填] 图注（示意图）</div>
+    </div>
+  </section>
+
+  <!-- 对开 · 目录 M04 | 本期速览 M05 -->
+  <section class="spread" id="sp-toc">
+    <div class="page left" data-layout="M04">
+      <div class="kicker">CONTENTS · 本期导览</div>
+      <h2 class="disp lg" style="margin-top: 3mm;">目录</h2>
+      <hr class="ruled" style="margin: 5mm 0 2mm;" />
+      <div class="toc compact">
+        <div class="toc-part">PART 01 · 第一部分</div>
+        <div class="toc-row"><span class="tr-no">01</span><div class="tr-main"><div class="tr-t">[必填] 章节标题</div><div class="tr-d">[必填] 一句话描述</div></div><span class="tr-pg">08</span></div>
+        <div class="toc-part">PART 02 · 第二部分</div>
+        <div class="toc-row"><span class="tr-no">07</span><div class="tr-main"><div class="tr-t">[必填] 岗位名</div><div class="tr-d">[必填] 一句话描述</div></div><span class="tr-pg">16</span></div>
+      </div>
+      <div class="pullquote" style="margin-top: 7mm;">
+        <div class="pq-cn" style="font-size: 13.5pt;">[必填] 目录页底部引文</div>
+        <div class="pq-by">— 本手册使用方法</div>
+      </div>
+      <div class="folio"><span class="fl-run">[必填] 手册名 · 年份</span><span class="fl-num">04</span></div>
+    </div>
+    <div class="page right" data-layout="M05">
+      <div class="kicker">AT A GLANCE · 本期速览</div>
+      <h2 class="disp md" style="margin-top: 3mm;">[必填] 速览标题</h2>
+      <hr class="ruled" style="margin: 5mm 0;" />
+      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6mm;">
+        <div class="bignum"><div class="bn-v">[必填]</div><div class="bn-k">[必填] 指标一</div></div>
+        <div class="bignum"><div class="bn-v">[必填]</div><div class="bn-k">[必填] 指标二</div></div>
+        <div class="bignum"><div class="bn-v">[必填]</div><div class="bn-k">[必填] 指标三</div></div>
+      </div>
+      <div class="bleed-img rel" style="height: 120mm; margin: 8mm 0 0;">
+        <img src="images/data-inline.jpg" alt="[必填] 图注（示意图）" />
+      </div>
+      <div style="font-family: var(--mono); font-size: 7pt; letter-spacing: 0.12em; color: var(--muted); margin-top: 1.5mm;">IMAGE · [必填] 图注（示意图）</div>
+      <div class="pullquote" style="margin-top: 6mm;">
+        <div class="pq-cn">[必填] 速览引文</div>
+        <div class="pq-by">— 编者手记</div>
+      </div>
+      <div class="folio"><span class="fl-run">本期速览 · AT A GLANCE</span><span class="fl-num">05</span></div>
+    </div>
+  </section>
+
+  <!-- 对开 · 幕封 M06 | 章首引文 M07 -->
+  <section class="spread navy" id="sp-part1">
+    <div class="page left" data-layout="M06">
+      <div style="position: relative; height: 100%; display: flex; flex-direction: column;">
+        <div class="dv-num">01</div>
+        <div style="margin-top: auto;">
+          <div class="dv-kicker">PART 01 · [必填] 英文</div>
+          <div class="dv-title" style="margin-top: 5mm;">[必填] 篇章标题<br />[必填] 第二行</div>
+          <div class="dv-sub" style="margin-top: 6mm; max-width: 120mm;">[必填] 篇章导语一句话。</div>
+          <div class="kv-rule" style="margin-top: 8mm;"></div>
+        </div>
+      </div>
+      <div class="folio on-dark"><span class="fl-run">PART 01 · [必填] 篇章名</span><span class="fl-num">06</span></div>
+    </div>
+    <div class="page right" data-layout="M07">
+      <div style="margin-top: 34mm;">
+        <div class="pullquote" style="border-color: rgba(255,255,255,0.7);">
+          <div class="pq-cn" style="color: #ffffff; font-size: 21pt; line-height: 1.5;">[必填] 章首大引文<br />[必填] 第二行</div>
+          <div class="pq-by" style="color: rgba(255,255,255,0.65);">— 导语 · [必填] 篇章名</div>
+        </div>
+        <p style="color: rgba(255,255,255,0.85); font-size: 9.5pt; line-height: 1.85; margin-top: 9mm; max-width: 130mm; text-align: justify;">
+          [必填] 章首导读段落（回答本章要解决的两个问题）。
+        </p>
+      </div>
+      <div class="folio on-dark"><span class="fl-run">PART 01 · [必填] 篇章名</span><span class="fl-num">07</span></div>
+    </div>
+  </section>
+
+  <!-- 对开 · 数据页 M08（圆环） | 数据页 M09（轨道） -->
+  <section class="spread" id="sp-data-1">
+    <div class="page left flex-fill" data-layout="M08">
+      <div class="col-title"><span class="ct-name">数据版 · DATA DESK · [必填] 篇章名</span></div>
+      <div class="kicker" style="margin-bottom: 4mm;">01 · [必填] 小节标题</div>
+      <div class="bignum">
+        <div class="bn-v">[必填]<small> 单位</small></div>
+        <div class="bn-k">[必填] 大数字说明</div>
+      </div>
+      <p style="font-size: 9.5pt; line-height: 1.85; margin-top: 9mm; text-align: justify;">[必填] 导语段。</p>
+      <div class="donut-row" style="margin-top: 10mm;">
+        <div class="donut-side">
+          <svg class="donut-svg" viewBox="0 0 42 42" role="img" aria-label="[必填] 圆环图说明">
+            <circle cx="21" cy="21" r="15.9155" fill="none" stroke="#ece8df" stroke-width="5" />
+            <circle cx="21" cy="21" r="15.9155" fill="none" style="stroke: var(--accent);" stroke-width="5" stroke-dasharray="91.4 8.6" stroke-dashoffset="25" />
+            <text x="21" y="20" text-anchor="middle" style="font-family: var(--disp); font-weight: 900; font-size: 6.2px; fill: var(--accent);">[必填]%</text>
+            <text x="21" y="25.5" text-anchor="middle" style="font-family: var(--mono); font-size: 2.1px; letter-spacing: 0.04em; fill: var(--muted);">[必填] 环心注</text>
+          </svg>
+          <div class="donut-legend">
+            <div class="dl-row"><span class="dl-dot" style="background: var(--accent);"></span><span class="dl-label">[必填] 系列一</span><span class="dl-val">[必填] 值</span></div>
+          </div>
+        </div>
+        <div style="flex: 1;">
+          <div class="mod">
+            <div class="mod-h"><span class="mh-name">[必填] 模块小标题</span><span class="mh-stat">[必填] 数据</span></div>
+            <p>[必填] 模块正文。</p>
+          </div>
+        </div>
+      </div>
+      <div class="note pin-bottom">图 1 · [必填] 图表说明（数据来源 / 口径 / 刻度）。</div>
+      <div class="folio"><span class="fl-run">PART 01 · [必填] 篇章名</span><span class="fl-num">08</span></div>
+    </div>
+    <div class="page right flex-fill" data-layout="M09">
+      <div class="col-title"><span class="ct-name">数据版 · DATA DESK · [必填] 篇章名</span></div>
+      <div class="kicker" style="margin-bottom: 4mm;">02 · [必填] 小节标题</div>
+      <h3 class="disp md">[必填] 内容标题<br />[必填] 第二行</h3>
+      <div class="chart-unit" style="margin-top: 10mm;">
+        <div class="track">
+          <div class="track-row"><div class="tr-head"><span class="tr-label">[必填] 条目</span><span class="tr-val">[必填] 值</span></div><div class="track-bar"><div class="tb-fill" style="--v: 100%;"></div></div></div>
+          <div class="track-row"><div class="tr-head"><span class="tr-label">[必填] 条目</span><span class="tr-val">[必填] 值</span></div><div class="track-bar"><div class="tb-fill t3" style="--v: 60%;"></div></div></div>
+        </div>
+        <div class="note" style="margin-top: 3mm;">图 2 · [必填] 图表说明。</div>
+      </div>
+      <div class="mod-grid" style="margin-top: 7mm;">
+        <div class="mod">
+          <div class="mod-h"><span class="mh-name">[必填] 模块小标题</span><span class="mh-stat">[必填] 数据</span></div>
+          <p>[必填] 模块正文。</p>
+        </div>
+      </div>
+      <div class="pullquote pin-bottom">
+        <div class="pq-cn" style="font-size: 13pt;">[必填] 页面置底引文。</div>
+      </div>
+      <div class="folio"><span class="fl-run">PART 01 · [必填] 篇章名</span><span class="fl-num">09</span></div>
+    </div>
+  </section>
+
+  <!-- 对开 · 幕封 M06 | 岗位一览 M14 -->
+  <section class="spread" id="sp-part2">
+    <div class="page left" data-layout="M06" style="background: var(--accent); color: #ffffff;">
+      <div style="position: relative; height: 100%; display: flex; flex-direction: column;">
+        <div class="dv-num">02</div>
+        <div style="margin-top: auto;">
+          <div class="dv-kicker">PART 02 · [必填] 英文</div>
+          <div class="dv-title" style="margin-top: 5mm;">[必填] 篇章标题<br />[必填] 第二行</div>
+          <div class="dv-sub" style="margin-top: 6mm; max-width: 120mm;">[必填] 篇章导语一句话。</div>
+          <div class="kv-rule" style="margin-top: 8mm;"></div>
+        </div>
+      </div>
+      <div class="folio on-dark"><span class="fl-run">PART 02 · [必填] 篇章名</span><span class="fl-num">14</span></div>
+    </div>
+    <div class="page right" data-layout="M14">
+      <div class="col-title"><span class="ct-idx">07</span><span class="ct-name">[必填] 一览表标题</span></div>
+      <table class="xtable">
+        <tr><th>岗位</th><th>方向</th><th class="num">详解</th></tr>
+        <tr><td><b>[必填] 岗位名</b></td><td>[必填] 方向</td><td class="num">P.16</td></tr>
+      </table>
+      <div class="pullquote" style="margin-top: 9mm;">
+        <div class="pq-cn" style="font-size: 13.5pt;">[必填] 编辑部说明引文</div>
+        <div class="pq-by">— 编辑部说明</div>
+      </div>
+      <div style="margin-top: 9mm; border-top: 1px solid var(--border); padding-top: 3mm;">
+        <div style="font-family: var(--mono); font-size: 7.5pt; letter-spacing: 0.14em; color: var(--muted);">HOW TO READ · 阅读指南</div>
+        <p style="font-size: 9pt; line-height: 1.8; margin-top: 2mm; text-align: justify;">[必填] 十二段式阅读指南。</p>
+      </div>
+      <div class="folio"><span class="fl-run">PART 02 · [必填] 篇章名</span><span class="fl-num">15</span></div>
+    </div>
+  </section>
+
+  <!-- 对开 · 岗位封面 M15 | 岗位开篇 M16 -->
+  <section class="spread" id="sp-job-1">
+    <div class="page left" data-layout="M15" style="padding: 0;">
+      <div class="bleed-img">
+        <img src="images/job1.jpg" alt="[必填] 图注（示意图）" style="height: 108%; object-position: center top;" />
+      </div>
+      <div class="caption-chip">IMAGE · [必填] 图注（示意图）</div>
+    </div>
+    <div class="page right" data-layout="M16">
+      <div class="kicker">JOB FILE · [必填] 编号 · [必填] 方向</div>
+      <h3 class="disp lg" style="margin-top: 4mm;">[必填] 岗位名<br />[必填] 第二行</h3>
+      <p style="font-family: var(--disp); font-weight: 700; font-size: 12pt; color: var(--muted); margin-top: 3mm; line-height: 1.4;">[必填] 一句话岗位画像</p>
+      <hr class="ruled" style="margin: 6mm 0;" />
+      <p style="font-size: 10pt; line-height: 1.9; text-align: justify;">[必填] 岗位综述一段。</p>
+      <div class="meta-grid" style="margin-top: 8mm;">
+        <div class="mg-item"><div class="mg-k">[必填] 维度</div><div class="mg-v">[必填] 值</div></div>
+        <div class="mg-item"><div class="mg-k">[必填] 维度</div><div class="mg-v">[必填] 值</div></div>
+        <div class="mg-item"><div class="mg-k">[必填] 维度</div><div class="mg-v">[必填] 值</div></div>
+        <div class="mg-item"><div class="mg-k">[必填] 维度</div><div class="mg-v">[必填] 值</div></div>
+      </div>
+      <div class="cm-tags" style="margin-top: 8mm;">
+        <span>[必填] 标签</span><span>[必填] 标签</span>
+      </div>
+      <div style="margin-top: 9mm; border-top: 2px solid var(--fg); padding-top: 3.5mm;">
+        <div style="font-family: var(--mono); font-size: 7.5pt; letter-spacing: 0.14em; color: var(--muted);">IN THIS FILE · 本岗导览</div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2.2mm 8mm; margin-top: 3.5mm;">
+          <div style="display: flex; justify-content: space-between; align-items: baseline; font-size: 8.5pt;"><span><span style="font-family: var(--mono); color: var(--accent); font-weight: 700; margin-right: 2mm;">01</span>[必填] 小节名</span><span style="font-family: var(--mono); color: var(--muted);">P.18</span></div>
+        </div>
+      </div>
+      <div class="folio"><span class="fl-run">JOB FILE · [必填] 岗位名</span><span class="fl-num">17</span></div>
+    </div>
+  </section>
+
+  <!-- 对开 · 岗位详情 M17 | 岗位详情 M17 -->
+  <section class="spread" id="sp-job-1a">
+    <div class="page left flex-fill" data-layout="M17">
+      <div class="col-title"><span class="ct-name">岗位档案 · JOB FILE · PART 02 岗位详解</span></div>
+      <div class="sec">
+        <div class="sec-head"><span class="sec-no">01</span><span class="sec-title">[必填] 小节标题</span></div>
+        <p class="lede">[必填] 导语段（首字自动下沉）。</p>
+      </div>
+      <div class="sec" style="margin-bottom: 0;">
+        <div class="sec-head"><span class="sec-no">02</span><span class="sec-title">[必填] 小节标题</span></div>
+        <div class="day">
+          <div class="day-row"><div class="day-t">[必填] 时段</div><div class="day-b">[必填] 内容。</div></div>
+        </div>
+      </div>
+      <div class="folio"><span class="fl-run">JOB FILE · [必填] 岗位名</span><span class="fl-num">18</span></div>
+    </div>
+    <div class="page right flex-fill sec-roomy" data-layout="M17">
+      <div class="col-title"><span class="ct-name">岗位档案 · JOB FILE · PART 02 岗位详解</span></div>
+      <div class="sec">
+        <div class="sec-head"><span class="sec-no">07</span><span class="sec-title">[必填] 小节标题</span></div>
+        <div class="pathmap">
+          <svg viewBox="0 0 744 132" role="img" aria-label="[必填] 路径图说明">
+            <path d="M 60 108 L 246 84 L 432 56 L 618 24" fill="none" style="stroke: var(--accent);" stroke-width="2.5"/>
+            <circle cx="60" cy="108" r="6.5" style="fill: var(--accent);"/>
+            <circle cx="618" cy="24" r="8" style="fill: var(--chart-3);"/>
+            <text x="60" y="128" style="font-family: var(--mono); fill: var(--muted);" font-size="11" letter-spacing="1">[必填] 年限</text>
+            <text x="60" y="94" style="font-family: var(--disp); font-weight: 700; fill: var(--fg);" font-size="16">[必填] 阶段</text>
+          </svg>
+          <div class="path-cols">
+            <p>[必填] 阶段说明。</p>
+          </div>
+        </div>
+      </div>
+      <div class="sec">
+        <div class="sec-head"><span class="sec-no">10</span><span class="sec-title">[必填] 小节标题</span></div>
+        <div class="trait">
+          <div class="trait-cell"><div class="trait-t">[必填] 特质</div><p>[必填] 说明。</p></div>
+        </div>
+      </div>
+      <div class="folio"><span class="fl-run">JOB FILE · [必填] 岗位名</span><span class="fl-num">19</span></div>
+    </div>
+  </section>
+
+</main>
+
+<script>
+  // 预览目录条（打印时自动隐藏）；build 产物同样携带，无副作用
+  (function () {
+    var spreads = Array.prototype.slice.call(document.querySelectorAll('.spread'));
+    if (!spreads.length) return;
+    var nav = document.createElement('nav');
+    nav.className = 'toolbar';
+    nav.style.cssText = 'position:fixed;top:16px;right:16px;background:rgba(255,254,251,0.95);border:1px solid #dcd7cc;border-radius:6px;padding:4px 10px;font:12px "IBM Plex Mono",monospace;z-index:99;line-height:2;box-shadow:0 2px 10px rgba(28,30,38,.12)';
+    nav.innerHTML = '<div style="font-size:10px;color:#6d6a63;letter-spacing:.12em">模版 B · 杂志编辑风</div>' + spreads.map(function (s, i) {
+      var label = s.getAttribute('id') || ('spread-' + (i + 1));
+      return '<a href="#' + s.id + '" style="display:block;color:#1c1e26;text-decoration:none">' + String(i + 1).padStart(2, '0') + ' · ' + label + '</a>';
+    }).join('');
+    document.body.appendChild(nav);
+  })();
+</script>
+</body>
+</html>
