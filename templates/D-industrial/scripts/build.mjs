@@ -107,6 +107,10 @@ export function loadThemes() {
 }
 
 /* ---------------- 表格渲染 ---------------- */
+/** 纯 ASCII 的单元格（数字、单位、牌号、标准号）与语言无关：
+ *  不套 .zh，切到 lang="en" 时才不会整列消失。 */
+const isNeutral = (v) => typeof v === 'string' && !/[\u3400-\u9fff]/.test(v);
+
 function renderTable(spec) {
   const cols = spec.cols || [];
   const rows = spec.rows || [];
@@ -128,7 +132,7 @@ function renderTable(spec) {
     r.forEach((cell, j) => {
       const col = cols[j] || {};
       const cls2 = col.num ? ' class="n"' : (col.k ? ' class="k"' : '');
-      h += `<td${cls2}>${t(cell)}</td>`;
+      h += `<td${cls2}>${isNeutral(cell) ? esc(cell) : t(cell)}</td>`;
     });
     h += '</tr>';
   });
