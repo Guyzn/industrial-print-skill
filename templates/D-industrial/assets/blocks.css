@@ -138,7 +138,7 @@ h1 .bi-en, h2 .bi-en, h3 .bi-en, h4 .bi-en,
 .blk-title .bi-en, .toc-title .bi-en, .sec-open h2 .bi-en, .sec-open .lede .bi-en,
 .grade-card .nm .bi-en, .grade-card .code .en, .cert-cell .nm .bi-en,
 .flow .step .tt .bi-en, .tl .ev .tt .bi-en, .tl .ev .dd .bi-en,
-.stat-band .cell .lb .bi-en, .big-num .lb .bi-en, .fig-cap .bi-en,
+.stat-band .cell .lb .bi-en, .big-num .lb .bi-en, .fig-cap .bi-en, .cov-stats .st .bi-en,
 .pull .bi-en, .contact-list .row .v .bi-en, .sign .bi-en,
 .bars .row .lb .bi-en, .donut-legend .li .bi-en, .toc-item .tt .bi-en {
   display: block;
@@ -185,7 +185,7 @@ h1 .bi-en, h2 .bi-en, h3 .bi-en, h4 .bi-en,
   letter-spacing: 0.1em;
   text-transform: uppercase;
 }
-.cov-logo { top: var(--ink-top); left: var(--ink-outer); height: 9mm; width: auto; }
+.cov-logo { display: block; top: var(--ink-top); left: var(--ink-outer); height: 9mm; width: auto; }
 .cov-kind { top: var(--ink-top); right: var(--ink-outer); }
 .cov-doc {
   position: absolute;
@@ -267,6 +267,29 @@ h1 .bi-en, h2 .bi-en, h3 .bi-en, h4 .bi-en,
 .toc-item .tt { flex: 1; font-size: var(--fs-body); }
 .toc-item .tt .en { display: block; font-size: 0.8em; color: var(--muted); }
 .toc-item .pg { font-family: var(--mono); font-size: var(--fs-small); color: var(--muted); }
+/* 二级条目：章号.序号 + 对开起始页。短文档只有章名的话，目录会翻出一整页空白 */
+.toc-item.sub { padding: 1.2mm 0 1.2mm 9mm; border-bottom: 0; }
+.toc-item.sub .no { min-width: 10mm; font-size: var(--fs-micro); color: var(--muted); }
+.toc-item.sub .tt { font-size: var(--fs-small); color: var(--muted); }
+.toc-item.sub .tt .en { display: block; font-size: 0.92em; }
+.toc-item.sub .pg { font-size: var(--fs-micro); }
+/* 目录按「章 + 子目」成组换栏，不能把子目拆到另一栏去 */
+.toc-group { break-inside: avoid; }
+/* 目录右页的文件信息栏（短文档的目录页不留白） */
+.toc-panel { position: absolute; left: var(--ink-fold); right: var(--ink-outer); top: var(--ink-top); }
+.toc-panel-title {
+  font-family: var(--mono); font-size: var(--fs-small); letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--accent);
+  border-bottom: 0.25mm solid var(--fg); padding-bottom: 2mm; margin-bottom: 3mm;
+}
+.toc-panel .prow { display: flex; gap: 4mm; padding: 2.2mm 0; border-bottom: 0.15mm solid var(--border); font-size: var(--fs-small); }
+.toc-panel .prow .k {
+  width: 34mm; flex: 0 0 34mm; font-family: var(--mono); font-size: var(--fs-micro);
+  letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted);
+}
+.toc-panel .prow .k .bi-en { display: block; font-size: 0.94em; letter-spacing: 0.04em; }
+.toc-panel .prow .v { flex: 1; }
+.toc-panel .pnote { margin-top: 7mm; font-size: var(--fs-small); color: var(--muted); line-height: 1.65; max-width: 120mm; }
 
 /* ============================================================
    D03 章节 opener / D15 幕封
@@ -359,6 +382,11 @@ table.tb td.k { color: var(--muted); white-space: nowrap; }
 table.tb .u { color: var(--muted); font-size: 0.9em; }
 table.tb.compact th, table.tb.compact td { padding: 1.2mm 1.6mm; }
 
+/* 单元格与表题里的中英并排：用间隔点分开，不换行——换行会让 9 行的表变成 18 行 */
+.tb td .bi-en { font-size: 0.92em; color: var(--muted); }
+.tb td .zh + .bi-en::before { content: " · "; }
+.tb caption .zh + .bi-en::before { content: " · "; }
+
 .twin { display: grid; grid-template-columns: 1fr 1fr; gap: 8mm; }
 .twin.wide-left { grid-template-columns: 1.35fr 1fr; }
 
@@ -379,8 +407,16 @@ table.tb.compact th, table.tb.compact td { padding: 1.2mm 1.6mm; }
 .flow .step .tt .en { display: block; font-family: var(--mono); font-size: var(--fs-micro); font-weight: 400; color: var(--muted); margin-top: 0.8mm; }
 .flow .step .dd { font-size: var(--fs-small); color: var(--muted); margin-top: 2mm; line-height: 1.5; }
 .flow.v { flex-direction: column; }
-.flow.v .step { display: grid; grid-template-columns: 14mm 1fr; gap: 4mm; padding: 3mm 0; border-left: 0; border-top: 0.15mm solid var(--border); }
+.flow.v .step { display: grid; grid-template-columns: 14mm 1fr; gap: 0 4mm; padding: 3mm 0; border-left: 0; border-top: 0.15mm solid var(--border); }
 .flow.v .step + .step { padding-left: 0; }
+/* 纵向流程：.no 与 .tt 占第一行，.dd 必须显式落在第二行第二列——
+   不写这一条，描述会掉进 14mm 宽的序号列，一行一个字地竖着排。 */
+.flow.v .step .no { grid-row: 1 / span 2; }
+/* 六步以上的纵向流程分两栏；单栏排下来只占半个对开，剩下的全是白 */
+.flow.v.cols2 { display: block; columns: 2; column-gap: 12mm; }
+.flow.v.cols2 .step { break-inside: avoid; }
+.flow.v.cols2 .step:nth-child(1) { border-top: 0; }
+.flow.v .step .dd { grid-column: 2; margin-top: 2mm; }
 
 /* ============================================================
    D09 图表（数据由 --v/--max 计算）
@@ -430,6 +466,8 @@ table.tb.compact th, table.tb.compact td { padding: 1.2mm 1.6mm; }
 .fig-plate { border: 0.15mm solid var(--border); padding: 3mm; }
 .fig-plate img { width: 100%; display: block; }
 .fig-plate figcaption { font-size: var(--fs-micro); color: var(--muted); margin-top: 2mm; font-family: var(--mono); }
+/* 内联矢量图（图表 / 线稿）：内联才能继承字体与主题变量，<img> 做不到 */
+.fig-svg .fig-svg-el { width: 100%; height: auto; display: block; }
 
 /* ============================================================
    D11 数字带

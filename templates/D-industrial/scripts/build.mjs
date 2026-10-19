@@ -22,7 +22,7 @@ export const LAYOUTS = [
 ];
 export const BLOCK_TYPES = [
   'text', 'grades', 'table', 'twin', 'flow', 'chart',
-  'image', 'stats', 'certs', 'timeline', 'contact'
+  'image', 'svg', 'stats', 'certs', 'timeline', 'contact'
 ];
 /** 纸张口径：--page-* 是成品单页，--spread-* 是含 3mm 四缘出血的印刷幅面（折线处不出血）。
  *  @page size 写死在 blocks.css（a4 默认），cn16 由 build() 动态替换。 */
@@ -35,6 +35,24 @@ export const PAPERS = {
 const esc = (s) => String(s ?? '')
   .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
   .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+
+/* 资源根目录：矢量图（logo / 图表）要内联进 HTML，才能继承页面的字体与主题色。
+   由 main() 设成内容 JSON 所在目录，与 images/ 的相对路径保持一致。 */
+let ASSET_ROOT = process.cwd();
+
+/** 把 SVG 文件内联成页内元素。
+ *  <img src="x.svg"> 是独立文档，拿不到 @font-face 与 CSS 变量——图表上的字会掉成
+ *  系统 Helvetica，送印时 PDF 里就多一套字体。内联后 CSS 变量与 MiSans 都能继承。 */
+function inlineSvg(src, cls) {
+  const p = join(ASSET_ROOT, src);
+  if (!existsSync(p)) throw new Error(`找不到 SVG: ${src}`);
+  const raw = readFileSync(p, 'utf8')
+    .replace(/<\?xml[\s\S]*?\?>/g, '')
+    .replace(/<!DOCTYPE[\s\S]*?>/g, '')
+    .trim()
+    .replace(/<svg([^>]*)>/, (m, attrs) => `<svg class="${cls}"${attrs}>`);
+  return raw;
+}
 
 /** 文本值归一化：字符串 → {zh,en}；对象 → 补齐缺语 */
 function norm(v) {
@@ -178,7 +196,8 @@ const R = {
 
   flow(b) {
     const steps = b.steps || [];
-    const v = b.dir === 'v' ? ' v' : '';
+    // cols:2 让纵向流程分两栏——6 步以上单栏排下来只占半页，两栏才撑得住一个对开
+    const v = (b.dir === 'v' ? ' v' : '') + (b.dir === 'v' && b.cols === 2 ? ' cols2' : '');
     let h = '';
     if (b.title) h += `<div class="blk-title">${b.idx ? `<span class="idx">${esc(b.idx)}</span>` : ''}${tb(b.title)}</div>`;
     h += `<div class="flow${v}">`;
@@ -238,6 +257,13 @@ const R = {
     return `<figure class="fig-plate"><img src="${esc(b.src)}" alt="${esc(norm(b.caption).zh)}" />` +
       (b.caption ? `<figcaption>${b.no ? `${esc(b.no)} ` : ''}${tb(b.caption)}</figcaption>` : '') +
       '</figure>';
+  },
+
+  svg(b) {
+    const cap = b.caption
+      ? `<figcaption>${b.no ? `${esc(b.no)} ` : ''}${tb(b.caption)}</figcaption>`
+      : '';
+    return `<figure class="fig-plate fig-svg">${inlineSvg(b.src, 'fig-svg-el')}${cap}</figure>`;
   },
 
   stats(b) {
@@ -372,8 +398,12 @@ function contentSpread(meta, sp, spreadIdx, pageNo) {
 function coverSpread(meta, spreadIdx) {
   const cov = meta.cover || {};
   const kind = norm(cov.kind);
+  // 品牌标识同样走内联：SVG 里若不内联，字会掉成系统字体，送印 PDF 里就多一套
+  const logo = /\.svg$/i.test(meta.logo || '')
+    ? inlineSvg(meta.logo || 'images/logo-placeholder.svg', 'cov-logo')
+    : `<img class="cov-logo" src="${esc(meta.logo || 'images/logo-placeholder.svg')}" alt="logo" />`;
   const left =
-    `<img class="cov-logo" src="${esc(meta.logo || 'images/logo-placeholder.svg')}" alt="logo" />` +
+    logo +
     `<div class="cov-meta cov-kind">${t(kind)}</div>` +
     `<div class="cov-doc">${esc(meta.doc_no || '')}</div>` +
     (meta.company
@@ -398,11 +428,28 @@ function tocSpread(meta, sections, startPage) {
   let h = `<div class="toc-wrap"><div class="toc-title">${tb(meta.toc_title || { zh: '目录', en: 'Contents' })}</div><div class="toc-cols">`;
   for (const s of sections) {
     const pg = s._startPage != null ? String(s._startPage).padStart(2, '0') : '—';
+    // 章与子目包成一组，换栏时不会被拆开
+    h += '<div class="toc-group">';
     h += `<div class="toc-item"><span class="no">${esc(s.no || '')}</span>` +
       `<span class="tt">${tb(s.title)}</span><span class="pg">${pg}</span></div>`;
+    // 二级条目用章号.序号，页码取该对开的起始页
+    (s._spreads || []).forEach((sp, i) => {
+      const sub = `${s.no ? Number(s.no) : ''}.${i + 1}`;
+      h += `<div class="toc-item sub"><span class="no">${esc(sub)}</span>` +
+        `<span class="tt">${tb(sp.title)}</span>` +
+        `<span class="pg">${String(sp.page).padStart(2, '0')}</span></div>`;
+    });
+    h += '</div>';
   }
   h += '</div></div>';
-  return `<section class="spread" id="sp-toc">${page('left', h, startPage, meta)}${page('right', '', startPage + 1, meta)}</section>`;
+  // 右页：目录不塞正文，但短文档留一整页空白不合适——放文件信息（meta.toc_panel 可选）
+  const tp = meta.toc_panel;
+  const panel = tp
+    ? `<div class="toc-panel"><div class="toc-panel-title">${tb(tp.title || { zh: '文件信息', en: 'Document control' })}</div>` +
+      (tp.rows || []).map((r) => `<div class="prow"><span class="k">${tb(r.k)}</span><span class="v">${tb(r.v)}</span></div>`).join('') +
+      (tp.note ? `<div class="pnote">${tb(tp.note)}</div>` : '') + '</div>'
+    : '';
+  return `<section class="spread" id="sp-toc">${page('left', h, startPage, meta)}${page('right', panel, startPage + 1, meta)}</section>`;
 }
 
 function sectionOpenerSpread(meta, sec, pageNo) {
@@ -419,7 +466,9 @@ function sectionOpenerSpread(meta, sec, pageNo) {
       ? `<div class="pane" style="top:132mm"><div class="blk-title">${tb({ zh: '本章内容', en: 'In this section' })}</div>` +
         guide.map((g) => `<div class="toc-item"><span class="no">${esc(g.no || '')}</span><span class="tt">${tb(g.title)}</span></div>`).join('') +
         '</div>'
-      : '');
+      : '') +
+    // 底带两页都要有，只给左页会在折线上断成两截
+    '<div class="cov-mist"></div>';
   return `<section class="spread" id="sp-${esc(sec.id)}-open">${page('left', left, pageNo, meta)}${page('right', right, pageNo + 1, meta)}</section>`;
 }
 
@@ -464,7 +513,14 @@ export function build(content, opts = {}) {
   }
   // section 起始页
   for (const item of seq) {
-    if (item.kind === 'open') item.sec._startPage = item.pageNo;
+    if (item.kind === 'open') { item.sec._startPage = item.pageNo; item.sec._spreads = []; }
+  }
+  // 二级条目：目录要能翻到具体对开，只有章名的话短文档会翻出一整页空白
+  for (const item of seq) {
+    if (item.kind !== 'content') continue;
+    const sp = item.sp;
+    const t = sp.title || (sp.blocks || [])[0]?.title || sp.id;
+    if (t) item.sec._spreads.push({ title: t, page: item.pageNo });
   }
 
   const meta = content.meta;
@@ -529,6 +585,7 @@ async function main() {
   }
   const [src, out] = pos;
   if (!existsSync(src)) { console.error(`找不到内容文件: ${src}`); process.exit(2); }
+  ASSET_ROOT = dirname(resolve(src));   // 内联 SVG 按内容 JSON 所在目录找 images/
   const content = JSON.parse(readFileSync(src, 'utf8'));
 
   let res;
