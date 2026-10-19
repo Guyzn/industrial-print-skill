@@ -26,7 +26,7 @@ export const PAPERS = {
 export const PAGE_TYPES = ['cover', 'contents', 'section', 'grade', 'tablepage', 'gallery', 'contact'];
 export const BLOCK_TYPES = [
   'text', 'table', 'twin', 'note', 'kv', 'dash', 'dashgroups',
-  'adv', 'photos', 'photo', 'bleed', 'chips', 'twocol'
+  'adv', 'photos', 'photo', 'bleed', 'chips', 'twocol', 'spacer'
 ];
 
 /* ---------------- 基础工具 ---------------- */
@@ -288,8 +288,26 @@ const B = {
     }
     h += '</div>';
     return h;
+  },
+
+  /* 竖向分配：内容撑不满时，把剩余高度放在这里，而不是留给页脚上方。
+     grow 是权重（默认 1），min 是最小高度（默认 6mm）。 */
+  spacer(b) {
+    const grow = Number(b.grow) || 1;
+    const min = b.min || '6mm';
+    return `<div class="spacer" style="--grow:${grow};--min:${min}"></div>`;
   }
 };
+
+/* ---------------- 块包装 ----------------
+   每个块包一层 .blk，让页面正文的 flex 只处理「块与块」的间距；
+   段落留在块内部按自己的段距排，不会被当成可分配的间隙。
+   托底图（photo fill）与 spacer 带 flex 增长，其余块按内容高度占位。 */
+function wrap(b, html) {
+  if (b.type === 'spacer') return html;
+  const grow = b.type === 'photo' && b.fill === true ? ' fill' : '';
+  return `<div class="blk b-${b.type}${grow}">${html}</div>`;
+}
 
 /* ---------------- 页眉 / 页脚 ---------------- */
 function brandHtml(meta) {
@@ -311,6 +329,29 @@ function footer(meta, page, n, total) {
     `<div class="num">Page ${n} / ${total}</div></div>`;
 }
 
+/** 正文容器：竖向分配策略
+ *  - 显式 valign 优先（top / center / bottom / distribute）
+ *  - 有托底图（photo fill）或 spacer：顶部起排，剩余高度由它们吸收，不额外分配
+ *  - 没有吸收块：块数 ≥4 用 distribute（剩余高度摊进块间，不留页尾大洞）
+ *                   块数 1–3 用 center（上下各留一半，比顶对齐+页尾空洞稳）
+ *  这是编译期决策：静态 HTML 量不到真实高度，与其猜，不如按块数给一个确定的默认，
+ *  作者随时可以用 valign 覆盖。
+ */
+function bodyCls(page) {
+  const v = page.valign;
+  if (v === 'center') return 'page-body v-center';
+  if (v === 'bottom') return 'page-body v-bottom';
+  if (v === 'top') return 'page-body';
+  if (v === 'distribute') return 'page-body v-distribute';
+  // 表页没有 blocks，用 tables 当块数；否则永远算 0，分配策略失效
+  const blocks = page.blocks || page.tables || [];
+  const absorbing = page.image || blocks.some((b) => (b.type === 'photo' && b.fill === true) || b.type === 'spacer');
+  if (absorbing) return 'page-body';
+  if (blocks.length >= 4) return 'page-body v-distribute';
+  if (blocks.length > 0) return 'page-body v-center';
+  return 'page-body';
+}
+
 function sheet(html, n, cls = '') {
   return `<section class="sheet${cls ? ' ' + cls : ''}" id="p-${String(n).padStart(2, '0')}" data-page="${n}">` +
     CROP_MARKS + html + '</section>';
@@ -320,10 +361,10 @@ function sheet(html, n, cls = '') {
 function pageCover(meta, n) {
   const c = meta.cover || {};
   const img = c.image || meta.cover_image;
-  return `<section class="sheet sheet-cover" id="p-${String(n).padStart(2, '0')}" data-page="${n}">` +
+  return `<section class="sheet sheet-cover${img ? ' has-img' : ''}" id="p-${String(n).padStart(2, '0')}" data-page="${n}">` +
     CROP_MARKS +
     (img ? `<img class="cover-img" src="${esc(img)}" alt="" />` : '') +
-    '<div class="cover-scrim"></div>' +
+    (img ? '<div class="cover-scrim"></div>' : '') +
     `<div class="cover-top"><div class="cover-brand">${brandHtml(meta)}</div>` +
     (meta.legal ? `<div class="cover-legal">${tx(meta.legal)}</div>` : '') + '</div>' +
     '<div class="cover-block">' +
@@ -339,9 +380,9 @@ function pageCover(meta, n) {
 }
 
 function pageContents(meta, page, n, total, pageMap) {
-  let body = `<div class="sec-title">${tx(page.title || meta.toc_title || 'Contents')}</div>`;
-  if (page.sub) body += `<div class="sec-sub">${tx(page.sub)}</div>`;
-  body += '<div class="toc-cols">';
+  let head = `<div class="sec-title">${tx(page.title || meta.toc_title || 'Contents')}</div>`;
+  if (page.sub) head += `<div class="sec-sub">${tx(page.sub)}</div>`;
+  let body = '<div class="toc-cols">';
   const groups = page.groups || [];
   const per = Math.ceil(groups.length / (page.cols || 2));
   const cols = page.cols || 2;
@@ -362,68 +403,74 @@ function pageContents(meta, page, n, total, pageMap) {
   }
   body += '</div>';
   if (page.note) body += `<div class="note toc-note">${tx(page.note)}</div>`;
-  if (page.image) body += B.photo({ src: page.image, cap: page.image_cap, fill: true });
-  return `<div class="inner">${header(meta, page)}<div class="page-body">${body}</div>${footer(meta, page, n, total)}</div>`;
+  if (page.image) body += wrap({ type: 'photo', fill: true }, B.photo({ src: page.image, cap: page.image_cap, fill: true }));
+  return `<div class="inner">${header(meta, page)}<div class="page-head">${head}</div><div class="${bodyCls(page)}">${body}</div>${footer(meta, page, n, total)}</div>`;
 }
 
 function pageSection(meta, page, n, total) {
+  let head = '';
+  if (page.title) head += `<div class="sec-title">${tx(page.title)}</div>`;
+  if (page.sub) head += `<div class="sec-sub">${tx(page.sub)}</div>`;
+  if (page.lede) head += `<p class="lead">${tx(page.lede)}</p>`;
   let body = '';
-  if (page.title) body += `<div class="sec-title">${tx(page.title)}</div>`;
-  if (page.sub) body += `<div class="sec-sub">${tx(page.sub)}</div>`;
-  if (page.lede) body += `<p class="lead" style="margin-bottom:4mm">${tx(page.lede)}</p>`;
   for (const b of (page.blocks || [])) {
     const fn = B[b.type];
     if (!fn) throw new Error(`未知块类型: ${b.type}（第 ${n} 页）`);
-    body += fn(b);
+    body += wrap(b, fn(b));
   }
-  return `<div class="inner">${header(meta, page)}<div class="page-body">${body}</div>${footer(meta, page, n, total)}</div>`;
+  return `<div class="inner">${header(meta, page)}<div class="page-head">${head}</div><div class="${bodyCls(page)}">${body}</div>${footer(meta, page, n, total)}</div>`;
 }
 
 function pageGrade(meta, page, n, total) {
   const bn = page.banner || {};
-  let body = '<div class="grade-banner">' +
+  const banner = '<div class="grade-banner">' +
     `<div class="g1">${tx(bn.code)}</div>` +
     (bn.family ? `<div class="g2">${tx(bn.family)}</div>` : '') +
     (bn.standards ? `<div class="g3">${tx(bn.standards)}</div>` : '') +
     '</div>';
+  let body = '';
   for (const b of (page.blocks || [])) {
     const fn = B[b.type];
     if (!fn) throw new Error(`未知块类型: ${b.type}（第 ${n} 页）`);
-    body += fn(b);
+    body += wrap(b, fn(b));
   }
-  return `<div class="inner has-banner"><div class="page-body">${body}</div>` +
+  return `<div class="inner has-banner">${banner}<div class="${bodyCls(page)}">${body}</div>` +
     footer(meta, page, n, total) + '</div>';
 }
 
 function pageTablepage(meta, page, n, total) {
+  let head = '';
+  if (page.title) head += `<div class="sec-title" style="font-size:14.5pt">${tx(page.title)}</div>`;
+  if (page.sub) head += `<div class="sec-sub">${tx(page.sub)}</div>`;
   let body = '';
-  if (page.title) body += `<div class="sec-title" style="font-size:14.5pt">${tx(page.title)}</div>`;
-  if (page.sub) body += `<div class="sec-sub">${tx(page.sub)}</div>`;
   for (const g of (page.tables || [])) {
     // 只有 note 的条目是页脚注释，不是表
-    if (g.note && !g.rows) { body += `<div class="note" style="margin-top:3mm">${tx(g.note)}</div>`; continue; }
-    if (g.head) body += `<div class="cat-head" style="margin-top:${g === page.tables[0] ? 0 : '3mm'}">${tx(g.head)}</div>`;
-    body += renderTable({ ...g, size: g.size || 'sm' });
+    if (g.note && !g.rows) { body += `<div class="blk"><div class="note">${tx(g.note)}</div></div>`; continue; }
+    let part = '';
+    if (g.head) part += `<div class="cat-head">${tx(g.head)}</div>`;
+    part += renderTable({ ...g, size: g.size || 'sm' });
+    body += `<div class="blk">${part}</div>`;
   }
-  return `<div class="inner tblpage">${header(meta, page)}<div class="page-body">${body}</div>${footer(meta, page, n, total)}</div>`;
+  const single = (page.tables || []).filter((g) => g.rows).length === 1 ? ' single' : '';
+  return `<div class="inner tblpage${single}">${header(meta, page)}<div class="page-head">${head}</div><div class="${bodyCls(page)}">${body}</div>${footer(meta, page, n, total)}</div>`;
 }
 
 function pageGallery(meta, page, n, total) {
-  let body = '';
-  if (page.title) body += `<div class="sec-title">${tx(page.title)}</div>`;
-  if (page.sub) body += `<div class="sec-sub">${tx(page.sub)}</div>`;
-  if (page.lede) body += `<p class="body" style="margin-bottom:4mm">${tx(page.lede)}</p>`;
-  body += B.photos({ cols: page.cols || 3, items: page.items || [] });
-  if (page.note) body += `<div class="note" style="margin-top:4mm">${tx(page.note)}</div>`;
-  return `<div class="inner">${header(meta, page)}<div class="page-body">${body}</div>${footer(meta, page, n, total)}</div>`;
+  let head = '';
+  if (page.title) head += `<div class="sec-title">${tx(page.title)}</div>`;
+  if (page.sub) head += `<div class="sec-sub">${tx(page.sub)}</div>`;
+  if (page.lede) head += `<p class="lead">${tx(page.lede)}</p>`;
+  let body = `<div class="blk">${B.photos({ cols: page.cols || 3, items: page.items || [] })}</div>`;
+  if (page.note) body += `<div class="blk"><div class="note">${tx(page.note)}</div></div>`;
+  return `<div class="inner">${header(meta, page)}<div class="page-head">${head}</div><div class="${bodyCls(page)}">${body}</div>${footer(meta, page, n, total)}</div>`;
 }
 
 function pageContact(meta, page, n, total) {
-  let body = '';
-  if (page.title) body += `<div class="sec-title">${tx(page.title)}</div>`;
-  if (page.sub) body += `<div class="sec-sub">${tx(page.sub)}</div>`;
-  if (page.lede) body += `<p class="lead" style="margin-bottom:6mm">${tx(page.lede)}</p>`;
-  body += '<div class="contact-grid">';
+  let head = '';
+  if (page.title) head += `<div class="sec-title">${tx(page.title)}</div>`;
+  if (page.sub) head += `<div class="sec-sub">${tx(page.sub)}</div>`;
+  if (page.lede) head += `<p class="lead">${tx(page.lede)}</p>`;
+  let body = '<div class="contact-grid">';
   for (const col of (page.columns || [])) {
     body += '<div>';
     if (col.head) body += `<div class="gh">${tx(col.head)}</div>`;
@@ -435,12 +482,12 @@ function pageContact(meta, page, n, total) {
   }
   body += '</div>';
   if (page.note) body += `<div class="note toc-note">${tx(page.note)}</div>`;
-  if (page.image) body += B.photo({ src: page.image, cap: page.image_cap, fill: true });
+  if (page.image) body += wrap({ type: 'photo', fill: true }, B.photo({ src: page.image, cap: page.image_cap, fill: true }));
   if (page.foot) {
     body += `<div class="contact-foot"><div class="big">${tx(page.foot.big)}</div>` +
       `<div style="font-family:var(--mono);font-size:8pt;color:var(--muted)">${tx(page.foot.small || '')}</div></div>`;
   }
-  return `<div class="inner">${header(meta, page)}<div class="page-body">${body}</div>${footer(meta, page, n, total)}</div>`;
+  return `<div class="inner">${header(meta, page)}<div class="page-head">${head}</div><div class="${bodyCls(page)}">${body}</div>${footer(meta, page, n, total)}</div>`;
 }
 
 /* ---------------- 主构建 ---------------- */

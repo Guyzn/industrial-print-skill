@@ -60,12 +60,27 @@ python _shared/pdf_print_marks.py 企业介绍.pdf -o 企业介绍-送印.pdf
 
 ## 块类型
 
-`text` `table` `twin` `note` `kv` `dash` `dashgroups` `adv` `photos` `photo` `bleed` `chips` `twocol`
+`text` `table` `twin` `note` `kv` `dash` `dashgroups` `adv` `photos` `photo` `bleed` `chips` `twocol` `spacer`
 
-两个要点：
+三个要点：
 
-- **`photo` 的 `fill:true`** 是 E 的收尾机制——吃掉页面剩余高度。每页内容不足时，用它把页尾压住。
+- **`photo` 的 `fill:true`** 是 E 的收尾机制——吃掉页面剩余高度，最小缩到 28mm。每页内容不足时，用它把页尾压住。
+- **`spacer`** 把剩余高度放在你指定的位置，`grow` 是权重。两个 spacer 各 `grow:1` 就平分。
 - **`table` 的 `first:"col"`** 把首列变成行标题（浅底、左对齐、加粗），对照表必须用。
+
+## 竖向分配
+
+页面正文是一列块，块间距 3mm。剩余高度不写规则时由构建脚本自动处理：
+
+| 页面状态 | 默认行为 |
+|---|---|
+| 有 `photo fill` 或 `spacer` | 顶部起排，剩余给吸收块 |
+| 无吸收块、块数 ≥4 | `distribute`：剩余摊进块间（space-evenly） |
+| 无吸收块、块数 1–3 | `center`：整块居中 |
+
+要覆盖就写 `page.valign`：`top` / `center` / `bottom` / `distribute` / `between`。
+
+页头（标题 + 副标 + 导语）是独立的 `.page-head`，固定在版心顶部，不参与分配——否则标题会被 `center` 拖到页面中间。
 
 完整字段见根目录 `SKILL.md` 的「页面与块」表。
 
@@ -78,7 +93,7 @@ python _shared/pdf_print_marks.py 企业介绍.pdf -o 企业介绍-送印.pdf
 
 ## 常见问题
 
-**页面下半页空。** 缺托底图。`blocks` 末尾加 `{ "type": "photo", "fill": true, "src": "…" }`。
+**页面下半页空。** 缺托底图或 spacer。`blocks` 末尾加 `{ "type": "photo", "fill": true, "src": "…" }`；也可以在标题与正文之间插 `{ "type": "spacer", "grow": 1 }`，把余量放在那里而不是页尾。
 
 **目录页码是空白。** `items[].ref` 要写页面的 `id`，不是标题。也可以临时用 `"page": "8"` 写死。
 

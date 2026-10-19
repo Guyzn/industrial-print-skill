@@ -695,7 +695,8 @@
           "type": "text",
           "paras": [
             "Premium chromium-molybdenum-vanadium hot work tool steel with excellent high-temperature strength, thermal fatigue resistance and toughness. The most widely used grade for die-casting dies, forging dies and extrusion tooling."
-          ]
+          ],
+          "lead": true
         },
         {
           "type": "table",
@@ -863,7 +864,8 @@
         {
           "type": "photo",
           "src": "images/ph-band.svg",
-          "cap": "H13 blocks, six-face machined"
+          "cap": "H13 blocks, six-face machined",
+          "fill": true
         }
       ]
     },
@@ -881,7 +883,8 @@
           "type": "text",
           "paras": [
             "Chromium-molybdenum plastic mould steel supplied pre-hardened to 28–34 HRC. Good machinability and polishability, uniform hardness through the section — the default choice for large mould bases and general injection tooling."
-          ]
+          ],
+          "lead": true
         },
         {
           "type": "table",

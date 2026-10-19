@@ -119,19 +119,40 @@ if (embedded > 0) {
   err('HTML 引用了 ./fonts/ 但产物旁没有 fonts 目录——打印会掉字体');
 }
 
-/* 11. 密度提示：没托底图的页最容易空 */
+/* 11. 竖向分配与页头 */
 const pageSegs = html.split(/<section class="sheet/).slice(1);
+const VALIGN = ['v-center', 'v-bottom', 'v-distribute', 'v-between'];
+let heads = 0, grades = 0;
 pageSegs.forEach((seg, i) => {
   if (i === 0) return;   // 封面
+  if (/class="grade-banner"/.test(seg)) grades++;
+  else if (/class="page-head"/.test(seg)) heads++;
+
+  const m2 = seg.match(/class="page-body([^"]*)"/);
+  if (m2) {
+    for (const cls of m2[1].trim().split(/\s+/).filter(Boolean)) {
+      if (cls.startsWith('v-') && !VALIGN.includes(cls)) err(`第 ${i + 1} 页竖向分配类名非法: ${cls}`);
+    }
+  }
+});
+const contentPages = pageCount - 1;
+if (heads + grades !== contentPages) {
+  warn(`页头数量 ${heads} + 牌号页 ${grades} = ${heads + grades}，不等于内容页 ${contentPages}——有页面缺 page-head 或漏了 banner`);
+}
+
+/* 12. 密度提示：既没托底图、也没分配策略、块又少的页最容易空 */
+pageSegs.forEach((seg, i) => {
+  if (i === 0) return;
   const hasFill = /class="fill-photo/.test(seg);
-  const hasGrid = /class="photos /.test(seg);       // 图集页本身就是密排
-  const blocks = (seg.match(/class="(?:adv|kv|tbl|dash|chips)/g) || []).length;
-  if (!hasFill && !hasGrid && blocks < 2) {
-    warn(`第 ${i + 1} 页既没有托底图、内容块也少——印出来容易空`);
+  const hasGrid = /class="photos /.test(seg);
+  const distributed = /page-body[^"]*v-(distribute|between|center)/.test(seg);
+  const blocks = (seg.match(/class="blk(?:\s|")/g) || []).length;
+  if (!hasFill && !hasGrid && !distributed && blocks < 2) {
+    warn(`第 ${i + 1} 页既没有托底图、也没有竖向分配、块又少——印出来容易空`);
   }
 });
 
-/* 12. 体积 */
+/* 13. 体积 */
 const size = statSync(file).size;
 if (size < 30000) warn(`产物仅 ${(size / 1024).toFixed(0)}KB，可能内容不足`);
 

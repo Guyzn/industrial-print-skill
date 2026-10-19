@@ -26,11 +26,20 @@
   --sheet-w: calc(var(--trim-w) + 2 * var(--bleed));
   --sheet-h: calc(var(--trim-h) + 2 * var(--bleed));
 
-  /* ---- 版心（相对成品边）---- */
-  --pad-x: 14mm;
-  --pad-t: 13mm;
-  --pad-b: 20mm;
+  /* ---- 版心（相对成品边）----
+     左右 17mm 而不是 14mm：3mm 出血裁切有 ±1mm 公差，14mm 的边在成品上会变成 13mm，
+     一行字贴到切口旁边就显闷。17mm 是 A4 成册的常规下限。
+     上下不对称：上 15 / 下 19，视觉重心略高于几何中心，翻页时不压手。 */
+  --pad-x: 17mm;
+  --pad-t: 15mm;
+  --pad-b: 19mm;
   --foot-gap: 7mm;
+
+  /* ---- 竖向节奏：所有块间距取 3mm 的整数倍，避免 3.2 / 1.6 / 2.4 这种凑出来的缝 ---- */
+  --rhythm: 3mm;
+
+  /* ---- 悬挂导轨：小标题的竖线挂进左边距 5mm，正文仍对齐版心线 ---- */
+  --rail: 5mm;
 
   /* ---- 字体 ---- */
   --font: "MiSans", "Alibaba PuHuiTi 3", system-ui, sans-serif;
@@ -103,7 +112,15 @@ body {
   min-height: 0;
   display: flex;
   flex-direction: column;
+  gap: var(--rhythm);
 }
+
+/* 块单元：间距只发生在块与块之间。块内部的段落、表格行仍按自己的间距排，
+   不会被页面的 gap 撑开——这是「同一块里的文字要抱团、不同块之间要透气」的分界。 */
+.blk { min-width: 0; }
+.blk.fill { flex: 1; display: flex; flex-direction: column; min-height: 28mm; }
+.blk.fill .fill-photo { flex: 1; margin-top: 0; min-height: 0; }
+.blk > .gh:first-child { margin-top: 0; }
 
 /* ---- 裁切标记：画在出血区，沿 TrimBox 边缘，转角留 1mm 间隙 ---- */
 .crop { position: absolute; background: #000; }
@@ -124,8 +141,8 @@ body {
   justify-content: space-between;
   align-items: baseline;
   border-bottom: 2.2pt solid var(--fg);
-  padding-bottom: 2mm;
-  margin-bottom: 5mm;
+  padding-bottom: 2.4mm;
+  margin-bottom: 6mm;
   flex: 0 0 auto;
 }
 .ph .brand { font-size: 10.5pt; font-weight: 600; letter-spacing: 1pt; color: var(--fg); }
@@ -157,6 +174,12 @@ body {
 /* ============================================================
    标题
    ============================================================ */
+/* 页头（标题 + 副标 + 导语）是一整块，固定在版心顶部；
+   竖向分配只作用于它下面的正文块，标题不会跟着漂。 */
+.page-head { flex: 0 0 auto; padding-bottom: 5mm; }
+.page-head .sec-sub { margin-bottom: 0; }
+.page-head .lead { margin-top: var(--rhythm); margin-bottom: 0; }
+
 .sec-title { font-size: var(--fs-h1); font-weight: 600; letter-spacing: 0.4pt; line-height: 1.15; }
 .sec-sub {
   font-family: var(--mono);
@@ -173,17 +196,17 @@ body {
 /* ============================================================
    正文
    ============================================================ */
-.body { font-size: var(--fs-body); line-height: 1.55; text-align: justify; margin-bottom: 2.4mm; }
+.body { font-size: var(--fs-body); line-height: 1.62; text-align: justify; margin-bottom: var(--rhythm); }
 .body:last-child { margin-bottom: 0; }
 .mini { font-size: var(--fs-small); line-height: 1.5; }
-.lead { font-size: 9.6pt; line-height: 1.5; color: var(--fg); }
+.lead { font-size: 9.8pt; line-height: 1.55; color: var(--fg); }
 .note {
   background: var(--tint);
   border-left: 2.2pt solid var(--accent);
-  padding: 2mm 2.6mm;
-  margin: 2.4mm 0;
+  padding: 2.4mm 3mm;
+  margin: 0;
   font-size: 7.4pt;
-  line-height: 1.5;
+  line-height: 1.55;
 }
 .note b { color: var(--fg); }
 .note .nt { color: var(--accent); font-weight: 600; }
@@ -196,11 +219,20 @@ body {
   color: var(--fg);
   border-left: 2.5pt solid var(--accent);
   padding-left: 2mm;
-  margin: 3.2mm 0 1.6mm;
+  margin: calc(var(--rhythm) * 2) 0 var(--rhythm);
   letter-spacing: 0.5pt;
   text-transform: uppercase;
+  break-after: avoid;
 }
 .gh:first-child { margin-top: 0; }
+
+/* 顶层小标题把竖线挂进左边距：正文仍落在 17mm，橙色竖线退到 12mm。
+   左边因此出现一条「导标列」，不再是一堵从上到下的直墙。
+   只对 page-body 的直系子元素生效，双栏里的 .gh 不悬挂，免得压到相邻栏。 */
+.page-body > .blk > .gh {
+  margin-left: calc(-1 * var(--rail));
+  padding-left: var(--rail);
+}
 
 /* ---- 分类条 .cat-head ---- */
 .cat-head {
@@ -231,18 +263,23 @@ table { border-collapse: collapse; width: 100%; }
 }
 .tbl td {
   font-size: 7.2pt;
-  line-height: 1.35;
-  padding: 1mm;
+  line-height: 1.4;
+  padding: 1.15mm 1mm;
   text-align: center;
   border: 0.5pt solid var(--border);
 }
+/* 表格左右外缘不画竖线：一条硬边框压在切口边上，裁完会显得版心很挤。
+   去掉外框后表格仍是满幅，但视觉上「开口」了，纸边更透气。 */
+.tbl th:first-child, .tbl td:first-child { border-left: 0; }
+.tbl th:last-child,  .tbl td:last-child  { border-right: 0; }
 .tbl tbody tr:nth-child(even) td { background: var(--zebra); }
 .tbl .rowhead, .tbl td.rowhead { background: var(--tint) !important; font-weight: 600; text-align: left; }
-.tbl-sm th, .tbl-sm td { font-size: 6.8pt; padding: 0.8mm 0.7mm; }
-.tbl-xs th, .tbl-xs td { font-size: 6.4pt; padding: 0.7mm 0.5mm; }
-/* 密表页：整页都是表时放大一档，避免 6.4pt 在纸上过小 */
-.tblpage .tbl-sm th, .tblpage .tbl-sm td { font-size: 7.8pt; padding: 1.36mm 1.05mm; }
-.tblpage .tbl-xs th, .tblpage .tbl-xs td { font-size: 7.3pt; padding: 0.92mm 0.7mm; }
+.tbl-sm th, .tbl-sm td { font-size: 6.8pt; padding: 0.9mm 0.75mm; }
+.tbl-xs th, .tbl-xs td { font-size: 6.4pt; padding: 0.8mm 0.55mm; }
+/* 密表页：只有一页一表时才放大字号（6.4pt 在纸上确实小）；
+   两张以上就不要放大，否则整页必然溢出——这是实测出来的，不是拍脑袋。 */
+.tblpage.single .tbl-sm th, .tblpage.single .tbl-sm td { font-size: 7.8pt; padding: 1.36mm 1.05mm; }
+.tblpage.single .tbl-xs th, .tblpage.single .tbl-xs td { font-size: 7.3pt; padding: 0.92mm 0.7mm; }
 /* 对照表：首列左对齐，读起来才不像网格 */
 .ovtbl td { font-size: 7.4pt; }
 .ovtbl th { font-size: 7.2pt; }
@@ -251,10 +288,11 @@ table { border-collapse: collapse; width: 100%; }
 /* ============================================================
    封面
    ============================================================ */
+.sheet-cover { background: var(--fg); }
 .cover-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 /* 封面压暗：三段渐层，保证任何照片上标题都读得出来。
    用固定 rgba 而不是 color-mix——印厂机器上的 PDF 解释器不必支持新语法。 */
-.cover-scrim {
+.sheet-cover.has-img .cover-scrim {
   position: absolute; inset: 0;
   background: linear-gradient(180deg,
     rgba(12, 12, 12, 0.86) 0%,
@@ -320,8 +358,8 @@ table { border-collapse: collapse; width: 100%; }
 .grade-banner {
   background: linear-gradient(90deg, var(--fg) 0%, var(--accent-2) 100%);
   color: #fff;
-  padding: calc(var(--bleed) + var(--pad-t)) calc(var(--bleed) + var(--pad-x)) 4mm;
-  margin: calc(-1 * (var(--bleed) + var(--pad-t))) calc(-1 * (var(--bleed) + var(--pad-x))) 4mm;
+  padding: calc(var(--bleed) + var(--pad-t)) calc(var(--bleed) + var(--pad-x)) 5mm;
+  margin: calc(-1 * (var(--bleed) + var(--pad-t))) calc(-1 * (var(--bleed) + var(--pad-x))) 8mm;
   flex: 0 0 auto;
 }
 .grade-banner .g1 { font-size: 19pt; font-weight: 600; letter-spacing: 0.4pt; line-height: 1.15; }
@@ -339,13 +377,13 @@ table { border-collapse: collapse; width: 100%; }
 /* ============================================================
    通用块
    ============================================================ */
-.twocol { display: flex; gap: 4mm; }
+.twocol { display: flex; gap: 5mm; }
 .twocol > div { flex: 1; min-width: 0; }
-.threecol { display: flex; gap: 3.5mm; }
+.threecol { display: flex; gap: 4mm; }
 .threecol > div { flex: 1; min-width: 0; }
 
 /* ---- 数字带 ---- */
-.kv { display: flex; gap: 3mm; margin: 3mm 0; }
+.kv { display: flex; gap: 3mm; margin: 0; }
 .kv .k { flex: 1; background: var(--tint); border-top: 2.2pt solid var(--accent); padding: 2.5mm 2mm; text-align: center; }
 .kv .k .n { font-family: var(--mono); font-size: 14pt; font-weight: 600; line-height: 1.1; }
 .kv .k .d { font-size: 7pt; color: var(--muted); margin-top: 1mm; line-height: 1.3; }
@@ -357,13 +395,13 @@ table { border-collapse: collapse; width: 100%; }
   line-height: 1.5;
   padding-left: 4mm;
   position: relative;
-  margin-bottom: 0.9mm;
+  margin-bottom: 1.2mm;
 }
 .dash li::before { content: "—"; position: absolute; left: 0; color: var(--accent); font-weight: 600; }
 .dash.compact li { line-height: 1.42; margin-bottom: 0.6mm; }
 
 /* ---- 编号论点（为什么选我们）---- */
-.adv { display: flex; gap: 4mm; margin-bottom: 6mm; }
+.adv { display: flex; gap: 4mm; margin-bottom: 5mm; }
 .adv:last-child { margin-bottom: 0; }
 .adv .no { font-family: var(--mono); font-size: 22pt; font-weight: 600; color: var(--border); line-height: 1; min-width: 12mm; }
 .adv .tt { font-size: 10.4pt; font-weight: 600; margin-bottom: 1.2mm; }
@@ -394,8 +432,8 @@ table { border-collapse: collapse; width: 100%; }
 .photos.c3 { grid-template-columns: 1fr 1fr 1fr; }
 .photos .cell { border: 0.6pt solid var(--border); background: var(--surface); padding: 1.2mm; }
 .photos .cell img { width: 100%; display: block; object-fit: cover; }
-.photos.c2 .cell img { height: 60mm; }
-.photos.c3 .cell img { height: 52mm; }
+.photos.c2 .cell img { height: 56mm; }
+.photos.c3 .cell img { height: 49mm; }
 .photos .cell .cap b { display: block; color: var(--fg); font-size: 7.2pt; font-weight: 600; }
 
 /* 页脚托底图：吃掉剩余高度，避免页尾留空。
@@ -407,7 +445,7 @@ table { border-collapse: collapse; width: 100%; }
   flex-direction: column;
   min-height: 46mm;
   overflow: hidden;
-  margin-top: 4mm;
+  margin-top: calc(var(--rhythm) * 2);
   border: 0.6pt solid var(--border);
   background: var(--surface);
   padding: 1.2mm;
@@ -438,6 +476,24 @@ table { border-collapse: collapse; width: 100%; }
 .contact-list .row .v { flex: 1; }
 .contact-foot { margin-top: auto; padding-top: 6mm; border-top: 2.2pt solid var(--fg); display: flex; justify-content: space-between; align-items: flex-end; }
 .contact-foot .big { font-size: 15pt; font-weight: 600; letter-spacing: 0.6pt; }
+
+/* ============================================================
+   竖向分配
+   ============================================================ */
+/* 内容不足时不要只把白留在页尾——在两个块之间插一个 spacer，
+   剩余高度就落在你想让它落的地方（比如标题与正文之间），而不是全堆在页脚上方。
+   grow 是权重：两个 spacer 各写 grow:1 就平分剩余高度。 */
+.spacer { flex: var(--grow, 1) 1 0; min-height: var(--min, 6mm); }
+
+/* 整页竖向对齐：短页（联系页、只有三四行的章节页）可以居中，
+   视觉上等于上下各留一半，比顶部对齐 + 底部大洞稳。慎用 bottom，容易顶头。 */
+.page-body.v-center { justify-content: center; }
+.page-body.v-bottom { justify-content: flex-end; }
+/* 均匀分布：把剩余高度摊到所有块间隙里，而不是全堆在页脚上方。
+   用 space-evenly 而不是 space-between——后者会把最后一个块顶到页脚线上，
+   看起来像被挤下去的；evenly 上下各留一份，视觉上更稳。 */
+.page-body.v-distribute { justify-content: space-evenly; }
+.page-body.v-between { justify-content: space-between; }
 
 /* ============================================================
    双语
