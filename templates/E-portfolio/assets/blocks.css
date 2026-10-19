@@ -369,6 +369,12 @@ table { border-collapse: collapse; width: 100%; }
   background: linear-gradient(270deg, var(--fg) 0%, var(--accent-2) 100%);
 }
 
+/* 右页横幅的文字落在渐变亮端（#208AC7 附近），8pt 副标原本只有 2.2–2.8:1。
+   在这么亮的底上，任何颜色都到不了 4.5:1（纯白封顶 3.8），所以直接把两行
+   副标提成纯白——保住可读性，标题层级靠字号和字重维持。左页不动，仍是暖橙。 */
+.sheet[data-side="recto"] .grade-banner .g2,
+.sheet[data-side="recto"] .grade-banner .g3 { color: #fff; }
+
 .grade-banner .g1 { font-size: 19pt; font-weight: 600; letter-spacing: 0.4pt; line-height: 1.15; }
 .grade-banner .g2 {
   font-family: var(--mono);
