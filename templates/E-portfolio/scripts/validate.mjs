@@ -48,6 +48,20 @@ const lang = (html.match(/<main[^>]*\sdata-lang="([^"]+)"/) || [])[1];
 if (!lang) err('stage 缺少 data-lang');
 else if (!['zh', 'en', 'bi'].includes(lang)) err(`非法 data-lang: ${lang}（只许 zh/en/bi）`);
 
+/* 3.5 左/右页标记（横幅渐变按它镜像） */
+{
+  const sides = [...html.matchAll(/<section class="sheet[^"]*"[^>]*data-page="(\d+)"[^>]*data-side="([a-z]+)"/g)];
+  if (sides.length === 0) {
+    err('页面缺少 data-side（recto/verso）——横幅渐变无法按订口镜像');
+  } else {
+    for (const m of sides) {
+      const n = Number(m[1]);
+      const want = n % 2 === 1 ? 'recto' : 'verso';
+      if (m[2] !== want) err(`第 ${n} 页 data-side=${m[2]}，应为 ${want}（单数=右页 recto）`);
+    }
+  }
+}
+
 /* 4. 页数与页码 */
 const sheets = html.split(/<section class="sheet/).slice(1);
 const pageCount = sheets.length;

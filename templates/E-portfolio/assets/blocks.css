@@ -355,6 +355,9 @@ table { border-collapse: collapse; width: 100%; }
 /* ============================================================
    牌号横幅（整页唯一允许渐变的地方）
    ============================================================ */
+/* 牌号横幅：渐变按订口镜像。
+   左页（verso）深→亮，右页（recto）亮→深 —— 两页在订口处都是 --accent-2，
+   装订后整个对开读作「深 → 亮｜亮 → 深」，折线上没有竖向色缝。 */
 .grade-banner {
   background: linear-gradient(90deg, var(--fg) 0%, var(--accent-2) 100%);
   color: #fff;
@@ -362,6 +365,10 @@ table { border-collapse: collapse; width: 100%; }
   margin: calc(-1 * (var(--bleed) + var(--pad-t))) calc(-1 * (var(--bleed) + var(--pad-x))) 8mm;
   flex: 0 0 auto;
 }
+.sheet[data-side="recto"] .grade-banner {
+  background: linear-gradient(270deg, var(--fg) 0%, var(--accent-2) 100%);
+}
+
 .grade-banner .g1 { font-size: 19pt; font-weight: 600; letter-spacing: 0.4pt; line-height: 1.15; }
 .grade-banner .g2 {
   font-family: var(--mono);

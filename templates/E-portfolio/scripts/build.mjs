@@ -353,7 +353,10 @@ function bodyCls(page) {
 }
 
 function sheet(html, n, cls = '') {
-  return `<section class="sheet${cls ? ' ' + cls : ''}" id="p-${String(n).padStart(2, '0')}" data-page="${n}">` +
+  // 单数页 = 右页（recto），订口在左；双数页 = 左页（verso），订口在右。
+  // 装订成册后只有这一种配对是对的，横幅渐变按它镜像，见 blocks.css。
+  const side = n % 2 === 1 ? 'recto' : 'verso';
+  return `<section class="sheet${cls ? ' ' + cls : ''}" id="p-${String(n).padStart(2, '0')}" data-page="${n}" data-side="${side}">` +
     CROP_MARKS + html + '</section>';
 }
 
@@ -361,7 +364,7 @@ function sheet(html, n, cls = '') {
 function pageCover(meta, n) {
   const c = meta.cover || {};
   const img = c.image || meta.cover_image;
-  return `<section class="sheet sheet-cover${img ? ' has-img' : ''}" id="p-${String(n).padStart(2, '0')}" data-page="${n}">` +
+  return `<section class="sheet sheet-cover${img ? ' has-img' : ''}" id="p-${String(n).padStart(2, '0')}" data-page="${n}" data-side="recto">` +
     CROP_MARKS +
     (img ? `<img class="cover-img" src="${esc(img)}" alt="" />` : '') +
     (img ? '<div class="cover-scrim"></div>' : '') +
