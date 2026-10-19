@@ -7,7 +7,7 @@
   {
     "id": 2,
     "prompt": "我要一份 H13 模具钢的技术数据表，客户是德国的",
-    "expected": "识别 techdata + 外贸 bi 双语 + graphite 主题；成分/力学/热处理三张表用 D06/D07；文件控制页；交付 PDF 带 TrimBox；提醒技术数据须与正式文件一致、公司名全称"
+    "expected": "识别 techdata → 路由 F 单页技术数据风（templates/F-techdata/）+ 外贸 bi 双语 + graphite 主题；先读 references/grade-datasheet.md 过 L0–L6 骨架；成分/力学表标 basis、试验条件登记 meta.test_conditions 并 cond 引用、工艺参数用 proc 表；文件控制走 backcover；交付 PDF 带 TrimBox；提醒技术数据须与正式文件一致、公司名全称"
   },
   {
     "id": 3,

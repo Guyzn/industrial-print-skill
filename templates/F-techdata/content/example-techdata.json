@@ -1,0 +1,267 @@
+{
+  "meta": {
+    "std": "0.2",
+    "doc": "techdata",
+    "lang": "bi",
+    "theme": "graphite",
+    "paper": "a4",
+    "doc_no": "EX-TD-H13-2026",
+    "year": "2026",
+    "title": { "zh": "H13 / 1.2344 技术数据表", "en": "H13 / 1.2344 Technical Data Sheet" },
+    "company": { "zh": "示例特钢有限公司", "en": "Example Special Steel Co., Ltd." },
+    "brand": { "zh": "示例特钢", "en": "EXAMPLE SPECIAL STEEL" },
+    "legal": { "zh": "本表数据为典型值，不构成验收依据", "en": "Typical values; not for acceptance" },
+    "footer": "EXAMPLE SPECIAL STEEL · EX-TD-H13-2026 · REV V1.0",
+    "toc_title": { "zh": "目录", "en": "Contents" },
+    "url": "www.example-steel.com",
+    "cover": {
+      "kicker": { "zh": "技术数据表", "en": "Technical Data Sheet" },
+      "title": { "zh": "H13 / 1.2344\n技术数据表", "en": "H13 / 1.2344\nTechnical Data Sheet" },
+      "sub": { "zh": "热作模具钢 · 化学成分 · 力学性能 · 热处理窗口 · 生产与检验流程", "en": "Hot-work tool steel · chemistry · mechanical · heat-treatment window · process & inspection" },
+      "slogan": { "zh": "模具钢的竞争不在硬度表上，在寿命上。", "en": "Competition in tool steel is on tool life." }
+    },
+    "test_conditions": [
+      {
+        "id": "TC-A",
+        "label": { "zh": "淬回火基准", "en": "H&T basis" },
+        "items": ["Austenitised 1010 °C", "Air cooled", "Tempered 2 × 2 h"]
+      }
+    ]
+  },
+  "pages": [
+    { "type": "cover" },
+    {
+      "type": "contents",
+      "id": "toc",
+      "valign": "distribute",
+      "title": { "zh": "目录", "en": "Contents" },
+      "cols": 2,
+      "groups": [
+        { "head": { "zh": "材料", "en": "Material" }, "items": [
+          { "no": "01", "label": { "zh": "材料概述与关键指标", "en": "Overview & Key Figures" }, "ref": "p-overview" },
+          { "no": "02", "label": { "zh": "化学成分", "en": "Chemical Composition" }, "ref": "p-chem" }
+        ]},
+        { "head": { "zh": "性能", "en": "Properties" }, "items": [
+          { "no": "03", "label": { "zh": "力学性能", "en": "Mechanical Properties" }, "ref": "p-mech" },
+          { "no": "04", "label": { "zh": "热处理窗口", "en": "Heat-treatment Window" }, "ref": "p-ht" }
+        ]},
+        { "head": { "zh": "工艺", "en": "Process" }, "items": [
+          { "no": "05", "label": { "zh": "热处理工艺参数", "en": "Heat-treatment Parameters" }, "ref": "p-proc" },
+          { "no": "06", "label": { "zh": "常见缺陷与检验口径", "en": "Defects & Inspection" }, "ref": "p-insp" },
+          { "no": "07", "label": { "zh": "生产流程", "en": "Melting to Delivery" }, "ref": "p-flow" }
+        ]}
+      ],
+      "note": { "zh": "本表为版式演示示例，数据取自公开标准与文献口径，正式技术文件须经技术部审核后签发。", "en": "Layout sample. Values follow public standards; the released document requires engineering sign-off." }
+    },
+    {
+      "type": "grade",
+      "id": "p-overview",
+      "valign": "top",
+      "label": { "zh": "材料概述", "en": "Overview" },
+      "banner": {
+        "code": "H13 / 1.2344",
+        "family": { "zh": "中碳中合金热作模具钢", "en": "Medium-alloy hot-work tool steel" },
+        "standards": "AISI H13 · DIN 1.2344 · GB 4Cr5MoSiV1"
+      },
+      "blocks": [
+        { "type": "text", "head": { "zh": "材料定位", "en": "Material Positioning" }, "paras": [
+          { "zh": "H13 属中碳中合金热作模具钢，含 Cr 约 5%、Mo 约 1.3%、V 约 0.9%。钒形成细碳化物抑制晶粒长大，钼抑制回火脆性，铬提供抗氧化与淬透性。", "en": "H13 is a medium-carbon, medium-alloy hot-work steel with ~5% Cr, ~1.3% Mo and ~0.9% V. Vanadium forms fine carbides restraining grain growth; molybdenum suppresses temper embrittlement; chromium provides oxidation resistance and hardenability." },
+          { "zh": "典型失效模式为热疲劳龟裂与塌陷。延长寿命的核心不是提硬度，而是把硬度控制在工况匹配区间，并保证组织均匀、无带状碳化物偏析。", "en": "Typical failure modes are thermal-fatigue cracking and collapse. Life extension depends less on raising hardness than on matching hardness to the duty and ensuring a uniform structure free of banded carbide segregation." }
+        ]},
+        { "type": "kv", "head": { "zh": "关键指标一览", "en": "Key Figures at a Glance" }, "items": [
+          { "n": "0.38", "d": { "zh": "碳含量典型值 wt%", "en": "Carbon, typical wt%" } },
+          { "n": "1290", "d": { "zh": "抗拉强度 MPa（调质）", "en": "UTS MPa (Q&T)" } },
+          { "n": "580", "d": { "zh": "服役温度上限 ℃", "en": "Max service temp. ℃" } },
+          { "n": "14.7", "d": { "zh": "热导率 W/(m·K)", "en": "Thermal cond. W/(m·K)" } }
+        ]},
+        { "type": "note", "title": { "zh": "验收口径", "en": "Acceptance" }, "text": { "zh": "本表所列数据为典型值，不构成验收依据。验收按订单约定的标准与抽样方案执行。", "en": "Values herein are typical and do not constitute acceptance criteria. Acceptance follows the standard and sampling plan agreed in the order." } }
+      ]
+    },
+    {
+      "type": "tablepage",
+      "id": "p-chem",
+      "title": { "zh": "化学成分（wt%）", "en": "Chemical Composition (wt%)" },
+      "tables": [
+        { "head": { "zh": "主量与残余元素", "en": "Main and Residual Elements" },
+          "basis": "spec",
+          "cols": [
+            { "k": "元素", "en": "Element" },
+            { "k": "C", "num": true }, { "k": "Si", "num": true }, { "k": "Mn", "num": true },
+            { "k": "P", "num": true }, { "k": "S", "num": true },
+            { "k": "Cr", "num": true }, { "k": "Mo", "num": true }, { "k": "V", "num": true }
+          ],
+          "rows": [
+            [{ "zh": "下限", "en": "Min" }, "0.32", "0.80", "0.20", "—", "—", "4.75", "1.10", "0.80"],
+            [{ "zh": "典型", "en": "Typical" }, "0.38", "1.00", "0.40", "0.015", "0.005", "5.00", "1.30", "0.90"],
+            [{ "zh": "上限", "en": "Max" }, "0.42", "1.10", "0.50", "0.030", "0.030", "5.50", "1.50", "1.10"]
+          ] },
+        { "head": { "zh": "有害元素控制口径", "en": "Detrimental Element Control" },
+          "basis": "spec",
+          "cols": [
+            { "k": "项目", "en": "Item" }, { "k": "控制值", "en": "Limit", "num": true },
+            { "k": "检验方法", "en": "Method" }, { "k": "目的", "en": "Purpose" }
+          ],
+          "rows": [
+            ["P 磷", "≤ 0.030 %", { "zh": "光谱 PMI", "en": "Spectro PMI" }, { "zh": "抑制回火脆性", "en": "Reduce temper embrittlement" }],
+            ["S 硫", "≤ 0.030 %", { "zh": "光谱 PMI", "en": "Spectro PMI" }, { "zh": "控制各向异性", "en": "Limit anisotropy" }],
+            [{ "zh": "气体 O/N/H", "en": "Gas O/N/H" }, { "zh": "按熔炼批次", "en": "Per heat" }, { "zh": "惰气分析", "en": "Inert gas fusion" }, { "zh": "ESR 路线专项", "en": "ESR route specific" }]
+          ] },
+        { "note": { "zh": "注：光谱检验按炉次出具；同炉余样保留供复检。", "en": "Note: spectro results are issued per heat; retained coupons are kept for re-testing." } }
+      ]
+    },
+    {
+      "type": "tablepage",
+      "id": "p-mech",
+      "title": { "zh": "调质态力学性能", "en": "Mechanical Properties, Q&T" },
+      "tables": [
+        { "head": { "zh": "室温力学性能", "en": "Room-temperature Mechanical" },
+          "basis": "typical", "cond": "TC-A",
+          "cols": [
+            { "k": "项目", "en": "Property" }, { "k": "数值", "en": "Value", "num": true }, { "k": "单位", "en": "Unit" }
+          ],
+          "rows": [
+            [{ "zh": "抗拉强度 Rm", "en": "Tensile strength Rm" }, "1290", "MPa"],
+            [{ "zh": "屈服强度 Rp0.2", "en": "Yield strength Rp0.2" }, "1000", "MPa"],
+            [{ "zh": "断后伸长率 A", "en": "Elongation A" }, "12", "%"],
+            [{ "zh": "断面收缩率 Z", "en": "Reduction of area Z" }, "42", "%"],
+            [{ "zh": "冲击功 KV (20℃)", "en": "Impact KV (20℃)" }, "35", "J"]
+          ] },
+        { "head": { "zh": "高温短时抗拉", "en": "Elevated-temperature UTS" },
+          "basis": "typical", "cond": "TC-A",
+          "cols": [
+            { "k": "温度", "en": "Temp.", "num": true }, { "k": "Rm", "num": true }, { "k": "单位", "en": "Unit" }
+          ],
+          "rows": [
+            ["20 ℃", "1290", "MPa"],
+            ["400 ℃", "1160", "MPa"],
+            ["500 ℃", "1040", "MPa"],
+            ["600 ℃", "780", "MPa"]
+          ] },
+        { "note": { "zh": "典型值按 TC-A 基准试样测得；截面增大时心部性能下降，大截面件以协议值为准。", "en": "Typical values from TC-A specimens; core properties drop with section — large sections follow agreed values." } }
+      ]
+    },
+    {
+      "type": "section",
+      "id": "p-ht",
+      "title": { "zh": "热处理窗口", "en": "Heat-treatment Window" },
+      "sub": { "zh": "淬火 · 回火 · 表面强化", "en": "Quench · Temper · Surface" },
+      "blocks": [
+        { "type": "flow", "dir": "v", "steps": [
+          { "title": { "zh": "预热", "en": "Preheat" }, "desc": { "zh": "650–700 ℃ 分段保温，减少热应力与开裂风险。", "en": "Step soak at 650–700 ℃ to limit thermal stress and crack risk." } },
+          { "title": { "zh": "奥氏体化", "en": "Austenitising" }, "desc": { "zh": "1000–1030 ℃，保温时间按有效厚度计算。", "en": "1000–1030 ℃, soak time based on effective section." } },
+          { "title": { "zh": "淬火", "en": "Quench" }, "desc": { "zh": "气淬或油淬，模具复杂时优先气淬控制变形。", "en": "Gas or oil quench; gas preferred for complex tools to control distortion." } },
+          { "title": { "zh": "回火（三次）", "en": "Temper (×3)" }, "desc": { "zh": "540–580 ℃ 回火三次，每次冷却至室温后再进行下一次。", "en": "Temper three times at 540–580 ℃, cooling to room temperature between cycles." } },
+          { "title": { "zh": "表面强化（可选）", "en": "Surface hardening (optional)" }, "desc": { "zh": "氮化或 PVD 涂层，基体硬度先行到位。", "en": "Nitriding or PVD coating after substrate hardness is achieved." } }
+        ]},
+        { "type": "note", "title": { "zh": "纪律", "en": "Discipline" }, "text": { "zh": "回火必须做两次以上——一次回火后残余奥氏体在冷却中转变，硬度会回弹。保温时间以有效厚度计；大截面或装炉量大时按炉温到温后重新计时。", "en": "Always temper at least twice: retained austenite transforms on cooling after the first temper and hardness creeps back. Soak time is based on effective section; restart the clock once the load is at temperature." } }
+      ]
+    },
+    {
+      "type": "tablepage",
+      "id": "p-proc",
+      "valign": "top",
+      "title": { "zh": "热处理工艺参数", "en": "Heat-treatment Parameters" },
+      "tables": [
+        { "head": { "zh": "按工序汇总", "en": "Summarised by Operation" },
+          "variant": "proc", "basis": "spec",
+          "cols": [
+            { "k": "工序", "en": "Operation", "w": "15%" },
+            { "k": "温度", "en": "Temperature", "num": true, "w": "13%" },
+            { "k": "介质 / 冷速", "en": "Medium / cooling", "w": "27%" },
+            { "k": "保温", "en": "Soak", "w": "17%" },
+            { "k": "目标 / 判定", "en": "Target", "w": "28%" }
+          ],
+          "rows": [
+            { "group": { "zh": "前处理", "en": "Pre-treatment" } },
+            [{ "zh": "软化退火", "en": "Soft annealing" }, "860–900 ℃", { "zh": "炉冷 ≤10 ℃/h 至 <500 ℃，再空冷", "en": "Furnace cool ≤10 ℃/h below 500 ℃" }, "—", "≤ 235 HB"],
+            [{ "zh": "去应力", "en": "Stress relieving" }, "600–650 ℃", { "zh": "缓冷", "en": "Slow cool" }, "≥ 1 h", { "zh": "粗加工后、精加工前", "en": "After rough machining" }],
+            { "group": { "zh": "硬化", "en": "Hardening" } },
+            [{ "zh": "预热", "en": "Pre-heat" }, "650–700 ℃", { "zh": "分段保温", "en": "Step soak" }, "—", { "zh": "减小热应力", "en": "Limit thermal stress" }],
+            [{ "zh": "奥氏体化", "en": "Austenitising" }, "1000–1030 ℃", "—", "1 h / 25 mm", { "zh": "晶粒度 ≥ 8 级", "en": "Grain size ≥ 8" }],
+            [{ "zh": "淬火", "en": "Quench" }, "—", { "zh": "空冷；截面 >80 mm 油冷至 200 ℃ 再空冷", "en": "Air; oil for >80 mm to 200 ℃" }, "—", { "zh": "≥ 52 HRC（淬火态）", "en": "≥ 52 HRC as quenched" }],
+            { "group": { "zh": "回火", "en": "Tempering" } },
+            [{ "zh": "第一次回火", "en": "First temper" }, "530–600 ℃", { "zh": "空冷至室温", "en": "Air cool to room temperature" }, "≥ 2 h", "47–52 HRC"],
+            [{ "zh": "第二次回火", "en": "Second temper" }, { "zh": "同第一次", "en": "As above" }, { "zh": "空冷", "en": "Air cool" }, "≥ 2 h", { "zh": "残余奥氏体 < 2%", "en": "Retained austenite < 2%" }]
+          ] },
+        { "head": { "zh": "冷却介质按有效厚度选择", "en": "Quench Medium by Effective Section" },
+          "variant": "proc", "basis": "spec", "cond": "TC-A",
+          "cols": [
+            { "k": "有效厚度", "en": "Section", "num": true, "w": "14%" },
+            { "k": "介质", "en": "Medium", "w": "24%" },
+            { "k": "搅拌", "en": "Agitation", "w": "14%" },
+            { "k": "出液温度", "en": "Exit temp.", "num": true, "w": "16%" },
+            { "k": "说明", "en": "Note", "w": "32%" }
+          ],
+          "rows": [
+            ["≤ 80 mm", { "zh": "静止空气 / 强制风冷", "en": "Still air / forced air" }, "—", "≤ 200 ℃", { "zh": "变形最小，优先选", "en": "Least distortion" }],
+            ["80–150 mm", { "zh": "油", "en": "Oil" }, { "zh": "中等", "en": "Moderate" }, "≤ 200 ℃", { "zh": "出油后立即回火", "en": "Temper immediately" }],
+            ["> 150 mm", { "zh": "油", "en": "Oil" }, { "zh": "强", "en": "Strong" }, "≤ 150 ℃", { "zh": "心部也要淬透", "en": "Through-harden the core" }]
+          ] }
+      ]
+    },
+    {
+      "type": "tablepage",
+      "id": "p-insp",
+      "title": { "zh": "常见缺陷与检验口径", "en": "Defects & Inspection" },
+      "tables": [
+        { "head": { "zh": "常见热处理缺陷与对策", "en": "Typical Heat-treatment Problems" },
+          "variant": "proc", "basis": "none",
+          "cols": [
+            { "k": "现象", "en": "Symptom", "w": "16%" },
+            { "k": "成因", "en": "Cause", "w": "36%" },
+            { "k": "对策", "en": "Action", "w": "48%" }
+          ],
+          "rows": [
+            [{ "zh": "淬火开裂", "en": "Cracking" }, { "zh": "冷速过快、截面突变、未及时回火", "en": "Fast cooling, section change, late temper" }, { "zh": "加大圆角；分级淬火；出液后 2 h 内回火", "en": "Radius the change; step quench; temper within 2 h" }],
+            [{ "zh": "硬度不足", "en": "Low hardness" }, { "zh": "温度偏低、保温不足、脱碳层未磨净", "en": "Low temperature, short soak, decarb skin" }, { "zh": "校炉温与热电偶；按截面计时；测 0.3 mm 以下", "en": "Verify furnace; time by section; test below 0.3 mm" }],
+            [{ "zh": "磨削裂纹", "en": "Grinding cracks" }, { "zh": "磨削过热、白层、回火不足", "en": "Grinding burn, white layer, under-tempering" }, { "zh": "减小切深与进给；磨后 500 ℃ 去应力 2 h", "en": "Lighter passes; stress relieve at 500 °C for 2 h" }]
+          ] },
+        { "head": { "zh": "检验项目与判定口径（必检项）", "en": "Inspection Items & Criteria" },
+          "basis": "spec",
+          "cols": [
+            { "k": "序号", "en": "No.", "num": true },
+            { "k": "项目", "en": "Item" },
+            { "k": "方法/标准", "en": "Method / Standard" },
+            { "k": "判定", "en": "Criteria" }
+          ],
+          "rows": [
+            ["1", { "zh": "化学成分", "en": "Chemistry" }, { "zh": "光谱分析", "en": "Spectro analysis" }, { "zh": "符合区间内", "en": "Within range" }],
+            ["2", { "zh": "硬度", "en": "Hardness" }, { "zh": "布氏/洛氏", "en": "Brinell / Rockwell" }, { "zh": "按订单区间", "en": "Per order range" }],
+            ["3", { "zh": "超声波检测", "en": "Ultrasonic" }, { "zh": "纵波直探头", "en": "Longitudinal straight beam" }, { "zh": "无超标当量缺陷", "en": "No over-limit equivalent flaw" }],
+            ["4", { "zh": "磁粉检测", "en": "Magnetic particle" }, { "zh": "表面/近表面", "en": "Surface / sub-surface" }, { "zh": "无相关显示", "en": "No relevant indication" }],
+            ["5", { "zh": "金相组织", "en": "Microstructure" }, { "zh": "退火态球化级别", "en": "Spheroidisation rating" }, { "zh": "按协议级别", "en": "Per agreed rating" }],
+            ["6", { "zh": "尺寸", "en": "Dimensions" }, { "zh": "卡尺/千分尺", "en": "Caliper / micrometer" }, { "zh": "按订单公差", "en": "Per order tolerance" }]
+          ] }
+      ]
+    },
+    {
+      "type": "section",
+      "id": "p-flow",
+      "title": { "zh": "生产流程", "en": "Melting to Delivery" },
+      "sub": { "zh": "从熔炼到交付的八个环节", "en": "Eight steps from melt to pack" },
+      "blocks": [
+        { "type": "flow", "dir": "v", "cols": 2, "steps": [
+          { "title": { "zh": "熔炼", "en": "Melting" }, "desc": { "zh": "LF 精炼 + VD 真空脱气", "en": "LF refining + VD degassing" } },
+          { "title": { "zh": "重熔", "en": "Remelting" }, "desc": { "zh": "ESR 电渣重熔，降夹杂提纯净度", "en": "ESR remelting for cleanliness" } },
+          { "title": { "zh": "锻造", "en": "Forging" }, "desc": { "zh": "锻造比 ≥ 4，破碎铸态组织", "en": "Ratio ≥ 4 to break up cast structure" } },
+          { "title": { "zh": "退火", "en": "Annealing" }, "desc": { "zh": "球化退火，便于切削加工", "en": "Spheroidise anneal for machinability" } },
+          { "title": { "zh": "粗加工", "en": "Rough machining" }, "desc": { "zh": "按订单形态留余量", "en": "Stock allowance per order form" } },
+          { "title": { "zh": "淬火回火", "en": "Quench & temper" }, "desc": { "zh": "按第 04–05 节窗口执行", "en": "Per sections 04–05 window" } },
+          { "title": { "zh": "检测", "en": "Inspection" }, "desc": { "zh": "UT + MT + 硬度 + 金相", "en": "UT + MPI + hardness + metallography" } },
+          { "title": { "zh": "精加工包装", "en": "Finish & pack" }, "desc": { "zh": "打标、防锈、真空包装", "en": "Marking, rust-proof, vacuum pack" } }
+        ]}
+      ]
+    },
+    {
+      "type": "backcover",
+      "id": "p-back",
+      "kicker": { "zh": "文件控制", "en": "Document Control" },
+      "statement": { "zh": "本表所列数据为典型值，不构成验收依据。", "en": "Values herein are typical and do not constitute acceptance criteria." },
+      "note": { "zh": "正式版须经技术部与质量部会签后签发，版本号与修订记录随文件控制台账管理。", "en": "The released version requires joint sign-off by Engineering and Quality." },
+      "contact": [
+        { "k": { "zh": "技术咨询", "en": "Engineering" }, "lines": ["tech@example-steel.com", "+86 000 0000 0000"] },
+        { "k": { "zh": "销售", "en": "Sales" }, "lines": ["sales@example-steel.com"] }
+      ]
+    }
+  ]
+}

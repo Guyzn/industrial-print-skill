@@ -1,0 +1,743 @@
+/* ============================================================
+   E · 单页作品集风 — 版式系统（blocks.css）
+   适用文档：企业介绍 / 产品作品集 / 牌号手册（牌号一页一版）
+
+   物理规格
+     成品单页 210×297mm（A4）
+     四缘各 3mm 出血 → 印刷幅面 216×303mm
+     TrimBox = 幅面内缩 3mm，由 _shared/pdf_print_marks.py 写入
+
+   与 D 的根本差别
+     D 是「对开拼版」（一张纸两个页面并排），E 是「单页成册」——
+     一个 .sheet 就是一个印刷页，印厂自己拼版。页面单位小了，
+     每页的信息密度才能上去，牌号页才能一页一个牌号。
+
+   纪律
+     直角、纯色、hairline 分割、单一 accent（橙金）+ 一个冷色（钢蓝）
+     数字与牌号走等宽，中文走 MiSans，西文标题走 MiSans SemiBold
+     禁止阴影、圆角；渐变只允许两处（封面压暗、牌号横幅底色）
+   ============================================================ */
+
+:root {
+  /* ---- 物理规格（不可随主题改动）---- */
+  --trim-w: 210mm;
+  --trim-h: 297mm;
+  --bleed: 3mm;
+  --sheet-w: calc(var(--trim-w) + 2 * var(--bleed));
+  --sheet-h: calc(var(--trim-h) + 2 * var(--bleed));
+
+  /* ---- 版心（相对成品边）----
+     左右 17mm 而不是 14mm：3mm 出血裁切有 ±1mm 公差，14mm 的边在成品上会变成 13mm，
+     一行字贴到切口旁边就显闷。17mm 是 A4 成册的常规下限。
+     上下不对称：上 15 / 下 19，视觉重心略高于几何中心，翻页时不压手。 */
+  --pad-x: 17mm;
+  --pad-t: 15mm;
+  --pad-b: 19mm;
+  --foot-gap: 7mm;
+
+  /* ---- 竖向节奏：所有块间距取 3mm 的整数倍，避免 3.2 / 1.6 / 2.4 这种凑出来的缝 ---- */
+  --rhythm: 3mm;
+
+  /* ---- 悬挂导轨：小标题的竖线挂进左边距 5mm，正文仍对齐版心线 ---- */
+  --rail: 5mm;
+
+  /* ---- 字体 ---- */
+  --font: "MiSans", "Alibaba PuHuiTi 3", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", "MiSans", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* ---- 字号阶梯（pt，印刷单位）---- */
+  --fs-display: 34pt;  /* 封面主标题 */
+  --fs-cover-sub: 20pt;
+  --fs-h1: 17pt;       /* 页面大标题 */
+  --fs-h2: 9pt;        /* 表头小标题 .gh */
+  --fs-body: 8.8pt;
+  --fs-small: 7.6pt;
+  --fs-micro: 6.8pt;
+}
+
+/* 可商用字体本地化：字体文件由 build.mjs 从 _shared/fonts/ 同步到产物旁。
+   打印时浏览器随 PDF 内嵌，等效转曲，印厂不会缺字形。 */
+@font-face { font-family: "MiSans"; src: url("./fonts/MiSans-Regular.ttf") format("truetype"); font-weight: 400; font-display: swap; }
+@font-face { font-family: "MiSans"; src: url("./fonts/MiSans-Semibold.ttf") format("truetype"); font-weight: 600; font-display: swap; }
+@font-face { font-family: "IBM Plex Mono"; src: url("./fonts/IBMPlexMono-Regular.woff2") format("woff2"); font-weight: 400; font-display: swap; }
+@font-face { font-family: "Noto Serif SC"; src: url("./fonts/NotoSerifSC-Var.ttf") format("truetype"); font-weight: 200 900; font-display: swap; }
+@font-face { font-family: "Alibaba PuHuiTi 3"; src: url("./fonts/AlibabaPuHuiTi-3-45-Light.woff2") format("woff2"); font-weight: 300; font-display: swap; }
+@font-face { font-family: "Alibaba PuHuiTi 3"; src: url("./fonts/AlibabaPuHuiTi-3-55-Regular.woff2") format("woff2"); font-weight: 400; font-display: swap; }
+@font-face { font-family: "Alibaba PuHuiTi 3"; src: url("./fonts/AlibabaPuHuiTi-3-65-Medium.woff2") format("woff2"); font-weight: 500; font-display: swap; }
+@font-face { font-family: "Alibaba PuHuiTi 3"; src: url("./fonts/AlibabaPuHuiTi-3-75-SemiBold.woff2") format("woff2"); font-weight: 600; font-display: swap; }
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { background: #8a8a8a; }
+
+body {
+  font-family: var(--font);
+  font-size: var(--fs-body);
+  line-height: 1.5;
+  color: var(--fg);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: geometricPrecision;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+/* ============================================================
+   舞台：屏幕上一页一卡，打印时一页一张
+   ============================================================ */
+.stage { display: flex; flex-direction: column; align-items: center; gap: 10mm; padding: 10mm 0; }
+
+.sheet {
+  position: relative;
+  width: var(--sheet-w);
+  height: var(--sheet-h);
+  background: var(--surface);
+  overflow: hidden;
+  box-shadow: 0 10px 34px rgba(20, 20, 20, 0.22);
+}
+
+/* 版心：内缩出血，撑满剩余空间，便于底部图自适应填充 */
+.sheet > .inner {
+  position: absolute;
+  inset: var(--bleed);
+  display: flex;
+  flex-direction: column;
+  padding: var(--pad-t) var(--pad-x) var(--pad-b);
+}
+
+/* 正文区：吃掉页眉与页脚之间的全部高度。
+   必须显式写 flex:1，否则 .fill-photo 的 flex:1 没有可分配的剩余空间，
+   托底图会退回图片自身高度，页尾照样留白。 */
+.page-body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--rhythm);
+}
+
+/* 块单元：间距只发生在块与块之间。块内部的段落、表格行仍按自己的间距排，
+   不会被页面的 gap 撑开——这是「同一块里的文字要抱团、不同块之间要透气」的分界。 */
+.blk { min-width: 0; }
+.blk.fill { flex: 1; display: flex; flex-direction: column; min-height: 28mm; }
+.blk.fill .fill-photo { flex: 1; margin-top: 0; min-height: 0; }
+.blk > .gh:first-child { margin-top: 0; }
+
+/* ---- 裁切标记：画在出血区，沿 TrimBox 边缘，转角留 1mm 间隙 ---- */
+.crop { position: absolute; background: #000; }
+.crop.tl-h { left: 0; top: calc(var(--bleed) - 0.1mm); width: calc(var(--bleed) - 1mm); height: 0.2mm; }
+.crop.tl-v { left: calc(var(--bleed) - 0.1mm); top: 0; width: 0.2mm; height: calc(var(--bleed) - 1mm); }
+.crop.tr-h { right: 0; top: calc(var(--bleed) - 0.1mm); width: calc(var(--bleed) - 1mm); height: 0.2mm; }
+.crop.tr-v { right: calc(var(--bleed) - 0.1mm); top: 0; width: 0.2mm; height: calc(var(--bleed) - 1mm); }
+.crop.bl-h { left: 0; bottom: calc(var(--bleed) - 0.1mm); width: calc(var(--bleed) - 1mm); height: 0.2mm; }
+.crop.bl-v { left: calc(var(--bleed) - 0.1mm); bottom: 0; width: 0.2mm; height: calc(var(--bleed) - 1mm); }
+.crop.br-h { right: 0; bottom: calc(var(--bleed) - 0.1mm); width: calc(var(--bleed) - 1mm); height: 0.2mm; }
+.crop.br-v { right: calc(var(--bleed) - 0.1mm); bottom: 0; width: 0.2mm; height: calc(var(--bleed) - 1mm); }
+
+/* ============================================================
+   页眉 / 页脚
+   ============================================================ */
+.ph {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  border-bottom: 2.2pt solid var(--fg);
+  padding-bottom: 2.4mm;
+  margin-bottom: 6mm;
+  flex: 0 0 auto;
+}
+.ph .brand { font-size: 10.5pt; font-weight: 600; letter-spacing: 1pt; color: var(--fg); }
+.ph .brand em { font-style: normal; color: var(--accent); }
+.ph .sec {
+  font-family: var(--mono);
+  font-size: 7.5pt;
+  color: var(--muted);
+  letter-spacing: 1.4pt;
+  text-transform: uppercase;
+}
+
+.pf {
+  flex: 0 0 auto;
+  margin-top: auto;
+  padding-top: 1.6mm;
+  border-top: 0.6pt solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  gap: 4mm;
+  font-family: var(--mono);
+  font-size: var(--fs-micro);
+  color: var(--muted);
+  letter-spacing: 0.4pt;
+}
+.pf .mid { flex: 1; text-align: center; }
+.pf .num { text-align: right; white-space: nowrap; }
+
+/* ============================================================
+   标题
+   ============================================================ */
+/* 页头（标题 + 副标 + 导语）是一整块，固定在版心顶部；
+   竖向分配只作用于它下面的正文块，标题不会跟着漂。 */
+.page-head { flex: 0 0 auto; padding-bottom: 5mm; }
+/* v-center 的页面内容一旦略高，居中会把溢出平分向上下两端——上半截会盖住页标题。
+   页头加底色兜住：宁可内容从页脚方向溢出（探针能抓到），也不让标题被白块吃掉。 */
+.page-head { background: var(--surface, #fff); position: relative; z-index: 1; }
+.page-head .sec-sub { margin-bottom: 0; }
+.page-head .lead { margin-top: var(--rhythm); margin-bottom: 0; }
+
+.sec-title { font-size: var(--fs-h1); font-weight: 600; letter-spacing: 0.4pt; line-height: 1.15; }
+.sec-sub {
+  font-family: var(--mono);
+  font-size: 8pt;
+  font-weight: 400;
+  color: var(--accent);
+  letter-spacing: 2pt;
+  text-transform: uppercase;
+  margin-top: 1.5mm;
+  margin-bottom: 4mm;
+}
+.sec-title + .lead { margin-top: 3mm; }
+
+/* ============================================================
+   正文
+   ============================================================ */
+.body { font-size: var(--fs-body); line-height: 1.62; text-align: justify; margin-bottom: var(--rhythm); }
+.body:last-child { margin-bottom: 0; }
+.mini { font-size: var(--fs-small); line-height: 1.5; }
+.lead { font-size: 9.8pt; line-height: 1.55; color: var(--fg); }
+.note {
+  background: var(--tint);
+  border-left: 2.2pt solid var(--accent);
+  padding: 2.4mm 3mm;
+  margin: 0;
+  font-size: 7.4pt;
+  line-height: 1.55;
+}
+.note b { color: var(--fg); }
+.note .nt { color: var(--accent); font-weight: 600; }
+
+/* ---- 小节标题 .gh：橙色竖线 + 等宽大写 ---- */
+.gh {
+  font-family: var(--mono);
+  font-size: var(--fs-h2);
+  font-weight: 600;
+  color: var(--fg);
+  border-left: 2.5pt solid var(--accent);
+  padding-left: 2mm;
+  margin: calc(var(--rhythm) * 2) 0 var(--rhythm);
+  letter-spacing: 0.5pt;
+  text-transform: uppercase;
+  break-after: avoid;
+}
+.gh:first-child { margin-top: 0; }
+
+/* 顶层小标题把竖线挂进左边距：正文仍落在 17mm，橙色竖线退到 12mm。
+   左边因此出现一条「导标列」，不再是一堵从上到下的直墙。
+   只对 page-body 的直系子元素生效，双栏里的 .gh 不悬挂，免得压到相邻栏。 */
+.page-body > .blk > .gh {
+  margin-left: calc(-1 * var(--rail));
+  padding-left: var(--rail);
+}
+
+/* ---- 分类条 .cat-head ---- */
+.cat-head {
+  font-family: var(--mono);
+  font-size: 8.4pt;
+  font-weight: 600;
+  color: #fff;
+  background: var(--accent-2);
+  padding: 1.2mm 2mm;
+  margin: 3mm 0 0;
+  letter-spacing: 1pt;
+  text-transform: uppercase;
+}
+
+/* ============================================================
+   表格
+   ============================================================ */
+table { border-collapse: collapse; width: 100%; }
+.tbl th {
+  background: var(--fg);
+  color: var(--surface);
+  font-family: var(--mono);
+  font-size: 7.2pt;
+  font-weight: 600;
+  padding: 1.3mm 1mm;
+  text-align: center;
+  border: 0.5pt solid var(--fg);
+}
+.tbl td {
+  font-size: 7.2pt;
+  line-height: 1.4;
+  padding: 1.15mm 1mm;
+  text-align: center;
+  border: 0.5pt solid var(--border);
+}
+/* 表格左右外缘不画竖线：一条硬边框压在切口边上，裁完会显得版心很挤。
+   去掉外框后表格仍是满幅，但视觉上「开口」了，纸边更透气。 */
+.tbl th:first-child, .tbl td:first-child { border-left: 0; }
+.tbl th:last-child,  .tbl td:last-child  { border-right: 0; }
+.tbl tbody tr:nth-child(even) td { background: var(--zebra); }
+.tbl .rowhead, .tbl td.rowhead { background: var(--tint) !important; font-weight: 600; text-align: left; }
+.tbl-sm th, .tbl-sm td { font-size: 6.8pt; padding: 0.9mm 0.75mm; }
+.tbl-xs th, .tbl-xs td { font-size: 6.4pt; padding: 0.8mm 0.55mm; }
+/* 密表页：只有一页一表时才放大字号（6.4pt 在纸上确实小）；
+   两张以上就不要放大，否则整页必然溢出——这是实测出来的，不是拍脑袋。 */
+.tblpage.single .tbl-sm th, .tblpage.single .tbl-sm td { font-size: 7.8pt; padding: 1.36mm 1.05mm; }
+.tblpage.single .tbl-xs th, .tblpage.single .tbl-xs td { font-size: 7.3pt; padding: 0.92mm 0.7mm; }
+/* 对照表：首列左对齐，读起来才不像网格 */
+.ovtbl td { font-size: 7.4pt; }
+.ovtbl th { font-size: 7.2pt; }
+.ovtbl td:first-child, .ovtbl th:first-child { text-align: left; font-weight: 600; }
+
+/* ============================================================
+   封面
+   ============================================================ */
+.sheet-cover { background: var(--fg); }
+.cover-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+/* 封面压暗：三段渐层，保证任何照片上标题都读得出来。
+   用固定 rgba 而不是 color-mix——印厂机器上的 PDF 解释器不必支持新语法。 */
+.sheet-cover .cover-scrim,
+.sheet-back .cover-scrim {
+  position: absolute; inset: 0;
+  background: linear-gradient(180deg,
+    rgba(12, 12, 12, 0.86) 0%,
+    rgba(12, 12, 12, 0.26) 44%,
+    rgba(12, 12, 12, 0.90) 100%);
+}
+.cover-top { position: absolute; top: calc(var(--bleed) + 15mm); left: calc(var(--bleed) + 16mm); right: calc(var(--bleed) + 16mm); }
+.cover-brand { font-size: 15pt; font-weight: 600; letter-spacing: 2pt; color: #fff; }
+.cover-brand em { font-style: normal; color: var(--accent); }
+.cover-legal { font-family: var(--mono); font-size: 7pt; color: var(--steel); letter-spacing: 1pt; margin-top: 1.2mm; }
+
+.cover-block { position: absolute; top: calc(var(--bleed) + 92mm); left: calc(var(--bleed) + 16mm); right: calc(var(--bleed) + 16mm); }
+.cover-rule { width: 26mm; height: 1.6mm; background: var(--accent); margin-bottom: 7mm; }
+.cover-title { font-size: var(--fs-display); font-weight: 600; color: #fff; letter-spacing: 2.4pt; line-height: 1.12; }
+.cover-sub { font-size: var(--fs-cover-sub); color: var(--steel); letter-spacing: 3.4pt; margin-top: 2.5mm; font-weight: 300; }
+.cover-slogan {
+  font-family: var(--mono);
+  font-size: 9pt;
+  color: var(--accent);
+  letter-spacing: 2.6pt;
+  margin-top: 9mm;
+  font-weight: 600;
+}
+.cover-foot {
+  position: absolute;
+  bottom: calc(var(--bleed) + 15mm);
+  left: calc(var(--bleed) + 16mm);
+  right: calc(var(--bleed) + 16mm);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+.cover-kicker { font-family: var(--mono); font-size: 7.6pt; color: var(--steel); letter-spacing: 1.6pt; }
+.cover-url {
+  font-size: 8.6pt;
+  font-weight: 600;
+  color: #fff;
+  letter-spacing: 1.6pt;
+  border: 1pt solid var(--accent);
+  padding: 2mm 5mm;
+}
+
+/* ============================================================
+   封底
+   ============================================================ */
+/* 封面是「让人翻开」，封底是「让人记住怎么找你」。
+   同一套暗底，但重心反过来：品牌在上、标语居中、联络方式托底。 */
+.sheet-back { background: var(--fg); }
+.back-inner { color: #fff; }
+.back-top { flex: 0 0 auto; }
+.back-main {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 12mm 0 24mm;
+}
+.back-statement { font-size: 22pt; font-weight: 600; line-height: 1.32; letter-spacing: 1.6pt; color: #fff; max-width: 150mm; }
+.back-note { margin-top: 8mm; font-size: 8.6pt; line-height: 1.7; color: var(--steel); max-width: 134mm; }
+.back-contact {
+  flex: 0 0 auto;
+  display: flex;
+  gap: 8mm;
+  border-top: 0.8pt solid rgba(255, 255, 255, 0.3);
+  padding-top: 4mm;
+}
+.back-contact > div { flex: 1; min-width: 0; }
+.back-contact .k {
+  font-family: var(--mono);
+  font-size: 6.8pt;
+  letter-spacing: 1.6pt;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.back-contact .v { font-size: 8.2pt; line-height: 1.55; margin-top: 1.4mm; color: #fff; }
+/* 暗底上用 --steel 而不是 --muted：#4a5057 压在 #141414 上等于没有 */
+.back-legal {
+  flex: 0 0 auto;
+  margin-top: 6mm;
+  padding-top: 3mm;
+  border-top: 0.5pt solid rgba(255, 255, 255, 0.18);
+  font-family: var(--mono);
+  font-size: 6.6pt;
+  letter-spacing: 0.6pt;
+  color: var(--steel);
+}
+
+/* ============================================================
+   跨对开
+   ============================================================ */
+/* 一张图横跨两页：左右各出一张 216×303 的单页，图按 426mm 铺开、各自裁掉一半。
+   左页从图的 0 起，右页从图的 210mm 起——两张页在装订线上取的是同一张图的相邻像素，
+   折起来是连续的一张。页宽不破口径，PDF 里只有一种 TrimBox，印厂不用手工拆版。 */
+.spread-figure { position: absolute; inset: 0; overflow: hidden; background: var(--fg); }
+.spread-figure img {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  width: calc(var(--trim-w) + var(--sheet-w));
+  object-fit: cover;
+  display: block;
+}
+.sheet[data-half="l"] .spread-figure img { left: 0; }
+.sheet[data-half="r"] .spread-figure img { left: calc(-1 * var(--trim-w)); }
+.spread-cap {
+  position: absolute;
+  left: calc(var(--bleed) + var(--pad-x));
+  bottom: calc(var(--bleed) + 8mm);
+  display: inline-block;
+  background: rgba(10, 10, 10, 0.55);
+  padding: 1.2mm 2.4mm;
+  font-family: var(--mono);
+  font-size: var(--fs-micro);
+  color: #fff;
+  letter-spacing: 0.8pt;
+}
+/* 图在右半（side:"right"）时，图注也要挪到外侧，不能贴着折缝 */
+.sheet[data-half="r"] .spread-cap { left: auto; right: calc(var(--bleed) + var(--pad-x)); text-align: right; }
+/* 通版跨页：暗化层两半都铺，文字只压在右半。
+   只在右半铺暗化的话，折缝上会出现一条竖直的色阶——同一张照片被切成明暗两块。 */
+.spread-scrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(10, 10, 10, 0) 34%, rgba(10, 10, 10, 0.8) 100%);
+  pointer-events: none;
+}
+/* 右半页永远是 recto（跨页从左页起），外侧在右，文字块就靠右——
+   压在折缝上的字，装订后会被吃掉一截。 */
+.spread-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: calc(var(--bleed) + var(--pad-t)) calc(var(--bleed) + var(--pad-x)) calc(var(--bleed) + var(--pad-b));
+  color: #fff;
+}
+.spread-ov-body { max-width: 150mm; margin-left: auto; }
+.spread-title { font-size: 26pt; font-weight: 600; line-height: 1.18; letter-spacing: 1.2pt; color: #fff; }
+.spread-sub {
+  font-family: var(--mono);
+  font-size: 8pt;
+  letter-spacing: 2pt;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-top: 2.5mm;
+  font-weight: 600;
+}
+.spread-lede { font-size: 9pt; line-height: 1.6; color: #f2f2f2; margin-top: 4mm; }
+
+/* ============================================================
+   目录
+   ============================================================ */
+.toc-cols { display: flex; gap: 9mm; }
+.toc-cols > div { flex: 1; }
+.toc-item {
+  display: flex;
+  align-items: baseline;
+  font-size: 9pt;
+  padding: 2.1mm 0;
+}
+.toc-item .lb { flex: 0 1 auto; }
+.toc-item .dots { flex: 1; border-bottom: 0.6pt dotted var(--border); margin: 0 2mm 0.6mm; }
+.toc-item .pg { font-family: var(--mono); font-weight: 600; color: var(--fg); }
+.toc-item .no { font-family: var(--mono); font-size: 7pt; color: var(--muted); width: 7mm; flex: 0 0 7mm; }
+.toc-note { margin-top: 5mm; max-width: 120mm; }
+
+/* ============================================================
+   牌号横幅（整页唯一允许渐变的地方）
+   ============================================================ */
+/* 牌号横幅：渐变按订口镜像。
+   左页（verso）深→亮，右页（recto）亮→深 —— 两页在订口处都是 --accent-2，
+   装订后整个对开读作「深 → 亮｜亮 → 深」，折线上没有竖向色缝。 */
+.grade-banner {
+  background: linear-gradient(90deg, var(--fg) 0%, var(--accent-2) 100%);
+  color: #fff;
+  padding: calc(var(--bleed) + var(--pad-t)) calc(var(--bleed) + var(--pad-x)) 5mm;
+  margin: calc(-1 * (var(--bleed) + var(--pad-t))) calc(-1 * (var(--bleed) + var(--pad-x))) 8mm;
+  flex: 0 0 auto;
+}
+.sheet[data-side="recto"] .grade-banner {
+  background: linear-gradient(270deg, var(--fg) 0%, var(--accent-2) 100%);
+}
+
+/* 右页横幅的文字落在渐变亮端（#208AC7 附近），8pt 副标原本只有 2.2–2.8:1。
+   在这么亮的底上，任何颜色都到不了 4.5:1（纯白封顶 3.8），所以直接把两行
+   副标提成纯白——保住可读性，标题层级靠字号和字重维持。左页不动，仍是暖橙。 */
+.sheet[data-side="recto"] .grade-banner .g2,
+.sheet[data-side="recto"] .grade-banner .g3 { color: #fff; }
+
+.grade-banner .g1 { font-size: 19pt; font-weight: 600; letter-spacing: 0.4pt; line-height: 1.15; }
+.grade-banner .g2 {
+  font-family: var(--mono);
+  font-size: 8pt;
+  color: var(--accent-soft);
+  letter-spacing: 2pt;
+  margin-top: 1.2mm;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+.grade-banner .g3 { font-family: var(--mono); font-size: 7pt; color: var(--steel); margin-top: 1mm; letter-spacing: 0.4pt; }
+
+/* ============================================================
+   通用块
+   ============================================================ */
+.twocol { display: flex; gap: 5mm; }
+.twocol > div { flex: 1; min-width: 0; }
+.threecol { display: flex; gap: 4mm; }
+.threecol > div { flex: 1; min-width: 0; }
+
+/* ---- 数字带 ---- */
+.kv { display: flex; gap: 3mm; margin: 0; }
+.kv .k { flex: 1; background: var(--tint); border-top: 2.2pt solid var(--accent); padding: 2.5mm 2mm; text-align: center; }
+.kv .k .n { font-family: var(--mono); font-size: 14pt; font-weight: 600; line-height: 1.1; }
+.kv .k .d { font-size: 7pt; color: var(--muted); margin-top: 1mm; line-height: 1.3; }
+
+/* ---- 破折号列表 ---- */
+.dash { list-style: none; }
+.dash li {
+  font-size: 8.2pt;
+  line-height: 1.5;
+  padding-left: 4mm;
+  position: relative;
+  margin-bottom: 1.2mm;
+}
+.dash li::before { content: "—"; position: absolute; left: 0; color: var(--accent); font-weight: 600; }
+.dash.compact li { line-height: 1.42; margin-bottom: 0.6mm; }
+
+/* ---- 编号论点（为什么选我们）---- */
+.adv { display: flex; gap: 4mm; margin-bottom: 5mm; }
+.adv:last-child { margin-bottom: 0; }
+.adv .no { font-family: var(--mono); font-size: 22pt; font-weight: 600; color: var(--border); line-height: 1; min-width: 12mm; }
+.adv .tt { font-size: 10.4pt; font-weight: 600; margin-bottom: 1.2mm; }
+.adv p { font-size: 8.4pt; line-height: 1.52; text-align: justify; }
+
+/* ---- 认证胶囊 ---- */
+.chips { display: flex; flex-wrap: wrap; gap: 1mm; }
+.chip {
+  display: inline-block;
+  background: var(--tint);
+  border: 0.6pt solid var(--border);
+  padding: 0.8mm 2.4mm;
+  font-family: var(--mono);
+  font-size: 7.2pt;
+  font-weight: 600;
+  letter-spacing: 0.3pt;
+  margin: 0;
+}
+
+/* ---- 图片 ---- */
+.photo-box { border: 0.6pt solid var(--border); background: var(--surface); padding: 1.2mm; }
+.photo-box img { width: 100%; display: block; }
+.photo-box .cap,
+.photos .cell .cap { font-size: var(--fs-micro); color: var(--muted); margin-top: 1mm; text-align: center; }
+
+.photos { display: grid; gap: 3mm; }
+.photos.c2 { grid-template-columns: 1fr 1fr; }
+.photos.c3 { grid-template-columns: 1fr 1fr 1fr; }
+.photos .cell { border: 0.6pt solid var(--border); background: var(--surface); padding: 1.2mm; }
+.photos .cell img { width: 100%; display: block; object-fit: cover; }
+.photos.c2 .cell img { height: 56mm; }
+.photos.c3 .cell img { height: 49mm; }
+.photos .cell .cap b { display: block; color: var(--fg); font-size: 7.2pt; font-weight: 600; }
+
+/* 页脚托底图：吃掉剩余高度，避免页尾留空。
+   这是 E 的核心排版手法——每页内容写完后，用一张通栏图把剩下的空白压住，
+   而不是让页面在 60% 高度处戛然而止。牌号页、章节页、联系页都用它收尾。 */
+.fill-photo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 46mm;
+  overflow: hidden;
+  margin-top: calc(var(--rhythm) * 2);
+  border: 0.6pt solid var(--border);
+  background: var(--surface);
+  padding: 1.2mm;
+}
+.fill-photo.bare { border: 0; padding: 0; }
+.fill-photo img { flex: 1; width: 100%; height: 100%; object-fit: cover; display: block; min-height: 0; }
+.fill-photo .cap { font-size: var(--fs-micro); color: var(--muted); margin-top: 1mm; text-align: center; }
+
+/* 整页出血图（章节插图） */
+.bleed-figure { position: relative; flex: 1; min-height: 0; margin: 0 calc(-1 * (var(--bleed) + var(--pad-x))) calc(-1 * (var(--bleed) + var(--pad-b))); }
+.bleed-figure img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.bleed-figure .cap {
+  position: absolute;
+  left: calc(var(--bleed) + var(--pad-x));
+  bottom: calc(var(--bleed) + 8mm);
+  font-family: var(--mono);
+  font-size: var(--fs-micro);
+  color: #fff;
+  letter-spacing: 0.6pt;
+  text-shadow: 0 0 3mm rgba(0, 0, 0, 0.6);
+}
+
+/* ---- 联系页 ---- */
+.contact-grid { display: flex; gap: 6mm; }
+.contact-grid > div { flex: 1; }
+.contact-list .row { display: flex; gap: 3mm; padding: 1.4mm 0; border-bottom: 0.5pt solid var(--border); font-size: 8pt; }
+.contact-list .row .k { font-family: var(--mono); font-size: 7pt; color: var(--muted); width: 18mm; flex: 0 0 18mm; letter-spacing: 0.4pt; text-transform: uppercase; }
+.contact-list .row .v { flex: 1; }
+.contact-foot { margin-top: auto; padding-top: 6mm; border-top: 2.2pt solid var(--fg); display: flex; justify-content: space-between; align-items: flex-end; }
+.contact-foot .big { font-size: 15pt; font-weight: 600; letter-spacing: 0.6pt; }
+
+/* ============================================================
+   竖向分配
+   ============================================================ */
+/* 内容不足时不要只把白留在页尾——在两个块之间插一个 spacer，
+   剩余高度就落在你想让它落的地方（比如标题与正文之间），而不是全堆在页脚上方。
+   grow 是权重：两个 spacer 各写 grow:1 就平分剩余高度。 */
+.spacer { flex: var(--grow, 1) 1 0; min-height: var(--min, 6mm); }
+
+/* 整页竖向对齐：短页（联系页、只有三四行的章节页）可以居中，
+   视觉上等于上下各留一半，比顶部对齐 + 底部大洞稳。慎用 bottom，容易顶头。 */
+.page-body.v-center { justify-content: center; }
+.page-body.v-bottom { justify-content: flex-end; }
+/* 均匀分布：把剩余高度摊到所有块间隙里，而不是全堆在页脚上方。
+   用 space-evenly 而不是 space-between——后者会把最后一个块顶到页脚线上，
+   看起来像被挤下去的；evenly 上下各留一份，视觉上更稳。 */
+.page-body.v-distribute { justify-content: space-evenly; }
+.page-body.v-between { justify-content: space-between; }
+
+/* ============================================================
+   双语
+   ============================================================ */
+[data-lang="zh"] .bi-en { display: none; }
+[data-lang="en"] .zh { display: none; }
+[data-lang="bi"] .bi-en { display: block; }
+[data-lang="bi"] .bi-en::before { content: ""; }
+[data-lang="bi"] .cover-title .bi-en,
+[data-lang="bi"] .cover-sub .bi-en { display: block; font-size: 0.62em; letter-spacing: 1.6pt; margin-top: 1mm; }
+
+/* ============================================================
+   打印
+   ============================================================ */
+@page { size: 216mm 303mm; margin: 0; }
+
+@media print {
+  html, body { background: #fff; }
+  .stage { gap: 0; padding: 0; display: block; }
+  .sheet {
+    box-shadow: none;
+    margin: 0;
+    page-break-after: always;
+    break-after: page;
+    page-break-inside: avoid;
+  }
+  .sheet:last-child { page-break-after: auto; break-after: auto; }
+  .crop { display: block; }
+}
+
+/* ============================================================
+   F · 技术数据专用（basis 数据身份 / cond 试验条件 / proc 工艺表 / flow 流程 / 内联 SVG）
+   ============================================================ */
+
+/* 表题第二行：数据身份 + 试验条件。
+   技术数据表最容易出事的一处——把典型值当保证值印出去，客户拿去验收就说不清。
+   条件同理：淬火温度、回火温度只写一处，表按 id 引用，同文两页才不会各说一套。 */
+.tbl caption { text-align: left; padding-bottom: 1.6mm; }
+.tbl caption .cap-ttl { display: block; font-weight: 600; }
+.tbl caption .cap-meta {
+  display: block;
+  margin-top: 1.4mm;
+  font-family: var(--mono); font-size: var(--fs-micro); font-weight: 400;
+  letter-spacing: 0.04em; color: var(--muted); line-height: 1.5;
+}
+.tbl caption .cap-meta > * { display: inline-block; vertical-align: baseline; margin-right: 3mm; }
+.tbl caption .tag {
+  border: 0.2mm solid currentColor; padding: 0.5mm 1.6mm;
+  letter-spacing: 0.1em; text-transform: uppercase;
+}
+.tbl caption .tag-spec { color: var(--fg); }
+.tbl caption .tag-typical { color: var(--accent); }
+.tbl caption .tag-min, .tbl caption .tag-max, .tbl caption .tag-range { color: var(--muted); }
+.tbl caption .cond b { color: var(--accent); font-weight: 600; letter-spacing: 0.08em; }
+.tbl caption .cond .cond-lab { margin: 0 1.6mm; }
+.tbl caption .cond .cond-lab .zh + .bi-en::before { content: " · "; }
+.tbl caption .cond .cond-items { color: var(--muted); }
+.tbl caption .cond .sep { margin: 0 1.2mm; }
+.tbl.has-colw { table-layout: fixed; }
+.tbl.has-colw td, .tbl.has-colw th { overflow-wrap: anywhere; }
+
+/* 列级身份：同一张表里既有标准范围又有典型值时，标在列头下面 */
+.tbl th .col-basis { display: block; font-weight: 400; letter-spacing: 0.04em; margin-top: 0.6mm; color: var(--muted); }
+.tbl th .col-basis .zh + .bi-en::before { content: " · "; }
+
+/* 分组行：横跨全表，把一张大表分成几段读 */
+.tbl tbody tr.grp td {
+  padding: 3mm 2mm 1.2mm;
+  background: transparent !important;
+  border-bottom: 0.3mm solid var(--fg);
+  font-family: var(--mono); font-size: var(--fs-micro);
+  letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted);
+}
+
+/* 工艺参数表：第一列是工序名，读起来要像工艺卡而不是数据表。
+   热处理页不用散文——散文里查不到「回火 1 小时还是 2 小时」。 */
+.tbl.proc td:first-child { font-weight: 600; color: var(--fg); white-space: nowrap; }
+.tbl.proc th, .tbl.proc td { padding-top: 1.2mm; padding-bottom: 1.2mm; }
+/* 键列默认 nowrap，工艺表的长文本列必须能折行，否则会顶穿到相邻列 */
+.tbl.proc tbody td { white-space: normal; }
+/* 工艺表列头常是「出液温度 EXIT TEMP.」这种长串，nowrap 会顶穿相邻列 */
+.tbl.proc thead th { white-space: normal; }
+/* 工艺表列头中文在上、英文在下，占宽减半，也符合工业表格的读法 */
+.tbl.proc thead th .bi-en { display: block; margin-top: 0.5mm; letter-spacing: 0.04em; font-weight: 400; }
+/* 表头是标签不是数字：跟着 td 右对齐会贴到相邻列上 */
+.tbl.proc thead th, .tbl.proc thead th.n { text-align: left; }
+
+/* 工艺流程：横向步骤链（默认）/ 纵向（dir v；步骤多可 cols:2 分两栏） */
+.flow { display: flex; gap: 0; margin-top: 2mm; }
+.flow .step { flex: 1; position: relative; padding: 3mm 3mm 3mm 0; }
+.flow .step + .step { padding-left: 4mm; border-left: 0.15mm solid var(--border); }
+.flow .step .no {
+  font-family: var(--mono);
+  font-size: 11pt;
+  color: var(--accent);
+  display: block;
+  margin-bottom: 1.6mm;
+}
+.flow .step .tt { font-size: var(--fs-h2); font-weight: 600; display: block; }
+.flow .step .tt .bi-en { display: block; font-family: var(--mono); font-size: var(--fs-micro); font-weight: 400; color: var(--muted); margin-top: 0.8mm; }
+.flow .step .dd { font-size: var(--fs-small); color: var(--muted); margin-top: 1.6mm; line-height: 1.5; }
+.flow.v { flex-direction: column; }
+.flow.v .step { display: grid; grid-template-columns: 12mm 1fr; gap: 0 4mm; padding: 2.6mm 0; border-left: 0; border-top: 0.15mm solid var(--border); }
+.flow.v .step + .step { padding-left: 0; }
+/* 纵向流程：.no 与 .tt 占第一行，.dd 必须显式落在第二行第二列——
+   不写这一条，描述会掉进 12mm 宽的序号列，一行一个字地竖着排。 */
+.flow.v .step .no { grid-row: 1 / span 2; }
+.flow.v .step .dd { grid-column: 2; }
+/* 六步以上的纵向流程分两栏；单栏排下来只占半页，剩下的全是白 */
+.flow.v.cols2 { display: block; columns: 2; column-gap: 10mm; }
+.flow.v.cols2 .step { break-inside: avoid; }
+.flow.v.cols2 .step:nth-child(1) { border-top: 0; }
+
+/* 内联矢量图：继承页面字体与 CSS 变量，不会像 <img> 引 SVG 那样掉字体 */
+.fig-plate { margin: 0; }
+.fig-plate .fig-svg-el, svg.fig-svg-el { width: 100%; height: auto; display: block; }
+.fig-plate .fig-cap { font-family: var(--mono); font-size: var(--fs-micro); color: var(--muted); margin-top: 1.6mm; }
+
+@media screen {
+  .crop { display: none; }
+}

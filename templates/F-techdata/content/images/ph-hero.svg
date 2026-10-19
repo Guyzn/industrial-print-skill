@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1704" height="1212" viewBox="0 0 1704 1212" role="img" aria-label="PLANT / FORGE">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#dfe4e9"/><stop offset="1" stop-color="#c4cad2"/>
+    </linearGradient>
+    <pattern id="d" width="16" height="16" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+      <line x1="0" y1="0" x2="0" y2="16" stroke="#b0b7c0" stroke-width="1"/>
+    </pattern>
+  </defs>
+  <rect width="1704" height="1212" fill="url(#g)"/>
+  <rect width="1704" height="1212" fill="url(#d)" opacity="0.5"/>
+  <rect x="24" y="24" width="1656" height="1164" fill="none" stroke="#8b929c" stroke-width="2"/>
+  <text x="852" y="588" font-family="Helvetica,Arial,sans-serif" font-size="52"
+        fill="#5b626b" text-anchor="middle" letter-spacing="4">PLANT / FORGE</text>
+  <text x="852" y="644" font-family="Helvetica,Arial,sans-serif" font-size="28"
+        fill="#7f8791" text-anchor="middle" letter-spacing="2">replace with real photograph</text>
+</svg>

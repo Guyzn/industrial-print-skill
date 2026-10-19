@@ -14,19 +14,20 @@
   <img src="docs/preview-5styles.png" alt="五风格预览" width="100%">
 </p>
 
-## 四条线怎么选
+## 五条线怎么选
 
 | 线 | 模版 | 做什么 | 页面单位 |
 |---|---|---|---|
 | **E · 单页作品集风** | `templates/E-portfolio/` | 企业介绍 / 作品集 / 牌号手册（一页一个牌号）；含封底与跨对开页型 | 单页 210×297，216×303 含出血 |
-| **D · 工业技术风** | `templates/D-industrial/` | 产品目录 Catalog / 技术数据 Technical Data（对开拼版、跨页大图） | 对开 420×297，426×303 含出血 |
+| **D · 工业技术风** | `templates/D-industrial/` | 产品目录 Catalog / 企业介绍（对开拼版、跨页大图） | 对开 420×297，426×303 含出血 |
+| **F · 单页技术数据风** | `templates/F-techdata/` | 技术数据表 TDS / 检验规范 / 工艺卡（basis 数据身份 + cond 试验条件 + proc 工艺表） | 单页 210×297，216×303 含出血 |
 | **A · 极简瑞士风** | `templates/A-career/` | 职业发展 / 就业指导 / 人才培养方案 / 新生手册 | 210×285 大 16 开 |
 | **B · 杂志编辑风**（教育线默认） | `templates/B-editorial/` | 同上，图文混排、文章式 | 同上 |
 | **C · 东方学报风** | `templates/C-journal/` | 同上，宣纸墨色、竖排目录、印章 | 同上 |
 
-**E 与 D 怎么选**：先问「一个牌号 / 一个主题值不值一整页」。值 → E；不值、需要两三个挤在一对开 → D。
-D 适合整本按对开读的长文，E 适合条目多而每条不长的册子——E 需要一两张跨页大图时用 `spread` 页型即可，不必换 D。选错页面单位是「版面空」的第一原因，
-不是字号也不是配色。完整路由见 `SKILL.md`。
+**E / D / F 怎么选**：先问「一个牌号 / 一个主题值不值一整页」。值且以图为主 → E；以表为主 → F；不值、需要两三个挤在一对开 → D。
+技术数据自 v2.0.0 从 D 拆到 F——对开单位对单牌号 TDS 偏大，留白失控；单页 + 表格密度才是 TDS 的正确形态。
+选错页面单位是「版面空」的第一原因，不是字号也不是配色。完整路由见 `SKILL.md`。
 
 ## 能力
 
@@ -78,8 +79,8 @@ pdffonts 产品目录-送印.pdf
 `node _shared/inline-fonts.mjs <产物.html>` 得到同等效果的单文件。
 
 完整工作流（澄清 → 选主题 → 写 JSON → 构建 → 校验 → checklist 自检 → 打印核对 → 补裁切规格）
-见 `templates/D-industrial/README.md` 与 `references/checklist.md`；技术数据表先读
-`templates/D-industrial/references/grade-datasheet.md`（牌号数据骨架 + basis/cond 标注规则）。
+见各模版 `README.md` 与 `references/checklist.md`；技术数据表（F 线）先读
+`templates/F-techdata/references/grade-datasheet.md`（牌号数据骨架 + basis/cond 标注规则）。
 
 ## 核心设计原则（不可妥协）
 
@@ -161,7 +162,8 @@ industrial-print-skill/
 │   └── fetch-images.mjs     ← 官网抓图：同域 + robots + 尺寸判定 + 来源清单
 └── templates/
     ├── E-portfolio/         ← 单页作品集风：企业介绍 / 作品集 / 牌号手册
-    ├── D-industrial/        ← 工业技术风：Catalog / Technical Data（对开）
+    ├── D-industrial/        ← 工业技术风：Catalog / Company Profile（对开）
+    ├── F-techdata/          ← 单页技术数据风：Technical Data / TDS / 检验规范
     ├── A-career/            ← 教育线：极简瑞士风
     ├── B-editorial/         ← 教育线：杂志编辑风（默认）
     └── C-journal/           ← 教育线：东方学报风
@@ -178,7 +180,7 @@ industrial-print-skill/
 | swiss-ochre / burgundy / slate-blue / deep-aubergine | 瑞士 · 酒红 · 藏蓝 · 深紫 | A / B 通用 |
 | cinnabar（朱砂） | 宣纸底 + 墨 + 朱砂唯一点缀 | C 专属 |
 | **steel-blue（钢蓝）** | 特种钢/合金产品目录、通用工业（D 默认） | D |
-| **graphite（石墨）** | 技术数据表、检验规范、白皮书 | D |
+| **graphite（石墨）** | 技术数据表、检验规范、白皮书 | F |
 | **oxide-red（氧化红）** | 热作模具钢、热处理、锻件 | D |
 | **deep-pine（深松绿）** | 不锈钢深加工、绿色制造、长效件 | D |
 | **shenda-amber（申达橙金）** | 申达品牌物料：橙金 + 冷蓝双色，印刷须打样或走专色 | E / D |
@@ -202,7 +204,8 @@ industrial-print-skill/
 ## 参考作品
 
 - 示例特钢 · 企业介绍 / 作品集（E 线，11 页单页成册，牌号一页一版）
-- 示例特钢 · 产品目录 / 企业介绍 / 技术数据表（D 线三例，各 10~15 对开）
+- 示例特钢 · 产品目录 / 企业介绍（D 线两例，对开拼版）
+- 示例特钢 · H13 技术数据表（F 线，10 页单页，含 basis/cond/proc 全特性）
 - 新能源汽车工程 · 职业发展手册（教育线三例，各 20–22 页）
 - 风格参考：Josef Müller-Brockmann 网格系统 / The New York Times Magazine 栏目系统 / 中华书局古籍版式
 

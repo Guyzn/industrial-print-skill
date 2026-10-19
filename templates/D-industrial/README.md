@@ -1,7 +1,10 @@
-# D · 工业技术风（Catalog / Technical Data / Company Profile）
+# D · 工业技术风（Catalog / Company Profile）
 
 版式锁死的图文混排印刷品模版。**一套内容模型（JSON）+ 一个视觉系统 + build/validate 双脚本**。
 换内容只换 JSON 与主题色 token，页面物理规格、骨架、图表纪律全部不变。
+
+> 技术数据表（Technical Data / TDS）自 v2.0.0 起拆到 **F 单页技术数据风**（`templates/F-techdata/`）：
+> Catalog 才需要对开拼版与跨页大图，TDS 以单页为主。
 
 ## 物理规格
 
@@ -30,7 +33,6 @@ D-industrial/
 │   └── validate.mjs         ← 0 错误才算过（含裁切标记、data URI 识别）
 ├── content/
 │   ├── example-catalog.json ← 产品目录示例
-│   ├── example-techdata.json← 技术数据表示例
 │   ├── example-profile.json ← 企业介绍示例
 │   └── images/              ← 占位图（送印前必须替换）
 └── references/
@@ -73,7 +75,7 @@ python -c "…"   # 见 checklist.md 第 3 节
 
 ## 工作流（六步）
 
-1. **澄清** — 文档类型（catalog / techdata / profile）、语言（zh / en / bi）、主题色、页数量级。
+1. **澄清** — 文档类型（catalog / profile；**techdata 走 F 单页风** `templates/F-techdata/`）、语言（zh / en / bi）、主题色、页数量级。
 2. **选主题** — 从 `_shared/themes.md` 的 4 套工业主题选 1，只许选不许自定义 hex。
 3. **写内容 JSON** — 照 `content/example-*.json` 的结构填。表格列数、牌号卡字段、流程步骤都从这里来。
 4. **构建** — `node scripts/build.mjs <json> <out.html>`（要单文件加 `--single`）。
@@ -88,9 +90,9 @@ python -c "…"   # 见 checklist.md 第 3 节
 - 价格字段**不要写进 JSON**，除非已经过内部核价；示例 JSON 一律只放公开标准口径。
 
 ### 技术数据 Technical Data
-- 章节：概述与关键指标 → 化学成分 → 力学性能与热处理 → 生产与检验流程 → 文件控制。
-- 主力骨架：`D04` 正文、`D06/D07` 数据表、`D08` 热处理窗口（纵向流程）、`D11` 数字带。
-- 推荐主题 `graphite`，让数字说话。
+**整本 TDS 不在 D 做**——对开单位对单牌号数据表偏大，留白失控。走 **F 单页技术数据风**
+（`templates/F-techdata/`，含 basis 数据身份 / cond 试验条件 / proc 工艺表 / L0–L6 骨架）。
+D 里只保留目录/企业介绍中**夹带的**数据表（牌号总览表、规格表这类）。
 
 ### 企业介绍 Company Profile
 - 章节：我们是谁 → 能力与产能 → 历程与联系。
