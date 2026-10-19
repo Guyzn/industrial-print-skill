@@ -89,7 +89,9 @@ const tables = html.match(/<table class="tb[\s\S]*?<\/table>/g) || [];
 for (let i = 0; i < tables.length; i++) {
   const tb = tables[i];
   const headCols = (tb.match(/<th[ >]/g) || []).length;
-  const bodyRows = tb.split('</tr>').slice(0, -1).filter((r) => /<td[ >]/.test(r));
+  // 分组行用 colspan 横跨全表，不参与列数核对
+  const bodyRows = tb.split('</tr>').slice(0, -1)
+    .filter((r) => /<td[ >]/.test(r) && !/colspan=/.test(r));
   for (const r of bodyRows) {
     const tds = (r.match(/<td[ >]/g) || []).length;
     if (headCols && tds !== headCols) {
@@ -97,6 +99,16 @@ for (let i = 0; i < tables.length; i++) {
       break;
     }
   }
+}
+
+/* 7.5 数据身份：标了就要标全。
+   只标一张、其余不标，比全不标更危险——读者会以为标过的那张才是典型值，
+   其余的都是保证值。技术数据表里这一条是纠纷的源头。 */
+const needBasis = tables.filter((t) => !/data-basis="none"/.test(t));
+const taggedTables = needBasis.filter((t) => /class="tag tag-/.test(t)).length;
+if (taggedTables > 0 && taggedTables < needBasis.length) {
+  warn(`有 ${taggedTables}/${needBasis.length} 张表标了数据身份（标准要求/典型值），其余未标——`
+    + '同一份文件里两种性质混排，客户会当成同一种');
 }
 
 /* 8. 双语完整性 */

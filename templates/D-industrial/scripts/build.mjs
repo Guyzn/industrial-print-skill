@@ -40,6 +40,21 @@ const esc = (s) => String(s ?? '')
    由 main() 设成内容 JSON 所在目录，与 images/ 的相对路径保持一致。 */
 let ASSET_ROOT = process.cwd();
 
+/* 数据身份：同一个数字在技术数据表里有三种身份，混排会让客户把典型值当保证值。
+   表级用 basis，列级用 cols[].basis（同一张表里既有标准范围又有典型值时）。 */
+const BASIS = {
+  spec:    { zh: '标准要求', en: 'Spec' },
+  min:     { zh: '最小值', en: 'Min' },
+  max:     { zh: '最大值', en: 'Max' },
+  typical: { zh: '典型值', en: 'Typical' },
+  range:   { zh: '范围', en: 'Range' }
+};
+
+/** 试验条件（meta.test_conditions）：淬火温度、回火温度、保温时间这类条件只写一处，
+ *  性能表用 cond: "TC-A" 引用。旧式做法是在每个表里各写一句，同文两页就容易对不上。 */
+let TEST_COND = {};
+let COND_USED = {};
+
 /** 把 SVG 文件内联成页内元素。
  *  <img src="x.svg"> 是独立文档，拿不到 @font-face 与 CSS 变量——图表上的字会掉成
  *  系统 Helvetica，送印时 PDF 里就多一套字体。内联后 CSS 变量与 MiSans 都能继承。 */
@@ -111,22 +126,61 @@ export function loadThemes() {
  *  不套 .zh，切到 lang="en" 时才不会整列消失。 */
 const isNeutral = (v) => typeof v === 'string' && !/[\u3400-\u9fff]/.test(v);
 
+function basisTag(v) {
+  const label = BASIS[v] || { zh: String(v), en: '' };
+  return `<span class="tag tag-${esc(String(v).toLowerCase())}">${t(label)}</span>`;
+}
+
+/** 条件文本多为纯英文/单位，不能套 .zh，否则 en 模式下整行消失 */
+const condText = (x) => (isNeutral(x) ? esc(x) : t(x));
+
+function condHtml(id) {
+  const c = TEST_COND[id];
+  if (!c) throw new Error(`表引用了未定义的试验条件: ${id}（检查 meta.test_conditions）`);
+  COND_USED[id] = (COND_USED[id] || 0) + 1;
+  const lab = c.label ? `<span class="cond-lab">${t(c.label)}</span>` : '';
+  const items = (c.items || []).map(condText).filter(Boolean).join('<span class="sep">·</span>');
+  return `<b>${esc(id)}</b>${lab}${items ? `<span class="sep">·</span><span class="cond-items">${items}</span>` : ''}`;
+}
+
 function renderTable(spec) {
   const cols = spec.cols || [];
   const rows = spec.rows || [];
   const compact = spec.compact ? ' compact' : '';
+  const variant = spec.variant ? ` ${esc(spec.variant)}` : '';
   const zebra = spec.zebra !== false;
-  let h = `<table class="tb${compact}">`;
-  if (spec.caption) {
-    h += `<caption>${tb(spec.caption)}</caption>`;
+  // cols[].w 给列宽（如 "18%"）：不指定时浏览器按内容分配，短列会被撑得比长列还宽
+  const hasW = cols.some((c) => c && c.w);
+  // basis:"none" 给工序表/清单/对策表这类不含验收数值的表用：显式豁免，validate 才分得清
+  const basisAttr = spec.basis ? ` data-basis="${esc(spec.basis)}"` : '';
+  let h = `<table class="tb${compact}${variant}${hasW ? ' has-colw' : ''}"${basisAttr}>`;
+  if (hasW) {
+    h += '<colgroup>' + cols.map((c) => (c && c.w ? `<col style="width:${esc(c.w)}">` : '<col>')).join('') + '</colgroup>';
+  }
+  if (spec.caption || spec.basis || spec.cond) {
+    let capMeta = '';
+    if (spec.basis && spec.basis !== 'none') capMeta += basisTag(spec.basis);
+    if (spec.cond) capMeta += `<span class="cond">${condHtml(spec.cond)}</span>`;
+    h += '<caption>' +
+      (spec.caption ? tb(spec.caption, 'cap-ttl') : '') +
+      (capMeta ? `<span class="cap-meta">${capMeta}</span>` : '') +
+      '</caption>';
   }
   h += '<thead><tr>';
   for (const col of cols) {
     const num = col.num ? ' n' : '';
-    h += `<th class="${num.trim()}">${esc(col.k ?? col)}${col.en ? `<span class="bi-en"> ${esc(col.en)}</span>` : ''}</th>`;
+    const cb = col.basis
+      ? `<span class="col-basis">${t(BASIS[col.basis] || { zh: String(col.basis), en: '' })}</span>`
+      : '';
+    h += `<th class="${num.trim()}">${esc(col.k ?? col)}${col.en ? `<span class="bi-en"> ${esc(col.en)}</span>` : ''}${cb}</th>`;
   }
   h += '</tr></thead><tbody>';
   rows.forEach((r, i) => {
+    // 分组行 { group: … } 横跨全表：一张表里分「室温 / 高温」，或工艺表分「前处理 / 硬化 / 回火」
+    if (!Array.isArray(r)) {
+      if (r && r.group) h += `<tr class="grp"><td colspan="${cols.length}">${tb(r.group)}</td></tr>`;
+      return;
+    }
     const cls = zebra && i % 2 === 1 ? ' class="zebra"' : '';
     h += `<tr${cls}>`;
     r.forEach((cell, j) => {
@@ -528,6 +582,15 @@ export function build(content, opts = {}) {
   }
 
   const meta = content.meta;
+  // 试验条件在建表前先建索引：renderTable 要按 id 取，取不到就当场报错（不要留到印出来才发现）
+  TEST_COND = {};
+  COND_USED = {};
+  for (const c of (meta.test_conditions || [])) {
+    if (!c.id) throw new Error('meta.test_conditions 有一项缺 id');
+    if (TEST_COND[c.id]) throw new Error(`meta.test_conditions id 重复: ${c.id}`);
+    TEST_COND[c.id] = c;
+  }
+
   const CROP_MARKS = ['tl-h', 'tl-v', 'tr-h', 'tr-v', 'bl-h', 'bl-v', 'br-h', 'br-v', 'fold-t', 'fold-b']
     .map((c) => `<div class="crop ${c}"></div>`).join('');
   const spreads = seq.map((item, i) => {
@@ -560,6 +623,10 @@ export function build(content, opts = {}) {
     .replace('__LANG__', () => meta.lang || 'zh')
     .replace('__DOC_TYPE__', () => meta.doc || 'catalog')
     .replace('__SPREADS__', () => spreads);
+
+  for (const id of Object.keys(TEST_COND)) {
+    if (!COND_USED[id]) warnings.push(`试验条件 ${id} 已定义但没有任何表引用——检查是不是漏写 cond`);
+  }
 
   const pageCount = seq.reduce((n, it) => n + (it.kind === 'cover' ? 0 : 2), 0);
   return { html, warnings, themeName, pageCount, spreadCount: seq.length };

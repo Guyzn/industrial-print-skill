@@ -78,7 +78,8 @@ pdffonts 产品目录-送印.pdf
 `node _shared/inline-fonts.mjs <产物.html>` 得到同等效果的单文件。
 
 完整工作流（澄清 → 选主题 → 写 JSON → 构建 → 校验 → checklist 自检 → 打印核对 → 补裁切规格）
-见 `templates/D-industrial/README.md` 与 `references/checklist.md`。
+见 `templates/D-industrial/README.md` 与 `references/checklist.md`；技术数据表先读
+`templates/D-industrial/references/grade-datasheet.md`（牌号数据骨架 + basis/cond 标注规则）。
 
 ## 核心设计原则（不可妥协）
 
@@ -201,7 +202,7 @@ industrial-print-skill/
 ## 参考作品
 
 - 示例特钢 · 企业介绍 / 作品集（E 线，11 页单页成册，牌号一页一版）
-- 示例特钢 · 产品目录 / 技术数据表（D 线两例，各 10~14 对开）
+- 示例特钢 · 产品目录 / 企业介绍 / 技术数据表（D 线三例，各 10~15 对开）
 - 新能源汽车工程 · 职业发展手册（教育线三例，各 20–22 页）
 - 风格参考：Josef Müller-Brockmann 网格系统 / The New York Times Magazine 栏目系统 / 中华书局古籍版式
 

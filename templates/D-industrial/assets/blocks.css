@@ -387,6 +387,58 @@ table.tb.compact th, table.tb.compact td { padding: 1.2mm 1.6mm; }
 .tb td .zh + .bi-en::before { content: " · "; }
 .tb caption .zh + .bi-en::before { content: " · "; }
 
+/* 表题第二行：数据身份 + 试验条件。
+   技术数据表最容易出事的一处——把典型值当保证值印出去，客户拿去验收就说不清。
+   条件同理：淬火温度、回火温度只写一处，表按 id 引用，同文两页才不会各说一套。 */
+table.tb caption .cap-ttl { display: block; }
+table.tb caption .cap-meta {
+  display: block;
+  margin-top: 1.4mm;
+  font-family: var(--mono); font-size: var(--fs-micro); font-weight: 400;
+  letter-spacing: 0.04em; color: var(--muted); line-height: 1.5;
+}
+table.tb caption .cap-meta > * { display: inline-block; vertical-align: baseline; margin-right: 3mm; }
+table.tb caption .tag {
+  border: 0.2mm solid currentColor; padding: 0.5mm 1.6mm;
+  letter-spacing: 0.1em; text-transform: uppercase;
+}
+table.tb caption .tag-spec { color: var(--fg); }
+table.tb caption .tag-typical { color: var(--accent); }
+table.tb caption .tag-min, table.tb caption .tag-max, table.tb caption .tag-range { color: var(--muted); }
+table.tb caption .cond b { color: var(--accent); font-weight: 600; letter-spacing: 0.08em; }
+table.tb caption .cond .cond-lab { margin: 0 1.6mm; }
+table.tb caption .cond .cond-lab .zh + .bi-en::before { content: " · "; }
+table.tb caption .cond .cond-items { color: var(--muted); }
+table.tb.has-colw { table-layout: fixed; }
+table.tb.has-colw td, table.tb.has-colw th { overflow-wrap: anywhere; }
+table.tb caption .cond .sep { margin: 0 1.2mm; }
+
+/* 列级身份：同一张表里既有标准范围又有典型值时，标在列头下面 */
+table.tb th .col-basis { display: block; font-weight: 400; letter-spacing: 0.04em; margin-top: 0.6mm; color: var(--muted); }
+table.tb th .col-basis .zh + .bi-en::before { content: " · "; }
+
+/* 分组行：横跨全表，把一张大表分成几段读 */
+table.tb tbody tr.grp td {
+  padding: 3.4mm 2mm 1.2mm;
+  border-bottom: 0.3mm solid var(--fg);
+  font-family: var(--mono); font-size: var(--fs-micro);
+  letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted);
+}
+
+/* 工艺参数表：第一列是工序名，读起来要像工艺卡而不是数据表。
+   热处理页不用散文——散文里查不到「回火 1 小时还是 2 小时」。 */
+table.tb.proc td:first-child { font-weight: 600; color: var(--fg); white-space: nowrap; }
+table.tb.proc th, table.tb.proc td { padding-top: 2.4mm; padding-bottom: 2.4mm; }
+table.tb.proc tbody tr.zebra { background: transparent; }
+/* 键列默认 nowrap，工艺表的长文本列必须能折行，否则会顶穿到相邻列 */
+table.tb.proc tbody td { white-space: normal; }
+/* 工艺表列头常是「出液温度 EXIT TEMP.」这种长串，nowrap 会顶穿相邻列 */
+table.tb.proc thead th { white-space: normal; }
+/* 工艺表列头中文在上、英文在下，占宽减半，也符合工业表格的读法 */
+table.tb.proc thead th .bi-en { display: block; margin-top: 0.5mm; letter-spacing: 0.04em; font-weight: 400; }
+/* 表头是标签不是数字：跟着 td 右对齐会贴到相邻列上 */
+table.tb.proc thead th, table.tb.proc thead th.n { text-align: left; }
+
 .twin { display: grid; grid-template-columns: 1fr 1fr; gap: 8mm; }
 .twin.wide-left { grid-template-columns: 1.35fr 1fr; }
 

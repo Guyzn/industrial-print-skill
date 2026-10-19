@@ -280,6 +280,7 @@ python _shared/pdf_print_marks.py 企业介绍.pdf -o 企业介绍-送印.pdf
 
 完整工作流（澄清 → 选主题 → 写 JSON → 构建 → 校验 → checklist 自检 → 打印核对 → 补裁切规格）见
 `templates/D-industrial/README.md` 与 `references/checklist.md`。
+技术数据表另须先读 `templates/D-industrial/references/grade-datasheet.md`：牌号数据 L0–L6 骨架、数据身份（basis）与试验条件（cond）标注规则、旧版常见 8 处硬伤。
 
 ## 失败模式与回退（按症状查）
 
