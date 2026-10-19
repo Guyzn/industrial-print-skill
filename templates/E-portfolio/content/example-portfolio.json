@@ -1,0 +1,1055 @@
+{
+  "meta": {
+    "doc": "portfolio",
+    "lang": "en",
+    "theme": "shenda-amber",
+    "brand": "EXSTEEL",
+    "brand_accent": "STEEL",
+    "legal": "Example Special Steel Co., Ltd.",
+    "url": "EXAMPLE-STEEL.COM",
+    "title": "Special Steel Products Portfolio",
+    "doc_no": "EX-PF-2026-01",
+    "cover": {
+      "image": "images/ph-cover.svg",
+      "kicker": "ALLOY SPECIALIST FROM CHINA",
+      "title": "SPECIAL STEEL",
+      "sub": "PRODUCTS PORTFOLIO",
+      "slogan": "FORGED TO PERFORM"
+    }
+  },
+  "pages": [
+    {
+      "type": "cover"
+    },
+    {
+      "type": "contents",
+      "label": "Contents",
+      "title": "Contents",
+      "sub": "Special Steel Products Portfolio",
+      "groups": [
+        {
+          "head": "COMPANY & CAPABILITY",
+          "items": [
+            {
+              "label": "About Us",
+              "ref": "about"
+            },
+            {
+              "label": "Main Product Categories",
+              "ref": "range"
+            },
+            {
+              "label": "Why Exsteel",
+              "ref": "why"
+            },
+            {
+              "label": "Quality & Testing",
+              "ref": "quality"
+            },
+            {
+              "label": "Production Equipment",
+              "ref": "equipment"
+            }
+          ]
+        },
+        {
+          "head": "GRADE REFERENCE",
+          "items": [
+            {
+              "label": "Grade Cross-Reference",
+              "ref": "xref"
+            },
+            {
+              "label": "1.2344 / H13 / 4Cr5MoSiV1",
+              "ref": "g-h13"
+            },
+            {
+              "label": "1.2311 / P20 / 3Cr2Mo",
+              "ref": "g-p20"
+            },
+            {
+              "label": "Contact",
+              "ref": "contact"
+            }
+          ]
+        }
+      ],
+      "image": "images/ph-band.svg",
+      "image_cap": "Forging bay, 66,000 m² base",
+      "note": "Each grade page carries the full specification — equivalents, chemistry, physical and mechanical data, heat treatment and supply form. Use the cross-reference on page 8 to find a grade by any national designation."
+    },
+    {
+      "type": "section",
+      "id": "about",
+      "label": "About Us",
+      "title": "About Us",
+      "sub": "Integrated Forging Base · Since 2003",
+      "lede": "A special steel producer with melting, refining, remelting, forging and heat treatment under one roof. 66,000 m² of forging base, 600 people, and a 110 kV substation sized for heavy forging.",
+      "blocks": [
+        {
+          "type": "kv",
+          "items": [
+            {
+              "n": "66,000 m²",
+              "d": "Forging base, Fujian"
+            },
+            {
+              "n": "5,000 t",
+              "d": "Hydraulic press"
+            },
+            {
+              "n": "600",
+              "d": "Employees"
+            },
+            {
+              "n": "110 kV",
+              "d": "Dedicated substation"
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "paras": [
+            "Founded in 2003, the plant runs a complete route from electric-arc melting through LF/VD refining, ESR remelting, forging, heat treatment and machining. Because every step is in-house, one purchase order covers the whole chain — there is no outsourced weak link to trace when a heat is questioned.",
+            "We supply tool steel and alloy structural steel as forged bars, flats, plates, blocks and modules, black, peeled, milled or six-face machined. Each heat is traceable from melt to dispatch."
+          ]
+        },
+        {
+          "type": "photo",
+          "fill": true,
+          "src": "images/ph-hero.svg",
+          "cap": "5,000 t forging press, Fujian plant"
+        }
+      ]
+    },
+    {
+      "type": "section",
+      "id": "range",
+      "label": "Product Range",
+      "title": "Main Product Categories",
+      "sub": "Full Range of Grades · Bars / Plates / Modules",
+      "blocks": [
+        {
+          "type": "dashgroups",
+          "cols": 2,
+          "compact": true,
+          "groups": [
+            {
+              "head": "COLD WORK TOOL STEEL",
+              "items": [
+                "Cr12 / Cr12MoV / Cr12Mo1V1 (D2) / Cr12W",
+                "9CrWMn (1.2510/O1) / 9Mn2V (O2) / CrWMn",
+                "Cr5Mo1V (A2) / DC53-equivalent"
+              ]
+            },
+            {
+              "head": "HOT WORK TOOL STEEL",
+              "items": [
+                "4Cr5MoSiV1 (H13 / 1.2344)",
+                "4Cr5MoSiV (H11 / 1.2343)",
+                "3Cr2W8V (H21) / 4Cr3Mo3SiV (H10)",
+                "5CrNiMo (1.2714) / 8CrNiMoV / 4Cr5W2VSi"
+              ]
+            },
+            {
+              "head": "PLASTIC MOULD STEEL",
+              "items": [
+                "3Cr2Mo (P20 / 1.2311) / 3Cr2Mo+S (1.2312)",
+                "3Cr2MnNiMo (1.2738) / 42CrMnNiMo",
+                "2Cr13 / 3Cr13 / 4Cr13 (420) / 3Cr17NiMo"
+              ]
+            },
+            {
+              "head": "HIGH SPEED STEEL",
+              "items": [
+                "W18Cr4V (T1 / 1.3355)",
+                "W18Cr4VCo5 (T4 / 1.3255)",
+                "W6Mo5Cr4V2 (M2 / 1.3343)"
+              ]
+            },
+            {
+              "head": "ALLOY STRUCTURAL STEEL",
+              "items": [
+                "40Cr (5140) / 42CrMo (4140) / 35CrMo (4135)",
+                "30CrMo (4130) / 38CrMoAl / 40CrNiMoA (4340)",
+                "34CrNi2Mo / 20CrNiMo (8620) / 20CrMnTi"
+              ]
+            },
+            {
+              "head": "CARBON STRUCTURAL STEEL",
+              "items": [
+                "1020 (20#) / 1045 (45#) / 1050 (50#)",
+                "Q355B (S355JR / A572 Gr.50)"
+              ]
+            },
+            {
+              "head": "BEARING STEEL",
+              "items": [
+                "GCr15 (100Cr6 / 52100)"
+              ]
+            },
+            {
+              "head": "STAINLESS STEEL",
+              "items": [
+                "301 / 304L / 316 / 316L",
+                "2Cr13 / 3Cr13 / 4Cr13 (420 series)",
+                "68Cr17 (440A) / 17-4PH (630)"
+              ]
+            }
+          ],
+          "note": "Grades not listed are available to order as custom melt. Minimum heat size applies; ask for the current schedule before quoting a delivery date."
+        },
+        {
+          "type": "photo",
+          "fill": true,
+          "src": "images/ph-band.svg",
+          "cap": "Forged blocks awaiting six-face milling"
+        }
+      ]
+    },
+    {
+      "type": "section",
+      "id": "why",
+      "label": "Our Strengths",
+      "title": "Why Exsteel",
+      "sub": "Four Things We Do Differently",
+      "blocks": [
+        {
+          "type": "adv",
+          "items": [
+            {
+              "no": "01",
+              "t": "Heavy Manufacturing Capability",
+              "p": "A 66,000 m² forging base equipped with a 5,000-ton hydraulic forging press, forging manipulators, 50-ton LF refining furnace, 50-ton VD vacuum degassing furnace and in-house ESR remelting furnaces. A dedicated 110 kV substation guarantees stable power for heavy forging operations."
+            },
+            {
+              "no": "02",
+              "t": "Complete In-House Process Route",
+              "p": "Melting, LF/VD refining, ESR remelting, forging, heat treatment — spheroidizing annealing, pre-hardening, quenching, tempering, normalizing — deep cryogenic treatment and machining. One purchase order covers the entire chain."
+            },
+            {
+              "no": "03",
+              "t": "Testing and ISO 9001:2015",
+              "p": "Complete in-house laboratory: SPECTRO direct-reading spectrometer, O/N/H analyzer, ultrasonic flaw detection, universal tensile testing, Rockwell hardness and metallographic analysis. Every heat is traceable from melt to dispatch, with EN 10204 3.1 certificates."
+            },
+            {
+              "no": "04",
+              "t": "Customization to Your Drawings",
+              "p": "Forged bars, flats, plates, blocks and modules supplied black, peeled, milled or six-face machined to ±0.05 mm, cut to length, with pre-hardening to 28–34 HRC when the part needs to go straight into the machine."
+            }
+          ]
+        },
+        {
+          "type": "photo",
+          "fill": true,
+          "src": "images/ph-hero.svg",
+          "cap": "ESR remelting shop"
+        }
+      ]
+    },
+    {
+      "type": "section",
+      "id": "quality",
+      "label": "Quality",
+      "title": "Quality & Testing",
+      "sub": "Every Heat Traceable · EN 10204 3.1",
+      "blocks": [
+        {
+          "type": "kv",
+          "items": [
+            {
+              "n": "100%",
+              "d": "Ultrasonic tested"
+            },
+            {
+              "n": "3.1",
+              "d": "EN 10204 certificate"
+            },
+            {
+              "n": "≤235 HB",
+              "d": "Annealed hardness"
+            },
+            {
+              "n": "Class 3",
+              "d": "SEP 1921-84 D/d"
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "paras": [
+            "Testing is not a final gate but a step in the route: chemistry is confirmed by direct-reading spectrometry before the heat leaves the furnace, gas content is measured on every melt, and ultrasonic inspection is run after forging rather than after machining, so a rejected heat never becomes a finished bar."
+          ]
+        },
+        {
+          "type": "chips",
+          "head": "Standards & Certification",
+          "items": [
+            {
+              "code": "ISO 9001:2015"
+            },
+            {
+              "code": "EN 10204 3.1"
+            },
+            {
+              "code": "SEP 1921-84 Cl.3"
+            },
+            {
+              "code": "GB/T 6402 Cl.3"
+            },
+            {
+              "code": "ASTM A388"
+            },
+            {
+              "code": "SGS / BV on request"
+            }
+          ]
+        },
+        {
+          "type": "table",
+          "head": "Inspection Equipment",
+          "size": "sm",
+          "cols": [
+            "Equipment",
+            "Method",
+            "Scope"
+          ],
+          "rows": [
+            [
+              "SPECTRO spectrometer",
+              "OES",
+              "All elements, every heat"
+            ],
+            [
+              "O / N / H analyzer",
+              "Inert gas fusion",
+              "Gas content on every melt"
+            ],
+            [
+              "Ultrasonic flaw detector",
+              "Pulse-echo",
+              "100% of forged stock"
+            ],
+            [
+              "Universal testing machine",
+              "Tensile / yield",
+              "Per specification"
+            ],
+            [
+              "Rockwell hardness",
+              "HRC / HB",
+              "Every piece, ends"
+            ],
+            [
+              "Metallographic microscope",
+              "Microstructure",
+              "Grain size, banding, decarb"
+            ]
+          ]
+        },
+        {
+          "type": "photo",
+          "fill": true,
+          "src": "images/ph-band.svg",
+          "cap": "In-house laboratory, spectro bench"
+        }
+      ]
+    },
+    {
+      "type": "gallery",
+      "id": "equipment",
+      "label": "Production Equipment",
+      "title": "Production Equipment",
+      "sub": "Melting · Refining · Forging · Heat Treatment",
+      "lede": "From the arc furnace to the six-face milling line, the equipment list is deliberately short and deep — fewer units, each sized for heavy section.",
+      "cols": 3,
+      "items": [
+        {
+          "src": "images/ph-sq.svg",
+          "cap": "Electric arc furnace",
+          "sub": "50 t"
+        },
+        {
+          "src": "images/ph-sq.svg",
+          "cap": "LF refining",
+          "sub": "50 t"
+        },
+        {
+          "src": "images/ph-sq.svg",
+          "cap": "VD degassing",
+          "sub": "50 t"
+        },
+        {
+          "src": "images/ph-sq.svg",
+          "cap": "ESR remelting",
+          "sub": "In-house"
+        },
+        {
+          "src": "images/ph-sq.svg",
+          "cap": "Forging press",
+          "sub": "5,000 t"
+        },
+        {
+          "src": "images/ph-sq.svg",
+          "cap": "Manipulator",
+          "sub": "50 t·m"
+        },
+        {
+          "src": "images/ph-sq.svg",
+          "cap": "Heat treatment",
+          "sub": "6 furnaces"
+        },
+        {
+          "src": "images/ph-sq.svg",
+          "cap": "Cryogenic",
+          "sub": "−196 °C"
+        },
+        {
+          "src": "images/ph-sq.svg",
+          "cap": "Six-face milling",
+          "sub": "±0.05 mm"
+        }
+      ],
+      "note": "Photographs are placeholders in this sample. Replace with plant photography — see references/checklist.md for the shot list."
+    },
+    {
+      "type": "tablepage",
+      "id": "xref",
+      "label": "Grade Cross-Reference",
+      "title": "Steel Grade Equivalents",
+      "sub": "Cold Work / Hot Work / Plastic Mould",
+      "tables": [
+        {
+          "head": "TABLE 1 — COLD WORK TOOL STEEL",
+          "size": "sm",
+          "cls": "ovtbl",
+          "first": "col",
+          "cols": [
+            "GB",
+            "JIS",
+            "AISI",
+            "DIN/EN",
+            "Annealed HB ≤",
+            "Quench °C",
+            "Medium",
+            "Temper °C",
+            "HRC ≥"
+          ],
+          "rows": [
+            [
+              "Cr12",
+              "SKD1",
+              "D3",
+              "1.2080",
+              "269–217",
+              "950–1000",
+              "Oil",
+              "200",
+              "60"
+            ],
+            [
+              "Cr12MoV",
+              "—",
+              "—",
+              "1.2601",
+              "255–207",
+              "950–1000",
+              "Oil",
+              "200",
+              "58"
+            ],
+            [
+              "Cr12Mo1V1",
+              "SKD11",
+              "D2",
+              "1.2379",
+              "≤255",
+              "820–1040",
+              "Oil",
+              "200",
+              "59"
+            ],
+            [
+              "Cr12W",
+              "SKD2",
+              "D6",
+              "1.2436",
+              "≤255",
+              "960–1000",
+              "Oil",
+              "180–200",
+              "62"
+            ],
+            [
+              "9CrWMn",
+              "SKS3",
+              "O1",
+              "1.2510",
+              "241–197",
+              "800–830",
+              "Oil",
+              "150–260",
+              "62"
+            ],
+            [
+              "9Mn2V",
+              "—",
+              "O2",
+              "1.2842",
+              "≤229",
+              "780–810",
+              "Oil",
+              "160–180",
+              "62"
+            ],
+            [
+              "CrWMn",
+              "SKS31",
+              "O7",
+              "1.2419",
+              "255–207",
+              "800–830",
+              "Oil",
+              "160–200",
+              "62"
+            ],
+            [
+              "Cr5Mo1V",
+              "SKD12",
+              "A2",
+              "1.2363",
+              "≤255",
+              "790–850",
+              "Air",
+              "200",
+              "60"
+            ]
+          ]
+        },
+        {
+          "head": "TABLE 2 — HOT WORK TOOL STEEL",
+          "size": "sm",
+          "cls": "ovtbl",
+          "first": "col",
+          "cols": [
+            "GB",
+            "JIS",
+            "AISI",
+            "DIN/EN",
+            "Annealed HB ≤",
+            "Quench °C",
+            "Medium",
+            "Temper °C",
+            "HRC ≥"
+          ],
+          "rows": [
+            [
+              "4Cr5MoSiV1",
+              "SKD61",
+              "H13",
+              "1.2344",
+              "≤235",
+              "1020–1050",
+              "Oil / air",
+              "530–650",
+              "44–50"
+            ],
+            [
+              "4Cr5MoSiV",
+              "SKD6",
+              "H11",
+              "1.2343",
+              "≤235",
+              "1000–1030",
+              "Oil / air",
+              "530–620",
+              "42–48"
+            ],
+            [
+              "3Cr2W8V",
+              "SKD5",
+              "H21",
+              "1.2581",
+              "≤255",
+              "1050–1150",
+              "Oil / air",
+              "550–650",
+              "40–48"
+            ],
+            [
+              "4Cr3Mo3SiV",
+              "—",
+              "H10",
+              "1.2365",
+              "≤235",
+              "1000–1030",
+              "Air",
+              "550–650",
+              "42–50"
+            ],
+            [
+              "5CrNiMo",
+              "SKT4",
+              "L6",
+              "1.2714",
+              "≤241",
+              "840–870",
+              "Oil",
+              "500–600",
+              "38–44"
+            ],
+            [
+              "4Cr5W2VSi",
+              "—",
+              "—",
+              "—",
+              "≤255",
+              "1030–1060",
+              "Air",
+              "560–620",
+              "40–46"
+            ]
+          ]
+        },
+        {
+          "head": "TABLE 3 — PLASTIC MOULD STEEL",
+          "size": "sm",
+          "cls": "ovtbl",
+          "first": "col",
+          "cols": [
+            "GB",
+            "JIS",
+            "AISI",
+            "DIN/EN",
+            "Delivery HRC",
+            "Annealed HB ≤",
+            "Typical use"
+          ],
+          "rows": [
+            [
+              "3Cr2Mo",
+              "SCM440",
+              "P20",
+              "1.2311",
+              "28–34",
+              "≤235",
+              "Mould bases"
+            ],
+            [
+              "3Cr2MnNiMo",
+              "—",
+              "P20+Ni",
+              "1.2738",
+              "28–34",
+              "≤235",
+              "Large moulds"
+            ],
+            [
+              "3Cr2Mo+S",
+              "—",
+              "—",
+              "1.2312",
+              "28–34",
+              "≤235",
+              "Free-cutting"
+            ],
+            [
+              "4Cr13",
+              "SUS420J2",
+              "420",
+              "1.2083",
+              "—",
+              "≤235",
+              "Corrosion-resistant"
+            ],
+            [
+              "3Cr17NiMo",
+              "—",
+              "—",
+              "1.2316",
+              "28–34",
+              "≤235",
+              "PVC / corrosive melt"
+            ]
+          ]
+        },
+        {
+          "note": "Equivalents are the nearest correspondences for reference only — the specification of the ordered grade governs. Where a customer names a grade, the mill certificate states that grade's chemistry."
+        },
+        {
+          "note": "Hardness and quench data are typical values for guidance only. The mill certificate issued with each shipment governs acceptance."
+        }
+      ]
+    },
+    {
+      "type": "grade",
+      "id": "g-h13",
+      "footer_mid": "1.2344 / H13",
+      "banner": {
+        "code": "1.2344 / H13 / 4Cr5MoSiV1",
+        "family": "HOT WORK TOOL STEEL",
+        "standards": "DIN 1.2344 · AISI H13 · GB 4Cr5MoSiV1 · JIS SKD61"
+      },
+      "blocks": [
+        {
+          "type": "text",
+          "paras": [
+            "Premium chromium-molybdenum-vanadium hot work tool steel with excellent high-temperature strength, thermal fatigue resistance and toughness. The most widely used grade for die-casting dies, forging dies and extrusion tooling."
+          ]
+        },
+        {
+          "type": "table",
+          "head": "Equivalent Grades",
+          "size": "sm",
+          "cols": [
+            "GB",
+            "JIS",
+            "AISI",
+            "DIN",
+            "EN ISO 4957",
+            "SS",
+            "BS",
+            "AFNOR",
+            "UNI",
+            "UNE"
+          ],
+          "rows": [
+            [
+              "4Cr5MoSiV1",
+              "SKD61",
+              "H13",
+              "1.2344",
+              "X40CrMoV5-1",
+              "2242",
+              "BH13",
+              "X40CrMoV5",
+              "X40CrMoV5-1KU",
+              "X40CrMoV5"
+            ]
+          ]
+        },
+        {
+          "type": "note",
+          "title": "Stock alternative — H11 (1.2343):",
+          "text": "H11 is not stocked in China. We supply H13 as the direct replacement: higher hot strength at equal or lower cost, from stock. H11 remains available to order as custom melt."
+        },
+        {
+          "type": "table",
+          "head": "Chemical Composition (%)",
+          "size": "sm",
+          "cols": [
+            "C",
+            "Si",
+            "Mn",
+            "P ≤",
+            "S ≤",
+            "Cr",
+            "Mo",
+            "V"
+          ],
+          "rows": [
+            [
+              "0.32–0.45",
+              "0.80–1.20",
+              "0.20–0.50",
+              "0.030",
+              "0.030",
+              "4.75–5.50",
+              "1.10–1.75",
+              "0.80–1.20"
+            ]
+          ]
+        },
+        {
+          "type": "twin",
+          "items": [
+            {
+              "head": "Physical Properties",
+              "size": "sm",
+              "first": "col",
+              "cols": [
+                "Property",
+                "Value"
+              ],
+              "rows": [
+                [
+                  "Density",
+                  "7.80 g/cm³"
+                ],
+                [
+                  "Thermal expansion",
+                  "10.4–13.1 ×10⁻⁶/K"
+                ],
+                [
+                  "Thermal conductivity",
+                  "24.3–28.6 W/(m·K)"
+                ],
+                [
+                  "Elastic modulus",
+                  "210–190 GPa"
+                ]
+              ]
+            },
+            {
+              "head": "Mechanical Properties",
+              "size": "sm",
+              "first": "col",
+              "cols": [
+                "Property",
+                "Value"
+              ],
+              "rows": [
+                [
+                  "Annealed hardness",
+                  "≤235 HB"
+                ],
+                [
+                  "Working hardness",
+                  "44–50 HRC"
+                ],
+                [
+                  "Tensile strength",
+                  "≈1,590 MPa"
+                ],
+                [
+                  "Yield strength",
+                  "≈1,380 MPa"
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "type": "table",
+          "head": "Heat Treatment",
+          "size": "sm",
+          "first": "col",
+          "cols": [
+            "Process",
+            "Temperature",
+            "Notes"
+          ],
+          "rows": [
+            [
+              "Annealing",
+              "840–890 °C",
+              "Slow furnace cool, ≤235 HB"
+            ],
+            [
+              "Hardening",
+              "1020–1050 °C",
+              "Oil or air/gas quench; preheat 600 + 850 °C"
+            ],
+            [
+              "Tempering",
+              "530–650 °C",
+              "Double temper minimum, ≥2 h each"
+            ]
+          ]
+        },
+        {
+          "type": "twocol",
+          "items": [
+            {
+              "head": "Supply Form & Size",
+              "text": "Forged round bars, flat bars, plates and blocks. Annealed ≤235 HB, machined or black surface. Dimensions per customer requirement."
+            },
+            {
+              "head": "Applications",
+              "text": "Al/Mg/Zn die-casting dies, hot forging dies, extrusion dies and containers, hot shear blades, die-casting inserts."
+            }
+          ]
+        },
+        {
+          "type": "photo",
+          "src": "images/ph-band.svg",
+          "cap": "H13 blocks, six-face machined"
+        }
+      ]
+    },
+    {
+      "type": "grade",
+      "id": "g-p20",
+      "footer_mid": "1.2311 / P20",
+      "banner": {
+        "code": "1.2311 / P20 / 3Cr2Mo",
+        "family": "PLASTIC MOULD STEEL",
+        "standards": "DIN 1.2311 · AISI P20 · GB 3Cr2Mo · JIS SCM440"
+      },
+      "blocks": [
+        {
+          "type": "text",
+          "paras": [
+            "Chromium-molybdenum plastic mould steel supplied pre-hardened to 28–34 HRC. Good machinability and polishability, uniform hardness through the section — the default choice for large mould bases and general injection tooling."
+          ]
+        },
+        {
+          "type": "table",
+          "head": "Equivalent Grades",
+          "size": "sm",
+          "cols": [
+            "GB",
+            "JIS",
+            "AISI",
+            "DIN",
+            "EN ISO 4957"
+          ],
+          "rows": [
+            [
+              "3Cr2Mo",
+              "SCM440",
+              "P20",
+              "1.2311",
+              "40CrMnMo7"
+            ]
+          ]
+        },
+        {
+          "type": "table",
+          "head": "Chemical Composition (%)",
+          "size": "sm",
+          "cols": [
+            "C",
+            "Si",
+            "Mn",
+            "P ≤",
+            "S ≤",
+            "Cr",
+            "Mo"
+          ],
+          "rows": [
+            [
+              "0.28–0.40",
+              "0.20–0.80",
+              "0.60–1.00",
+              "0.030",
+              "0.030",
+              "1.40–2.00",
+              "0.30–0.55"
+            ]
+          ]
+        },
+        {
+          "type": "twin",
+          "items": [
+            {
+              "head": "Physical Properties",
+              "size": "sm",
+              "first": "col",
+              "cols": [
+                "Property",
+                "Value"
+              ],
+              "rows": [
+                [
+                  "Density",
+                  "7.85 g/cm³"
+                ],
+                [
+                  "Thermal conductivity",
+                  "29.0 W/(m·K)"
+                ],
+                [
+                  "Elastic modulus",
+                  "205 GPa"
+                ]
+              ]
+            },
+            {
+              "head": "Mechanical Properties",
+              "size": "sm",
+              "first": "col",
+              "cols": [
+                "Property",
+                "Value"
+              ],
+              "rows": [
+                [
+                  "Delivery hardness",
+                  "28–34 HRC"
+                ],
+                [
+                  "Tensile strength",
+                  "≈1,000 MPa"
+                ],
+                [
+                  "Yield strength",
+                  "≈850 MPa"
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "type": "twocol",
+          "items": [
+            {
+              "head": "Supply Form & Size",
+              "text": "Pre-hardened plates and blocks, 20–500 mm thickness, milled or six-face machined."
+            },
+            {
+              "head": "Applications",
+              "text": "Injection mould bases, general plastic moulds, blow moulds, die holders, structural blocks."
+            }
+          ]
+        },
+        {
+          "type": "photo",
+          "fill": true,
+          "src": "images/ph-band.svg",
+          "cap": "P20 plates, pre-hardened and milled"
+        }
+      ]
+    },
+    {
+      "type": "contact",
+      "id": "contact",
+      "label": "Contact",
+      "title": "Contact",
+      "sub": "Send Us a Drawing · We Quote Within Two Working Days",
+      "lede": "Tell us grade, dimension and delivery form. If the grade is not on our list, send the specification — most heats can be scheduled as custom melt.",
+      "columns": [
+        {
+          "head": "Sales",
+          "rows": [
+            {
+              "k": "Email",
+              "v": "sales@example.com"
+            },
+            {
+              "k": "Phone",
+              "v": "+86 000 0000 0000"
+            },
+            {
+              "k": "WeChat",
+              "v": "example-steel"
+            }
+          ]
+        },
+        {
+          "head": "Plant",
+          "rows": [
+            {
+              "k": "Address",
+              "v": "No. 1 Example Road, Some District, Fujian, China"
+            },
+            {
+              "k": "Hours",
+              "v": "Mon–Sat 08:00–18:00 (GMT+8)"
+            },
+            {
+              "k": "Port",
+              "v": "Fuzhou / Xiamen"
+            }
+          ]
+        }
+      ],
+      "foot": {
+        "big": "EXAMPLE-STEEL.COM",
+        "small": "EX-PF-2026-01"
+      },
+      "image": "images/ph-hero.svg",
+      "image_cap": "Plant entrance, Fujian"
+    }
+  ]
+}

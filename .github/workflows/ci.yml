@@ -38,6 +38,13 @@ jobs:
           PY
 
       # 不打 --single：CI 不装 fontTools，走目录版链路
+      - name: Build + validate E · portfolio
+        run: |
+          mkdir -p dist
+          node templates/E-portfolio/scripts/build.mjs \
+            templates/E-portfolio/content/example-portfolio.json dist/portfolio.html
+          node templates/E-portfolio/scripts/validate.mjs dist/portfolio.html
+
       - name: Build + validate D · catalog
         run: |
           mkdir -p dist

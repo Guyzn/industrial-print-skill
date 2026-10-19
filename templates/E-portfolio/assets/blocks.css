@@ -1,0 +1,473 @@
+/* ============================================================
+   E · 单页作品集风 — 版式系统（blocks.css）
+   适用文档：企业介绍 / 产品作品集 / 牌号手册（牌号一页一版）
+
+   物理规格
+     成品单页 210×297mm（A4）
+     四缘各 3mm 出血 → 印刷幅面 216×303mm
+     TrimBox = 幅面内缩 3mm，由 _shared/pdf_print_marks.py 写入
+
+   与 D 的根本差别
+     D 是「对开拼版」（一张纸两个页面并排），E 是「单页成册」——
+     一个 .sheet 就是一个印刷页，印厂自己拼版。页面单位小了，
+     每页的信息密度才能上去，牌号页才能一页一个牌号。
+
+   纪律
+     直角、纯色、hairline 分割、单一 accent（橙金）+ 一个冷色（钢蓝）
+     数字与牌号走等宽，中文走 MiSans，西文标题走 MiSans SemiBold
+     禁止阴影、圆角；渐变只允许两处（封面压暗、牌号横幅底色）
+   ============================================================ */
+
+:root {
+  /* ---- 物理规格（不可随主题改动）---- */
+  --trim-w: 210mm;
+  --trim-h: 297mm;
+  --bleed: 3mm;
+  --sheet-w: calc(var(--trim-w) + 2 * var(--bleed));
+  --sheet-h: calc(var(--trim-h) + 2 * var(--bleed));
+
+  /* ---- 版心（相对成品边）---- */
+  --pad-x: 14mm;
+  --pad-t: 13mm;
+  --pad-b: 20mm;
+  --foot-gap: 7mm;
+
+  /* ---- 字体 ---- */
+  --font: "MiSans", "Alibaba PuHuiTi 3", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", "MiSans", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* ---- 字号阶梯（pt，印刷单位）---- */
+  --fs-display: 34pt;  /* 封面主标题 */
+  --fs-cover-sub: 20pt;
+  --fs-h1: 17pt;       /* 页面大标题 */
+  --fs-h2: 9pt;        /* 表头小标题 .gh */
+  --fs-body: 8.8pt;
+  --fs-small: 7.6pt;
+  --fs-micro: 6.8pt;
+}
+
+/* 可商用字体本地化：字体文件由 build.mjs 从 _shared/fonts/ 同步到产物旁。
+   打印时浏览器随 PDF 内嵌，等效转曲，印厂不会缺字形。 */
+@font-face { font-family: "MiSans"; src: url("./fonts/MiSans-Regular.ttf") format("truetype"); font-weight: 400; font-display: swap; }
+@font-face { font-family: "MiSans"; src: url("./fonts/MiSans-Semibold.ttf") format("truetype"); font-weight: 600; font-display: swap; }
+@font-face { font-family: "IBM Plex Mono"; src: url("./fonts/IBMPlexMono-Regular.woff2") format("woff2"); font-weight: 400; font-display: swap; }
+@font-face { font-family: "Noto Serif SC"; src: url("./fonts/NotoSerifSC-Var.ttf") format("truetype"); font-weight: 200 900; font-display: swap; }
+@font-face { font-family: "Alibaba PuHuiTi 3"; src: url("./fonts/AlibabaPuHuiTi-3-45-Light.woff2") format("woff2"); font-weight: 300; font-display: swap; }
+@font-face { font-family: "Alibaba PuHuiTi 3"; src: url("./fonts/AlibabaPuHuiTi-3-55-Regular.woff2") format("woff2"); font-weight: 400; font-display: swap; }
+@font-face { font-family: "Alibaba PuHuiTi 3"; src: url("./fonts/AlibabaPuHuiTi-3-65-Medium.woff2") format("woff2"); font-weight: 500; font-display: swap; }
+@font-face { font-family: "Alibaba PuHuiTi 3"; src: url("./fonts/AlibabaPuHuiTi-3-75-SemiBold.woff2") format("woff2"); font-weight: 600; font-display: swap; }
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { background: #8a8a8a; }
+
+body {
+  font-family: var(--font);
+  font-size: var(--fs-body);
+  line-height: 1.5;
+  color: var(--fg);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: geometricPrecision;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+/* ============================================================
+   舞台：屏幕上一页一卡，打印时一页一张
+   ============================================================ */
+.stage { display: flex; flex-direction: column; align-items: center; gap: 10mm; padding: 10mm 0; }
+
+.sheet {
+  position: relative;
+  width: var(--sheet-w);
+  height: var(--sheet-h);
+  background: var(--surface);
+  overflow: hidden;
+  box-shadow: 0 10px 34px rgba(20, 20, 20, 0.22);
+}
+
+/* 版心：内缩出血，撑满剩余空间，便于底部图自适应填充 */
+.sheet > .inner {
+  position: absolute;
+  inset: var(--bleed);
+  display: flex;
+  flex-direction: column;
+  padding: var(--pad-t) var(--pad-x) var(--pad-b);
+}
+
+/* 正文区：吃掉页眉与页脚之间的全部高度。
+   必须显式写 flex:1，否则 .fill-photo 的 flex:1 没有可分配的剩余空间，
+   托底图会退回图片自身高度，页尾照样留白。 */
+.page-body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ---- 裁切标记：画在出血区，沿 TrimBox 边缘，转角留 1mm 间隙 ---- */
+.crop { position: absolute; background: #000; }
+.crop.tl-h { left: 0; top: calc(var(--bleed) - 0.1mm); width: calc(var(--bleed) - 1mm); height: 0.2mm; }
+.crop.tl-v { left: calc(var(--bleed) - 0.1mm); top: 0; width: 0.2mm; height: calc(var(--bleed) - 1mm); }
+.crop.tr-h { right: 0; top: calc(var(--bleed) - 0.1mm); width: calc(var(--bleed) - 1mm); height: 0.2mm; }
+.crop.tr-v { right: calc(var(--bleed) - 0.1mm); top: 0; width: 0.2mm; height: calc(var(--bleed) - 1mm); }
+.crop.bl-h { left: 0; bottom: calc(var(--bleed) - 0.1mm); width: calc(var(--bleed) - 1mm); height: 0.2mm; }
+.crop.bl-v { left: calc(var(--bleed) - 0.1mm); bottom: 0; width: 0.2mm; height: calc(var(--bleed) - 1mm); }
+.crop.br-h { right: 0; bottom: calc(var(--bleed) - 0.1mm); width: calc(var(--bleed) - 1mm); height: 0.2mm; }
+.crop.br-v { right: calc(var(--bleed) - 0.1mm); bottom: 0; width: 0.2mm; height: calc(var(--bleed) - 1mm); }
+
+/* ============================================================
+   页眉 / 页脚
+   ============================================================ */
+.ph {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  border-bottom: 2.2pt solid var(--fg);
+  padding-bottom: 2mm;
+  margin-bottom: 5mm;
+  flex: 0 0 auto;
+}
+.ph .brand { font-size: 10.5pt; font-weight: 600; letter-spacing: 1pt; color: var(--fg); }
+.ph .brand em { font-style: normal; color: var(--accent); }
+.ph .sec {
+  font-family: var(--mono);
+  font-size: 7.5pt;
+  color: var(--muted);
+  letter-spacing: 1.4pt;
+  text-transform: uppercase;
+}
+
+.pf {
+  flex: 0 0 auto;
+  margin-top: auto;
+  padding-top: 1.6mm;
+  border-top: 0.6pt solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  gap: 4mm;
+  font-family: var(--mono);
+  font-size: var(--fs-micro);
+  color: var(--muted);
+  letter-spacing: 0.4pt;
+}
+.pf .mid { flex: 1; text-align: center; }
+.pf .num { text-align: right; white-space: nowrap; }
+
+/* ============================================================
+   标题
+   ============================================================ */
+.sec-title { font-size: var(--fs-h1); font-weight: 600; letter-spacing: 0.4pt; line-height: 1.15; }
+.sec-sub {
+  font-family: var(--mono);
+  font-size: 8pt;
+  font-weight: 400;
+  color: var(--accent);
+  letter-spacing: 2pt;
+  text-transform: uppercase;
+  margin-top: 1.5mm;
+  margin-bottom: 4mm;
+}
+.sec-title + .lead { margin-top: 3mm; }
+
+/* ============================================================
+   正文
+   ============================================================ */
+.body { font-size: var(--fs-body); line-height: 1.55; text-align: justify; margin-bottom: 2.4mm; }
+.body:last-child { margin-bottom: 0; }
+.mini { font-size: var(--fs-small); line-height: 1.5; }
+.lead { font-size: 9.6pt; line-height: 1.5; color: var(--fg); }
+.note {
+  background: var(--tint);
+  border-left: 2.2pt solid var(--accent);
+  padding: 2mm 2.6mm;
+  margin: 2.4mm 0;
+  font-size: 7.4pt;
+  line-height: 1.5;
+}
+.note b { color: var(--fg); }
+.note .nt { color: var(--accent); font-weight: 600; }
+
+/* ---- 小节标题 .gh：橙色竖线 + 等宽大写 ---- */
+.gh {
+  font-family: var(--mono);
+  font-size: var(--fs-h2);
+  font-weight: 600;
+  color: var(--fg);
+  border-left: 2.5pt solid var(--accent);
+  padding-left: 2mm;
+  margin: 3.2mm 0 1.6mm;
+  letter-spacing: 0.5pt;
+  text-transform: uppercase;
+}
+.gh:first-child { margin-top: 0; }
+
+/* ---- 分类条 .cat-head ---- */
+.cat-head {
+  font-family: var(--mono);
+  font-size: 8.4pt;
+  font-weight: 600;
+  color: #fff;
+  background: var(--accent-2);
+  padding: 1.2mm 2mm;
+  margin: 3mm 0 0;
+  letter-spacing: 1pt;
+  text-transform: uppercase;
+}
+
+/* ============================================================
+   表格
+   ============================================================ */
+table { border-collapse: collapse; width: 100%; }
+.tbl th {
+  background: var(--fg);
+  color: var(--surface);
+  font-family: var(--mono);
+  font-size: 7.2pt;
+  font-weight: 600;
+  padding: 1.3mm 1mm;
+  text-align: center;
+  border: 0.5pt solid var(--fg);
+}
+.tbl td {
+  font-size: 7.2pt;
+  line-height: 1.35;
+  padding: 1mm;
+  text-align: center;
+  border: 0.5pt solid var(--border);
+}
+.tbl tbody tr:nth-child(even) td { background: var(--zebra); }
+.tbl .rowhead, .tbl td.rowhead { background: var(--tint) !important; font-weight: 600; text-align: left; }
+.tbl-sm th, .tbl-sm td { font-size: 6.8pt; padding: 0.8mm 0.7mm; }
+.tbl-xs th, .tbl-xs td { font-size: 6.4pt; padding: 0.7mm 0.5mm; }
+/* 密表页：整页都是表时放大一档，避免 6.4pt 在纸上过小 */
+.tblpage .tbl-sm th, .tblpage .tbl-sm td { font-size: 7.8pt; padding: 1.36mm 1.05mm; }
+.tblpage .tbl-xs th, .tblpage .tbl-xs td { font-size: 7.3pt; padding: 0.92mm 0.7mm; }
+/* 对照表：首列左对齐，读起来才不像网格 */
+.ovtbl td { font-size: 7.4pt; }
+.ovtbl th { font-size: 7.2pt; }
+.ovtbl td:first-child, .ovtbl th:first-child { text-align: left; font-weight: 600; }
+
+/* ============================================================
+   封面
+   ============================================================ */
+.cover-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+/* 封面压暗：三段渐层，保证任何照片上标题都读得出来。
+   用固定 rgba 而不是 color-mix——印厂机器上的 PDF 解释器不必支持新语法。 */
+.cover-scrim {
+  position: absolute; inset: 0;
+  background: linear-gradient(180deg,
+    rgba(12, 12, 12, 0.86) 0%,
+    rgba(12, 12, 12, 0.26) 44%,
+    rgba(12, 12, 12, 0.90) 100%);
+}
+.cover-top { position: absolute; top: calc(var(--bleed) + 15mm); left: calc(var(--bleed) + 16mm); right: calc(var(--bleed) + 16mm); }
+.cover-brand { font-size: 15pt; font-weight: 600; letter-spacing: 2pt; color: #fff; }
+.cover-brand em { font-style: normal; color: var(--accent); }
+.cover-legal { font-family: var(--mono); font-size: 7pt; color: var(--steel); letter-spacing: 1pt; margin-top: 1.2mm; }
+
+.cover-block { position: absolute; top: calc(var(--bleed) + 92mm); left: calc(var(--bleed) + 16mm); right: calc(var(--bleed) + 16mm); }
+.cover-rule { width: 26mm; height: 1.6mm; background: var(--accent); margin-bottom: 7mm; }
+.cover-title { font-size: var(--fs-display); font-weight: 600; color: #fff; letter-spacing: 2.4pt; line-height: 1.12; }
+.cover-sub { font-size: var(--fs-cover-sub); color: var(--steel); letter-spacing: 3.4pt; margin-top: 2.5mm; font-weight: 300; }
+.cover-slogan {
+  font-family: var(--mono);
+  font-size: 9pt;
+  color: var(--accent);
+  letter-spacing: 2.6pt;
+  margin-top: 9mm;
+  font-weight: 600;
+}
+.cover-foot {
+  position: absolute;
+  bottom: calc(var(--bleed) + 15mm);
+  left: calc(var(--bleed) + 16mm);
+  right: calc(var(--bleed) + 16mm);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+.cover-kicker { font-family: var(--mono); font-size: 7.6pt; color: var(--steel); letter-spacing: 1.6pt; }
+.cover-url {
+  font-size: 8.6pt;
+  font-weight: 600;
+  color: #fff;
+  letter-spacing: 1.6pt;
+  border: 1pt solid var(--accent);
+  padding: 2mm 5mm;
+}
+
+/* ============================================================
+   目录
+   ============================================================ */
+.toc-cols { display: flex; gap: 9mm; }
+.toc-cols > div { flex: 1; }
+.toc-item {
+  display: flex;
+  align-items: baseline;
+  font-size: 9pt;
+  padding: 2.1mm 0;
+}
+.toc-item .lb { flex: 0 1 auto; }
+.toc-item .dots { flex: 1; border-bottom: 0.6pt dotted var(--border); margin: 0 2mm 0.6mm; }
+.toc-item .pg { font-family: var(--mono); font-weight: 600; color: var(--fg); }
+.toc-item .no { font-family: var(--mono); font-size: 7pt; color: var(--muted); width: 7mm; flex: 0 0 7mm; }
+.toc-note { margin-top: 5mm; max-width: 120mm; }
+
+/* ============================================================
+   牌号横幅（整页唯一允许渐变的地方）
+   ============================================================ */
+.grade-banner {
+  background: linear-gradient(90deg, var(--fg) 0%, var(--accent-2) 100%);
+  color: #fff;
+  padding: calc(var(--bleed) + var(--pad-t)) calc(var(--bleed) + var(--pad-x)) 4mm;
+  margin: calc(-1 * (var(--bleed) + var(--pad-t))) calc(-1 * (var(--bleed) + var(--pad-x))) 4mm;
+  flex: 0 0 auto;
+}
+.grade-banner .g1 { font-size: 19pt; font-weight: 600; letter-spacing: 0.4pt; line-height: 1.15; }
+.grade-banner .g2 {
+  font-family: var(--mono);
+  font-size: 8pt;
+  color: var(--accent-soft);
+  letter-spacing: 2pt;
+  margin-top: 1.2mm;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+.grade-banner .g3 { font-family: var(--mono); font-size: 7pt; color: var(--steel); margin-top: 1mm; letter-spacing: 0.4pt; }
+
+/* ============================================================
+   通用块
+   ============================================================ */
+.twocol { display: flex; gap: 4mm; }
+.twocol > div { flex: 1; min-width: 0; }
+.threecol { display: flex; gap: 3.5mm; }
+.threecol > div { flex: 1; min-width: 0; }
+
+/* ---- 数字带 ---- */
+.kv { display: flex; gap: 3mm; margin: 3mm 0; }
+.kv .k { flex: 1; background: var(--tint); border-top: 2.2pt solid var(--accent); padding: 2.5mm 2mm; text-align: center; }
+.kv .k .n { font-family: var(--mono); font-size: 14pt; font-weight: 600; line-height: 1.1; }
+.kv .k .d { font-size: 7pt; color: var(--muted); margin-top: 1mm; line-height: 1.3; }
+
+/* ---- 破折号列表 ---- */
+.dash { list-style: none; }
+.dash li {
+  font-size: 8.2pt;
+  line-height: 1.5;
+  padding-left: 4mm;
+  position: relative;
+  margin-bottom: 0.9mm;
+}
+.dash li::before { content: "—"; position: absolute; left: 0; color: var(--accent); font-weight: 600; }
+.dash.compact li { line-height: 1.42; margin-bottom: 0.6mm; }
+
+/* ---- 编号论点（为什么选我们）---- */
+.adv { display: flex; gap: 4mm; margin-bottom: 6mm; }
+.adv:last-child { margin-bottom: 0; }
+.adv .no { font-family: var(--mono); font-size: 22pt; font-weight: 600; color: var(--border); line-height: 1; min-width: 12mm; }
+.adv .tt { font-size: 10.4pt; font-weight: 600; margin-bottom: 1.2mm; }
+.adv p { font-size: 8.4pt; line-height: 1.52; text-align: justify; }
+
+/* ---- 认证胶囊 ---- */
+.chips { display: flex; flex-wrap: wrap; gap: 1mm; }
+.chip {
+  display: inline-block;
+  background: var(--tint);
+  border: 0.6pt solid var(--border);
+  padding: 0.8mm 2.4mm;
+  font-family: var(--mono);
+  font-size: 7.2pt;
+  font-weight: 600;
+  letter-spacing: 0.3pt;
+  margin: 0;
+}
+
+/* ---- 图片 ---- */
+.photo-box { border: 0.6pt solid var(--border); background: var(--surface); padding: 1.2mm; }
+.photo-box img { width: 100%; display: block; }
+.photo-box .cap,
+.photos .cell .cap { font-size: var(--fs-micro); color: var(--muted); margin-top: 1mm; text-align: center; }
+
+.photos { display: grid; gap: 3mm; }
+.photos.c2 { grid-template-columns: 1fr 1fr; }
+.photos.c3 { grid-template-columns: 1fr 1fr 1fr; }
+.photos .cell { border: 0.6pt solid var(--border); background: var(--surface); padding: 1.2mm; }
+.photos .cell img { width: 100%; display: block; object-fit: cover; }
+.photos.c2 .cell img { height: 60mm; }
+.photos.c3 .cell img { height: 52mm; }
+.photos .cell .cap b { display: block; color: var(--fg); font-size: 7.2pt; font-weight: 600; }
+
+/* 页脚托底图：吃掉剩余高度，避免页尾留空。
+   这是 E 的核心排版手法——每页内容写完后，用一张通栏图把剩下的空白压住，
+   而不是让页面在 60% 高度处戛然而止。牌号页、章节页、联系页都用它收尾。 */
+.fill-photo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 46mm;
+  overflow: hidden;
+  margin-top: 4mm;
+  border: 0.6pt solid var(--border);
+  background: var(--surface);
+  padding: 1.2mm;
+}
+.fill-photo.bare { border: 0; padding: 0; }
+.fill-photo img { flex: 1; width: 100%; height: 100%; object-fit: cover; display: block; min-height: 0; }
+.fill-photo .cap { font-size: var(--fs-micro); color: var(--muted); margin-top: 1mm; text-align: center; }
+
+/* 整页出血图（章节插图） */
+.bleed-figure { position: relative; flex: 1; min-height: 0; margin: 0 calc(-1 * (var(--bleed) + var(--pad-x))) calc(-1 * (var(--bleed) + var(--pad-b))); }
+.bleed-figure img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.bleed-figure .cap {
+  position: absolute;
+  left: calc(var(--bleed) + var(--pad-x));
+  bottom: calc(var(--bleed) + 8mm);
+  font-family: var(--mono);
+  font-size: var(--fs-micro);
+  color: #fff;
+  letter-spacing: 0.6pt;
+  text-shadow: 0 0 3mm rgba(0, 0, 0, 0.6);
+}
+
+/* ---- 联系页 ---- */
+.contact-grid { display: flex; gap: 6mm; }
+.contact-grid > div { flex: 1; }
+.contact-list .row { display: flex; gap: 3mm; padding: 1.4mm 0; border-bottom: 0.5pt solid var(--border); font-size: 8pt; }
+.contact-list .row .k { font-family: var(--mono); font-size: 7pt; color: var(--muted); width: 18mm; flex: 0 0 18mm; letter-spacing: 0.4pt; text-transform: uppercase; }
+.contact-list .row .v { flex: 1; }
+.contact-foot { margin-top: auto; padding-top: 6mm; border-top: 2.2pt solid var(--fg); display: flex; justify-content: space-between; align-items: flex-end; }
+.contact-foot .big { font-size: 15pt; font-weight: 600; letter-spacing: 0.6pt; }
+
+/* ============================================================
+   双语
+   ============================================================ */
+[data-lang="zh"] .bi-en { display: none; }
+[data-lang="en"] .zh { display: none; }
+[data-lang="bi"] .bi-en { display: block; }
+[data-lang="bi"] .bi-en::before { content: ""; }
+[data-lang="bi"] .cover-title .bi-en,
+[data-lang="bi"] .cover-sub .bi-en { display: block; font-size: 0.62em; letter-spacing: 1.6pt; margin-top: 1mm; }
+
+/* ============================================================
+   打印
+   ============================================================ */
+@page { size: 216mm 303mm; margin: 0; }
+
+@media print {
+  html, body { background: #fff; }
+  .stage { gap: 0; padding: 0; display: block; }
+  .sheet {
+    box-shadow: none;
+    margin: 0;
+    page-break-after: always;
+    break-after: page;
+    page-break-inside: avoid;
+  }
+  .sheet:last-child { page-break-after: auto; break-after: auto; }
+  .crop { display: block; }
+}
+
+@media screen {
+  .crop { display: none; }
+}

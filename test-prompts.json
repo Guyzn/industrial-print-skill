@@ -13,5 +13,20 @@
     "id": 3,
     "prompt": "这本手册我直接微信发给客户行不行？",
     "expected": "识别交付形态问题：目录版 html 必须连 fonts/ 打包否则掉字体；推荐 --single 单文件（1~2MB）或直接发送印 PDF；说明单文件依赖 fontTools、退化路径约 95MB"
+  },
+  {
+    "id": 4,
+    "prompt": "把我们去年的企业介绍重做一版，30 页左右，能送印刷厂，照片用我们官网的",
+    "expected": "路由 E 模版（单页成册 210×297/216×303）；先定页序（封面/目录/章节/牌号或主题页/图集/联系）；每页一个主体 + 托底图；scripts/fetch-images.mjs 抓官网图并按 300ppi 判定，报告不足的图；build --single；validate 0 错误；print-to-pdf + pdf_print_marks；提醒占位图与授权登记"
+  },
+  {
+    "id": 5,
+    "prompt": "牌号太多了，每个牌号想占一整页，做成一册选型手册",
+    "expected": "识别「一页一个牌号」→ E 的 grade 页；banner + 对照表 + 成分 + 物理/力学 twin + 热处理 + 供货/应用 + 底部托底图；目录用 ref 自动解析页码；校验页尾不留大洞"
+  },
+  {
+    "id": 6,
+    "prompt": "官网上的产品图能直接印吗？",
+    "expected": "说明 300ppi 换算（像素宽 ÷ 300 × 25.4mm）；官网图多为 569~1200px，整幅不够；跑 fetch-images.mjs 看 ppi_at_print_width；授权必须登记，水印图禁用；不足时找原图/重拍/缩小版面占比"
   }
 ]

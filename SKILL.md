@@ -1,6 +1,6 @@
 ---
 name: industrial-print-skill
-description: 生成印刷级图文混排文档（单文件 HTML 可打印分页；成品 A4 单页 210×297mm、对开 420×297mm，含 3mm 出血的印刷幅面 426×303mm，订口不出血）：一套内容模型（JSON）+ 多套版式锁死风格，按「文档类型 × 风格关键词」路由。三类主文档——产品目录 Catalog（牌号卡/规格表/化学-力学双表/工艺流程/认证网格）、技术数据 Technical Data（成分表/性能表/热处理窗口/检验项）、企业介绍 Company Profile（数字带/产能流程/资质/历程/联系页）；另有高校手册线（职业发展/就业指导/新生手册）走 A/B/C 三套教育风格。内置数据条/圆环/数字带图表、pull-quote 引文、时间线等图文混排组件；13 套主题色板（hex+CMYK 双值）、MiSans 等可商用字体，build --single 出 1~2MB 单文件，@media print + pdf_print_marks 后处理出带 TrimBox/BleedBox/裁切标记的送印 PDF。支持 zh/en/bi 三语模式。换内容只换 JSON 与配色，换风格只换发起词，版式永不漂移。适用：产品目录/技术数据表/企业介绍/宣传册/白皮书/行业报告/高校手册等图文混排印刷品，或提到「印刷」「送印」「对开」「出血」「裁切标记」「目录」「手册」等词时使用。
+description: 生成印刷级图文混排文档（单文件 HTML 可打印分页；两套物理口径：E 单页版 A4 210×297 一页成册，D 对开版 420×297，均含 3mm 四缘出血）：一套内容模型（JSON）+ 多套版式锁死风格，按「文档类型 × 风格关键词」路由。五类主文档——企业介绍 Company Profile（数字带/产能/资质/联系，一页一主题）、产品作品集 Portfolio（牌号一页一版：横幅+对照表+成分+物理力学双表+热处理+供货+底部大图）、产品目录 Catalog（对开拼版/牌号卡/规格表/工艺流程/认证网格）、技术数据 Technical Data（成分表/性能表/热处理窗口/检验项），以及高校手册线（职业发展/就业指导/新生手册）走 A/B/C 三套教育风格。内置数字带/图表/引文/时间线等图文混排组件；14 套主题色板（hex+CMYK 双值）、MiSans 等可商用字体；build --single 出 1~3MB 单文件，@media print + pdf_print_marks 后处理出带 TrimBox/BleedBox/裁切标记的送印 PDF。自带官网图片抓取脚本（同域+robots 合规，自动算 300ppi 可印宽度并登记来源）。支持 zh/en/bi 三语模式。换内容只换 JSON 与配色，换风格只换发起词，版式永不漂移。适用：企业介绍/产品作品集/产品目录/技术数据表/宣传册/白皮书/行业报告/高校手册等图文混排印刷品，或提到「印刷」「送印」「对开」「出血」「裁切标记」「牌号手册」「目录」「手册」等词时使用。
 ---
 
 # 印刷品生成 Skill（多风格路由版）
@@ -16,10 +16,23 @@ description: 生成印刷级图文混排文档（单文件 HTML 可打印分页�
 
 | 用户要做的文档 | 模版 | 目录 |
 |---|---|---|
-| 产品目录 / Catalog / 牌号册 / 供货范围 | **D · 工业技术风** | `templates/D-industrial/` |
+| 企业介绍 / Company Profile / 作品集 / Portfolio / 宣传册（单页成册、照片多） | **E · 单页作品集风** | `templates/E-portfolio/` |
+| 牌号手册 / 一页一个牌号 / 产品选型册 | **E · 单页作品集风** | `templates/E-portfolio/` |
+| 产品目录 / Catalog / 对开拼版 / 跨页大图 | **D · 工业技术风** | `templates/D-industrial/` |
 | 技术数据表 / Technical Data / 数据表 / 检验规范 | **D · 工业技术风** | `templates/D-industrial/` |
-| 企业介绍 / Company Profile / 宣传册 / 白皮书 | **D · 工业技术风** | `templates/D-industrial/` |
 | 职业发展 / 就业指导 / 人才培养方案 / 新生手册 | A / B / C 教育线 | `templates/A-career` `B-editorial` `C-journal` |
+
+**D 与 E 怎么选**（两者都是工业线，差别在页面单位，不在风格）：
+
+| | E · 单页作品集 | D · 对开 |
+|---|---|---|
+| 页面单位 | 一页 210×297，印厂自己拼 | 一对开 420×297，折线装订 |
+| 密度来源 | 页数 + 每页固定套路（牌号页 19 次重复同一骨架） | 跨页大图 + 双栏长文 |
+| 适合 | 企业介绍、作品集、牌号手册、内容条目多而每条不长的册子 | 目录、技术数据表、需要跨页图与对开排版的册子 |
+| 页数 | 12–40 页（越多越稳） | 8–20 对开（16–40 页） |
+| 空的成因 | 内容不够 / 没配图 | 一页两栏料不够 |
+
+经验：**先问「一个牌号/一个主题值不值一整页」**。值 → E；不值、需要两三个挤在一对开 → D。
 
 ### 第二步：主题色（D 模版）
 
@@ -31,16 +44,20 @@ D 模版为**单一工业技术风**，视觉差异由**主题色**承担：
 | `graphite` | ⬛ 石墨 | 技术数据表、检验规范、白皮书 |
 | `oxide-red` | 🟥 氧化红 | 热作模具钢、热处理、锻件 |
 | `deep-pine` | 🌲 深松绿 | 不锈钢深加工、绿色制造、长效件 |
+| `shenda-amber` | 🟧 申达橙金 | 申达品牌物料（橙金+冷蓝双色，印刷须打样或走专色） |
 
-规则：用户指定主题就用指定的；未指定按文档类型推荐（目录→钢蓝、技术数据→石墨）；**只许从 `_shared/themes.md` 选，不许自定义 hex**。
+规则：用户指定主题就用指定的；未指定按文档类型推荐（目录→钢蓝、技术数据→石墨、申达物料→申达橙金）；**只许从 `_shared/themes.md` 选，不许自定义 hex**。
 
-## 语言模式（D 模版）
+14 套主题全部通用（A/B/C/D/E 都能用）。E 额外需要 `--ink --steel --tint --accent-soft` 四个 token：
+主题里写了就用，没写由 build 按主色自动派生（见 `templates/E-portfolio/scripts/build.mjs` 的 `withDerived`）。
 
-`meta.lang` 三选一：`zh`（仅中文）/ `en`（仅英文）/ `bi`（双语，中文主、英文次级）。
+## 语言模式
 
-- 文本字段可写字符串（两语同文）或 `{ "zh": "...", "en": "..." }` 对象。
-- **两语都写进 HTML**，由 CSS 按 `data-lang` 显隐——切语言不改 HTML、不改版式。
-- 外贸文档默认 `bi`。
+`meta.lang` 三选一：`zh`（仅中文）/ `en`（仅英文）/ `bi`（双语，中文主、英文次级）。可用 `--lang` 临时覆盖。
+
+- 文本字段可写 `{ "zh": "...", "en": "..." }` 对象，两语都进 HTML，由 CSS 按 `data-lang` 显隐。
+- **D 的坑**：D 把纯字符串默认当中文，`lang: en` 时会被 CSS 整段隐藏——**E 已修正**，E 里字符串按单语字面量原样输出，不挂语言 class。所以 E 的英文稿可以全用字符串，不必包对象；D 的英文稿必须写成对象（zh 可同文）。
+- 外贸文档默认 `en` 或 `bi`。
 
 ## 骨架编号（D · 工业技术风）
 
@@ -124,23 +141,110 @@ D 模版为**单一工业技术风**，视觉差异由**主题色**承担：
 | `timeline` | `events:[{yr, title, desc}]` |
 | `contact` | `cols:[{title, rows:[{k,v}]}]` `sign:{name, line}` |
 
+## 页面与块（E · 单页作品集风）
+
+E 的内容模型是**页序模型**，不是章节模型——`pages[]` 顺序即成册顺序，页码自动生成。
+
+```jsonc
+{
+  "meta": {
+    "doc": "portfolio", "lang": "en", "theme": "shenda-amber", "paper": "a4",
+    "brand": "EXSTEEL", "brand_accent": "STEEL",     // 页眉品牌，第二段走 accent 色
+    "legal": "Example Special Steel Co., Ltd.",       // 页脚左
+    "url": "EXAMPLE-STEEL.COM",
+    "title": "Special Steel Products Portfolio",
+    "cover": { "image": "images/cover.jpg", "kicker": "…", "title": "…", "sub": "…", "slogan": "…" }
+  },
+  "pages": [
+    { "type": "cover" },
+    { "type": "contents", "groups": [ { "head": "COMPANY", "items": [ { "label": "About Us", "ref": "about" } ] } ] },
+    { "type": "section", "id": "about", "title": "About Us", "sub": "…", "blocks": [ … ] },
+    { "type": "grade", "id": "g-h13", "footer_mid": "1.2344 / H13",
+      "banner": { "code": "1.2344 / H13", "family": "HOT WORK TOOL STEEL", "standards": "DIN … · AISI …" },
+      "blocks": [ … ] }
+  ]
+}
+```
+
+| 页面类型 | 用途 | 关键字段 |
+|---|---|---|
+| `cover` | 封面 | `meta.cover`：整幅图 + 压暗 + 品牌 + 标题 + slogan + 网址 |
+| `contents` | 目录 | `groups[].items[].ref` 指向页面 `id`，页码自动解析；支持 `note` 与 `image` |
+| `section` | 通用内容页 | `title` `sub` `lede` `blocks[]` |
+| `grade` | 牌号页 | `banner{}` + `blocks[]`；横幅自动整幅出血 |
+| `tablepage` | 密表页 | `tables:[{head, cols, rows, size, cls}]`，整页字号自动放大一档 |
+| `gallery` | 图集 | `cols`(2/3) `items:[{src, cap, sub}]` |
+| `contact` | 联系页 | `columns:[{head, rows:[{k,v}]}]` `foot` `image` |
+
+| 块类型 | 关键字段 |
+|---|---|
+| `text` | `head` `paras[]` `lead:true` |
+| `table` | `head` `cols[]` `rows[][]` `size`(sm/xs) `cls:"ovtbl"` `first:"col"` |
+| `twin` | `items:[{head, cols, rows, first}]` —— 两表并排（物理/力学） |
+| `note` | `title` `text` —— 橙左边线的提示条 |
+| `kv` | `items:[{n, d}]` —— 数字带，橙顶线 |
+| `dash` | `head` `items[]` —— 破折号列表 |
+| `dashgroups` | `cols`(2/3) `groups:[{head, items[]}]` —— 分类列表（产品范围页） |
+| `adv` | `items:[{no, t, p}]` —— 编号论点（为什么选我们） |
+| `photos` | `cols`(2/3) `items:[{src, cap, sub}]` —— 图集网格，固定图高 |
+| `photo` | `src` `cap` `fill:true` —— **托底图**，吃掉页面剩余高度 |
+| `bleed` | `src` `cap` —— 整页出血图 |
+| `chips` | `head` `items:[{code, name}]` |
+| `twocol` | `items:[{head, text}]` |
+
+**E 的密度纪律（最重要的一条）**：每页内容写完后，如果下方还剩超过约 40mm 空白，**必须加一张 `photo fill:true` 托底**，或补内容块。E 之所以看起来不空，不是因为字号小，是因为每页都有一张通栏图把页尾压住。这是从真实企业册子里反推出来的版面规律，不是装饰。
+
+## 图片获取（官网扒图）
+
+企业介绍/作品集 80% 的工作量在图片，不在排版。官网通常已有成套产品照与厂房照，可以复用，但有两个硬约束：**分辨率**与**授权**。
+
+```bash
+# 1) 先试跑，只看候选与域名，不下载
+node scripts/fetch-images.mjs https://example.com/products --dry-run
+
+# 2) 下载：同域、robots 合规、自动剔除 logo/图标、低于阈值直接跳过
+node scripts/fetch-images.mjs https://example.com/products \
+  --out ./content/images --limit 30 --min-width 1200 --print-width 176
+
+# 3) 读结果：manifest.json 给出每张图在 300ppi 下的最大可印宽度
+#    sources.md 是给客户的图片来源清单，授权列必须人工填
+```
+
+脚本行为（写死的，不可绕过）：
+
+1. **只抓同域**（含 `--allow` 白名单），不外扩到图库或第三方 CDN；
+2. **先读 robots.txt**，命中 Disallow 直接退出；
+3. **不抓 logo/icon/sprite/avatar**（除非 `--include-logo`）；
+4. 低于 `--min-width`（默认 1200px）的图**跳过并在清单里计数**，不先下下来再说；
+5. 每张图记 `source`、`via`、像素、`ppi_at_print_width`、`max_print_width_at_300ppi_mm`、`licence: UNVERIFIED`；
+6. 不绕登录、不破防盗链、不抓带水印图库。
+
+**判定口径**：`300ppi × 目标印刷宽度` 是硬线。176mm 宽的图至少要 2079px；一张 569px 的网页图只够印 48mm——放在整幅页面上必虚。低于 200ppi 的图不要用于整幅或跨页，只能做小图。
+
+**授权纪律**（写进 checklist，属 P0）：官网图片≠可自由使用。摄影师、图库、客户提供的照片各有归属；官网图库图（EXIF 或水印能看出 weitu/shutterstock/getty 等）必须替换或取得授权。`sources.md` 的授权列空着就不许送印。
+
+完整规则见 `_shared/image-sourcing.md`。
+
 ## 使用流程（开发者）
 
 ```bash
-# 1. 写内容 JSON（参考 templates/D-industrial/content/example-*.json）
-# 2. 构建（加 --single 得单文件：字体子集化 + 图片 base64，1~2MB）
-node templates/D-industrial/scripts/build.mjs \
-  templates/D-industrial/content/example-catalog.json \
-  ./产品目录.html
+# 1. 写内容 JSON（E 参考 templates/E-portfolio/content/example-portfolio.json
+#                   D 参考 templates/D-industrial/content/example-*.json）
+# 2. 构建（加 --single 得单文件：字体子集化 + 图片 base64，E 约 2~3MB）
+node templates/E-portfolio/scripts/build.mjs \
+  templates/E-portfolio/content/example-portfolio.json \
+  ./企业介绍.html --single
 # 3. 校验 —— 🔴 0 错误才算过，不过不允许进下一步
-node templates/D-industrial/scripts/validate.mjs ./产品目录.html
-# 4. 浏览器打开 → 打印 → 另存为 PDF
+node templates/E-portfolio/scripts/validate.mjs ./企业介绍.html
+# 4. 浏览器打开 → 打印 → 另存为 PDF（关页眉页脚）
 # 5. 补裁切规格（浏览器不写 TrimBox/BleedBox，印厂无处对刀）
-python _shared/pdf_print_marks.py 产品目录.pdf -o 产品目录-送印.pdf
+python _shared/pdf_print_marks.py 企业介绍.pdf -o 企业介绍-送印.pdf
 # 6. 字体嵌入自证：PDF 里只许见 MiSans/IBMPlexMono 等，见 NSimSun/YaHei/Arial 即回退
 ```
 
-口径：成品 A4 单页 210×297 / 对开 420×297；含 3mm 四缘出血的印刷幅面 426×303（订口不出血）。
+口径：
+- **E 单页版**：成品 210×297（A4），四缘 3mm 出血 → 印刷幅面 216×303，裁切标记每页 8 个。
+- **D 对开版**：成品单页 210×297，对开 420×297，印刷幅面 426×303（订口不出血）。
 `--single` 依赖 fontTools（`pip install fonttools brotli`），`pdf_print_marks.py` 依赖 pypdf。
 
 完整工作流（澄清 → 选主题 → 写 JSON → 构建 → 校验 → checklist 自检 → 打印核对 → 补裁切规格）见
@@ -160,6 +264,12 @@ python _shared/pdf_print_marks.py 产品目录.pdf -o 产品目录-送印.pdf
 | build 报「主题不存在: X」 | `meta.theme` slug 拼错 → 从 `_shared/themes.md` 选：steel-blue / graphite / oxide-red / deep-pine | 同上，只许选不许自定义 |
 | 打印出的 PDF 页数翻倍或空白页 | 有人改过 `@page` 或 `@media print` → 核对 `@page { size: 426mm 303mm }`（a4）未被改动 | 用 `validate.mjs` 的「裁切标记」计数反查对开数 |
 | 拿教育线（A/B/C）的 JSON 喂 D 模版报 TypeError | 三套字段有差异（B 有 `glance`、C 有 `divider`/`editor`、A 有 `sample`）→ 按 D 的 example 重建，不要硬改 | 直接照 `example-catalog.json` 抄结构 |
+| E 的页面看起来「空一半」 | 页尾没有托底图 → 在 `blocks` 末尾加 `{ "type":"photo", "fill":true, "src":"…" }` | 补内容块，或把两页并一页、把一对开拆成两页 |
+| E 报「未知页面类型: X」 | `pages[].type` 只许 cover / contents / section / grade / tablepage / gallery / contact | 对照 `example-portfolio.json` |
+| E 的目录页码是空的 | `items[].ref` 写的是页面 `id`，不是标题；`id` 必须存在且唯一 | 临时用 `"page": "8"` 写死 |
+| E 的英文稿整段不见了 | 只有 D 会这样（字符串被当中文隐藏）；E 已修正。若在 D 上遇到 → 文本改 `{zh,en}` | 见「语言模式」 |
+| 官网抓的图印出来发虚 | `manifest.json` 里 `ppi_at_print_width < 300` → 换原图/重拍，或缩小图在版面上的宽度 | 只用它做小图（≤ `max_print_width_at_300ppi_mm`） |
+| 抓图脚本报 robots 禁止 | 换页面或改用已获授权的图片，**不要绕过** | 让客户提供原图 |
 | 目录版与 `--single` 输出到同一目录 | `--replace` 按设计清掉同目录 `fonts/` `images/` → 两个版本分目录输出 | 目录版重新 build 一次即可 |
 | 提示缺 pypdf / fontTools | `pip install pypdf` / `pip install fonttools brotli` | 无 fontTools 时 `--single` 退化为全量内嵌（约 95MB，功能不受影响）；无 pypdf 则手工给印厂报 TrimBox 坐标 |
 
@@ -169,11 +279,12 @@ python _shared/pdf_print_marks.py 产品目录.pdf -o 产品目录-送印.pdf
 2. **直角纯色** — 不允许渐变 / 阴影 / 圆角（hairline 分割线除外）。
 3. **网格至上** — 8px 基线网格；「留白」与「故意错位」都是建立在对齐自知之上的有意选择。
 4. **数据由数据计算** — 图表长度全部由 `--v/--max` 计算，每个数据点有类别 + 数值标签。
-5. **一页（一对开）一个主体** — 溢出先删内容/拆页，不压字号硬塞。
+5. **一页（或一对开）一个主体** — 溢出先删内容/拆页，不压字号硬塞。
 6. **印刷先于屏幕** — 出血 3mm、安全区、字体本地化嵌入为 P0；PDF 送印前必须补 TrimBox/BleedBox + 裁切标记。
-7. **共享一个物理规格** — A4 210×297 / 对开 420×297（含出血印刷幅面 426×303），内容 JSON 可互转。
-8. **🔴 价格禁编造** — 目录/报价类内容中的价格必须经内部核价后填入，示例 JSON 只放公开标准口径。
-9. **字体嵌入要自证** — PDF 里出现系统字体（NSimSun/YaHei/Arial/Menlo/PingFangSC）即失败；`@font-face` 写在 `:root{}` 内会被浏览器整体丢弃，属静默故障。
+7. **页面单位先定，版式后定** — E 一页 210×297（216×303 含出血），D 一对开 420×297（426×303）。同一份内容换页面单位必须重排，不能直接搬 JSON；「空」的根因多半是页面单位选错，不是配色或字号。
+8. **图片按 300ppi 反推尺寸** — 一张图能印多宽 = 像素宽 ÷ 300 × 25.4mm。低于 200ppi 不许整幅使用；官网图先用 `scripts/fetch-images.mjs` 量，不要凭「看起来清楚」判断。
+9. **🔴 价格禁编造** — 目录/报价类内容中的价格必须经内部核价后填入，示例 JSON 只放公开标准口径。
+10. **字体嵌入要自证** — PDF 里出现系统字体（NSimSun/YaHei/Arial/Menlo/PingFangSC）即失败；`@font-face` 写在 `:root{}` 内会被浏览器整体丢弃，属静默故障。
 
 ## 共享资源（勿复制）
 
@@ -183,11 +294,15 @@ industrial-print-skill/
 ├── _shared/
 │   ├── fonts/               ← 可商用字体（MiSans + 阿里普惠 + IBM Plex Mono + Noto Serif SC）
 │   ├── placeholders/        ← 中性占位 logo
-│   ├── themes.md            ← 13 套主题色板（hex + CMYK），含 D 模版专属 token
+│   ├── themes.md            ← 14 套主题色板（hex + CMYK），含 D/E 专属 token
+│   ├── image-sourcing.md    ← 图片来源规则：同域、robots、300ppi、授权登记
 │   ├── inline-fonts.mjs     ← 字体内嵌器：目录产物 → 单文件（子集化 + base64）
-│   └── pdf_print_marks.py   ← PDF 后处理：TrimBox/BleedBox + 裁切标记 + 折线标记
+│   └── pdf_print_marks.py   ← PDF 后处理：TrimBox/BleedBox + 裁切标记（纵向单页不画折线）
+├── scripts/
+│   └── fetch-images.mjs     ← 官网抓图：同域 + robots + 尺寸判定 + manifest/sources
 └── templates/
-    ├── D-industrial/        ← 工业技术风：Catalog / Technical Data / Company Profile
+    ├── E-portfolio/         ← 单页作品集风：企业介绍 / 作品集 / 牌号手册（一页一牌号）
+    ├── D-industrial/        ← 工业技术风：Catalog / Technical Data（对开拼版）
     ├── A-career/            ← 教育线：极简瑞士风
     ├── B-editorial/         ← 教育线：杂志编辑风（默认）
     └── C-journal/           ← 教育线：东方学报风
@@ -197,10 +312,10 @@ industrial-print-skill/
 
 | 适合 ✔ | 不适合 ✘ |
 |---|---|
-| 产品目录 / 技术数据表 / 企业介绍 | 需要 Word / PPT / 在线编辑格式的文档 |
-| 送印刷厂的实体手册 | 需要交互、视频等电子阅读体验的内容 |
-| 图表与图文混排密集的印刷品 | 需要自定义任意版式的「自由排版」需求 |
-| 中英双语外贸文档 | 单页非对开、无出血规格的轻量文档 |
+| 企业介绍 / 作品集 / 牌号手册（单页成册） | 需要 Word / PPT / 在线编辑格式的文档 |
+| 产品目录 / 技术数据表（对开拼版） | 需要交互、视频等电子阅读体验的内容 |
+| 送印刷厂的实体手册 | 需要自定义任意版式的「自由排版」需求 |
+| 中英双语外贸文档 | 无出血规格的轻量文档（传单、单页 A4 内部用） |
 
 🔴 **STOP · 送印前强制人审**：`validate.mjs` 0 错误只是机械合格。送印前必须逐条过 `templates/D-industrial/references/checklist.md` 的 P0 清单，并人工核对样张——占位 logo/插图是否已换、价格是否已核价、PDF 字体嵌入自证是否干净，三项任何一项存疑即停。
 
@@ -220,6 +335,8 @@ industrial-print-skill/
 10. **不许改 `@page` 尺寸、删 `@media print` 规则、注释掉 `print-color-adjust: exact`** — 这三处一动，打印规格和底色全丢。
 11. **不许拿屏幕截图当送印依据** — 屏幕是 screen media（无裁切标记、无出血判断）；送印核对以 print-to-pdf 产物为准。
 12. **不许把「示例占位」字样、占位 logo、占位插图留给客户** — 送印前 P0 替换，见 checklist。
+13. **不许抓站外图片、不许绕 robots、不许抓带水印图库** — `fetch-images.mjs` 已写死同域与 robots 检查；要第三方素材就买授权，不要改脚本。
+14. **不许用低于 200ppi 的图做整幅或跨页** — 印出来发虚是印厂的锅，但文件是你交的。先量 `ppi_at_print_width`。
 
 ## 字体版权
 

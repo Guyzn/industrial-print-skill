@@ -138,7 +138,13 @@ def main():
           f"= {(mb[2] - mb[0]) / MM:.1f}×{(mb[3] - mb[1]) / MM:.1f}mm（含出血）")
     print(f"  TrimBox:  内缩 {args.trim} = 成品 {(mb[2] - mb[0] - 2 * trim) / MM:.1f}"
           f"×{(mb[3] - mb[1] - 2 * trim) / MM:.1f}mm")
-    print(f"  裁切标记: {'四角 L + 折线' if args.marks == 'full' else '无（只补 box）'}")
+    if args.marks != "full":
+        mark_desc = "无（只补 box）"
+    elif mb[2] - mb[0] > mb[3] - mb[1]:
+        mark_desc = "四角 L + 折线"
+    else:
+        mark_desc = "四角 L（纵向单页，无折线）"
+    print(f"  裁切标记: {mark_desc}")
 
 
 if __name__ == "__main__":
