@@ -10,7 +10,7 @@
 | 出血 | 四缘各 3mm |
 | 印刷幅面 | 216 × 303 mm |
 | TrimBox | 幅面内缩 3mm = 210 × 297，由 `_shared/pdf_print_marks.py` 写入 |
-| 裁切标记 | 每页 8 个（四角 L 形），CSS 画在出血区，PDF 后处理再加一层 |
+| 裁切标记 | 每页 8 个（四角 L 形），CSS 画在出血区，PDF 后处理再加一层；跨对开的半页只标外侧 4 个 |
 | 换口径 | `--paper cn16` → 成品 216×291、幅面 222×297 |
 
 ## 为什么单独做一套
@@ -51,12 +51,42 @@ python _shared/pdf_print_marks.py 企业介绍.pdf -o 企业介绍-送印.pdf
 | type | 用途 | 关键字段 |
 |---|---|---|
 | `cover` | 封面 | `meta.cover`：整幅图 + 压暗 + 品牌 + 标题 + slogan + 网址 |
+| `backcover` | 封底 | `statement` `note` `contact:[{k,lines[]}]` `image` `kicker`；暗底，不编页 |
+| `spread` | 跨对开 | `image` `side`(`full`/`left`/`right`) `title` `sub` `lede` `cap` `blocks[]`；**占两页** |
 | `contents` | 目录 | `groups[].items[].ref` → 页面 `id`，页码自动；`note`、`image` 可选 |
 | `section` | 通用内容页 | `title` `sub` `lede` `blocks[]` |
 | `grade` | 牌号页 | `banner{code,family,standards}` + `blocks[]`，横幅自动出血 |
 | `tablepage` | 密表页 | `tables:[{head, cols, rows, size, cls}]`，整页字号自动放大一档 |
 | `gallery` | 图集 | `cols`(2/3) `items:[{src,cap,sub}]` |
 | `contact` | 联系页 | `columns:[{head,rows:[{k,v}]}]` `foot` `image` |
+
+## 封底与跨对开
+
+```jsonc
+{ "type": "spread", "id": "line", "side": "full",
+  "image": "images/plant-wide.jpg", "cap": "Rolling line, Bay 2 — 42m",
+  "title": "Melting to Finished Bar, Under One Roof",
+  "sub": "One Heat · One Trace · One Certificate",
+  "lede": "…" },
+
+{ "type": "backcover",
+  "kicker": "SPECIAL STEEL · SINCE 1993",
+  "statement": "Send a drawing, get a quote in two working days.",
+  "note": "…",
+  "contact": [ { "k": "Sales", "lines": ["sales@…", "+86 …"] },
+                { "k": "Plant", "lines": ["…", "Fujian, China"] },
+                { "k": "Web",   "lines": ["EXAMPLE-STEEL.COM"] } ] }
+```
+
+**跨对开不出宽页。** 它是两张 216×303 的单页：图按 426mm 铺开，左页从图的 0 起、右页从 210mm 起，各自裁掉一半。PDF 里只有一种页面尺寸，印厂照常拼版；页码也照实算两页。
+
+- `side:"full"` 两张半页都是图，标题压在右半的暗化层上（暗化层两半都铺，否则折缝上会有一道竖直色阶）。
+- `side:"left"`（默认）/`"right"` 图占一半，另一半排文字，走正常页头页脚。
+- **必须从偶数页起**。从奇数页起 `build` 报警、`validate` 报错——那两页装订后不是面对面的一对。
+- 半页只在**外侧两角**画 4 个裁切标记：内侧是折缝不是切口。
+- 图至少要 5031px 宽（426mm @300ppi）。不够就换单页通栏。
+
+**封底**与封面共用暗底和压暗层，重心反过来：品牌在上、标语靠底、联络三列托底、版权细字收尾。不编页。
 
 ## 块类型
 
@@ -144,7 +174,7 @@ templates/E-portfolio/
 │   └── blocks.css         ← 版式系统（物理规格、组件、打印规则）
 ├── content/
 │   ├── example-portfolio.json
-│   └── images/            ← 占位图（ph-cover/hero/band/sq）
+│   └── images/            ← 占位图（ph-cover/hero/band/sq/wide）
 ├── scripts/
 │   ├── build.mjs
 │   └── validate.mjs

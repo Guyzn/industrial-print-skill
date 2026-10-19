@@ -413,6 +413,17 @@
       "note": "Photographs are placeholders in this sample. Replace with plant photography — see references/checklist.md for the shot list."
     },
     {
+      "type": "spread",
+      "id": "line",
+      "label": "Production Line",
+      "title": "Melting to Finished Bar, Under One Roof",
+      "sub": "One Heat · One Trace · One Certificate",
+      "lede": "One site, one heat number, one certificate. The bar that enters the furnace and the bar that leaves the warehouse are the same bar — nothing is subcontracted, nothing is re-melted elsewhere.",
+      "image": "images/ph-wide.svg",
+      "cap": "Rolling line, Bay 2 — 42m",
+      "side": "full"
+    },
+    {
       "type": "tablepage",
       "id": "xref",
       "label": "Grade Cross-Reference",
@@ -1053,6 +1064,34 @@
       },
       "image": "images/ph-hero.svg",
       "image_cap": "Plant entrance, Fujian"
+    },
+    {
+      "type": "backcover",
+      "kicker": "SPECIAL STEEL · SINCE 1993",
+      "statement": "Send a drawing, get a quote in two working days.",
+      "note": "Exsteel melts, rolls and tests on one site in Fujian. Grades not on our list are usually available as a custom heat — MOQ applies.",
+      "contact": [
+        {
+          "k": "Sales",
+          "lines": [
+            "sales@example.com",
+            "+86 000 0000 0000"
+          ]
+        },
+        {
+          "k": "Plant",
+          "lines": [
+            "No. 1 Example Road",
+            "Fujian, China"
+          ]
+        },
+        {
+          "k": "Web",
+          "lines": [
+            "EXAMPLE-STEEL.COM"
+          ]
+        }
+      ]
     }
   ]
 }

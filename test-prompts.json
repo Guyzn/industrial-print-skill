@@ -28,5 +28,10 @@
     "id": 6,
     "prompt": "官网上的产品图能直接印吗？",
     "expected": "说明 300ppi 换算（像素宽 ÷ 300 × 25.4mm）；官网图多为 569~1200px，整幅不够；跑 fetch-images.mjs 看 ppi_at_print_width；授权必须登记，水印图禁用；不足时找原图/重拍/缩小版面占比"
+  },
+  {
+    "id": 7,
+    "prompt": "企业介绍里想放一张横跨两页的厂房大图，最后再加一页封底，怎么弄？",
+    "expected": "识别 E 的 spread 页型（side:full 两半都是图、标题压右半暗化层；或 left/right 一半图一半文字）；提醒跨对开占两页、必须从偶数页起；图需 ≥5031px 宽（426mm@300ppi）；半页只标外侧 4 个裁切标记；backcover 用 statement + contact 三列，不编页；validate 核对跨页成对与页码连续"
   }
 ]

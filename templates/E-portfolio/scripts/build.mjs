@@ -23,7 +23,10 @@ export const PAPERS = {
 };
 
 /** 页面类型与块类型：validate.mjs 共用 */
-export const PAGE_TYPES = ['cover', 'contents', 'section', 'grade', 'tablepage', 'gallery', 'contact'];
+export const PAGE_TYPES = [
+  'cover', 'backcover', 'contents', 'section', 'grade',
+  'tablepage', 'gallery', 'contact', 'spread'
+];
 export const BLOCK_TYPES = [
   'text', 'table', 'twin', 'note', 'kv', 'dash', 'dashgroups',
   'adv', 'photos', 'photo', 'bleed', 'chips', 'twocol', 'spacer'
@@ -118,6 +121,12 @@ function withDerived(t) {
 /* ---------------- 块渲染 ---------------- */
 const CROP_MARKS = ['tl-h', 'tl-v', 'tr-h', 'tr-v', 'bl-h', 'bl-v', 'br-h', 'br-v']
   .map((c) => `<div class="crop ${c}"></div>`).join('');
+/* 跨对开的两个半页只标「外侧」两角：内侧那条边是折缝，不是切口，
+   在折缝上画裁切线，装订后会有一条黑线露在书脊里。 */
+const CROP_OUTER = {
+  l: ['tl-h', 'tl-v', 'bl-h', 'bl-v'].map((c) => `<div class="crop ${c}"></div>`).join(''),
+  r: ['tr-h', 'tr-v', 'br-h', 'br-v'].map((c) => `<div class="crop ${c}"></div>`).join('')
+};
 
 function renderTable(spec) {
   const cols = spec.cols || [];
@@ -352,20 +361,21 @@ function bodyCls(page) {
   return 'page-body';
 }
 
-function sheet(html, n, cls = '') {
+const pad2 = (n) => String(n).padStart(2, '0');
+
+function sheet(html, n, cls = '', attrs = '', marks = CROP_MARKS) {
   // 单数页 = 右页（recto），订口在左；双数页 = 左页（verso），订口在右。
   // 装订成册后只有这一种配对是对的，横幅渐变按它镜像，见 blocks.css。
   const side = n % 2 === 1 ? 'recto' : 'verso';
-  return `<section class="sheet${cls ? ' ' + cls : ''}" id="p-${String(n).padStart(2, '0')}" data-page="${n}" data-side="${side}">` +
-    CROP_MARKS + html + '</section>';
+  return `<section class="sheet${cls ? ' ' + cls : ''}" id="p-${pad2(n)}" data-page="${n}" data-side="${side}"${attrs}>` +
+    marks + html + '</section>';
 }
 
 /* ---------------- 各类页面 ---------------- */
 function pageCover(meta, n) {
   const c = meta.cover || {};
   const img = c.image || meta.cover_image;
-  return `<section class="sheet sheet-cover${img ? ' has-img' : ''}" id="p-${String(n).padStart(2, '0')}" data-page="${n}" data-side="recto">` +
-    CROP_MARKS +
+  const html =
     (img ? `<img class="cover-img" src="${esc(img)}" alt="" />` : '') +
     (img ? '<div class="cover-scrim"></div>' : '') +
     `<div class="cover-top"><div class="cover-brand">${brandHtml(meta)}</div>` +
@@ -379,7 +389,106 @@ function pageCover(meta, n) {
     '<div class="cover-foot">' +
     `<div class="cover-kicker">${tx(c.kicker || '')}</div>` +
     (meta.url ? `<div class="cover-url">${esc(meta.url)}</div>` : '') +
-    '</div></section>';
+    '</div>';
+  return sheet(html, n, 'sheet-cover');
+}
+
+/** 封底：与封面同一套暗底语言，但内容反过来——品牌在上、标语居中、联络方式托底。
+ *  封面是「让人翻开」，封底是「让人记住怎么找你」。 */
+function pageBackCover(meta, page, n) {
+  const img = page.image;
+  const brand = `<div class="cover-brand">${brandHtml(meta)}</div>`;
+  let main = '';
+  if (page.statement) {
+    main += '<div class="cover-rule"></div>' +
+      `<div class="back-statement">${tblock(page.statement)}</div>`;
+  }
+  if (page.note) main += `<div class="back-note">${tx(page.note)}</div>`;
+  let contact = '';
+  for (const col of (page.contact || [])) {
+    contact += '<div>' + (col.k ? `<div class="k">${tx(col.k)}</div>` : '');
+    for (const line of (col.lines || [])) contact += `<div class="v">${tx(line)}</div>`;
+    contact += '</div>';
+  }
+  const legal = page.legal || meta.legal || '';
+  const html =
+    (img ? `<img class="cover-img" src="${esc(img)}" alt="" />` : '') +
+    (img ? '<div class="cover-scrim"></div>' : '') +
+    `<div class="inner back-inner">` +
+    `<div class="back-top">${brand}` + (page.kicker ? `<div class="cover-legal">${tx(page.kicker)}</div>` : '') + '</div>' +
+    `<div class="back-main">${main}</div>` +
+    (contact ? `<div class="back-contact">${contact}</div>` : '') +
+    `<div class="back-legal">${tx(legal)}` +
+    (meta.doc_no ? ` · ${esc(meta.doc_no)}` : '') +
+    (meta.url ? ` · ${esc(meta.url)}` : '') + '</div>' +
+    '</div>';
+  return sheet(html, n, 'sheet-back');
+}
+
+/** 跨对开：一张图横跨两页。
+ *
+ *  为什么拆成两张 216×303 的单页，而不是出一张 426×303 的宽页：
+ *  宽页会让 PDF 里出现两种 TrimBox，印厂拼版时要手工拆，且页码会数错一页。
+ *  拆页后每页仍是 216×303，图按 426mm 铺满、由各自的 overflow 裁开，
+ *  装订线上的像素是连续的（左页右缘与右页左缘取的是同一张图的相邻两列）。
+ *
+ *  side: 'full'  → 图铺满整个对开，标题压在右半的暗化层上（画册的标准跨页）
+ *        'left'  → 图在左半，右半排文字（拿一张竖构图当大图用）
+ *        'right' → 反过来
+ */
+function pageSpread(meta, page, n, total) {
+  if (!page.image) throw new Error(`第 ${n} 页是跨对开但没给 image——跨页的主体就是那张图`);
+  const full = page.side === 'full';
+  const imgSide = page.side === 'right' ? 'r' : 'l';
+  const txtN = imgSide === 'l' ? n + 1 : n;
+
+  const figure = (withCap) => `<div class="spread-figure">` +
+    `<img src="${esc(page.image)}" alt="${esc(plain(page.cap))}" />` +
+    (withCap && page.cap ? `<div class="spread-cap">${tx(page.cap)}</div>` : '') +
+    '</div>';
+
+  const common = ` data-spread="${esc(page.id || `s-${n}`)}"`;
+
+  // 通版跨页：两张半页都是图，文字以暗化层压在右半
+  if (full) {
+    // 暗化层两半都要铺：它只压右半的话，折缝上会出现一刀竖着的色阶
+    const scrim = '<div class="spread-scrim"></div>';
+    const over = (page.title || page.lede) ? (() => {
+      let h = '<div class="spread-overlay"><div class="spread-ov-body">';
+      if (page.title) h += `<div class="spread-title">${tblock(page.title)}</div>`;
+      if (page.sub) h += `<div class="spread-sub">${tx(page.sub)}</div>`;
+      if (page.lede) h += `<p class="spread-lede">${tx(page.lede)}</p>`;
+      h += '</div></div>';
+      return h;
+    })() : '';
+    return sheet(figure(true) + scrim, n, 'spread-half', `${common} data-half="l" data-media="image"`, CROP_OUTER.l) +
+      '\n' +
+      sheet(figure(false) + scrim + over, n + 1, 'spread-half spread-full',
+        `${common} data-half="r" data-media="image"`, CROP_OUTER.r);
+  }
+
+  let head = '';
+  if (page.title) head += `<div class="sec-title">${tx(page.title)}</div>`;
+  if (page.sub) head += `<div class="sec-sub">${tx(page.sub)}</div>`;
+  if (page.lede) head += `<p class="lead">${tx(page.lede)}</p>`;
+  let body = '';
+  for (const b of (page.blocks || [])) {
+    const fn = B[b.type];
+    if (!fn) throw new Error(`未知块类型: ${b.type}（第 ${txtN} 页）`);
+    body += wrap(b, fn(b));
+  }
+  const textHtml = `<div class="inner">${header(meta, page)}<div class="page-head">${head}</div>` +
+    // page.image 是跨页图，不在正文流里，不能让 bodyCls 把它当成「托底图」而取消竖向分配
+    `<div class="${bodyCls({ ...page, image: null })}">${body}</div>` +
+    footer(meta, page, txtN, total) + '</div>';
+
+  const halfL = imgSide === 'l'
+    ? sheet(figure(true), n, 'spread-half', `${common} data-half="l" data-media="image"`, CROP_OUTER.l)
+    : sheet(textHtml, n, 'spread-half', `${common} data-half="l"`, CROP_OUTER.l);
+  const halfR = imgSide === 'l'
+    ? sheet(textHtml, n + 1, 'spread-half', `${common} data-half="r"`, CROP_OUTER.r)
+    : sheet(figure(true), n + 1, 'spread-half', `${common} data-half="r" data-media="image"`, CROP_OUTER.r);
+  return halfL + '\n' + halfR;
 }
 
 function pageContents(meta, page, n, total, pageMap) {
@@ -508,34 +617,54 @@ export function build(content, opts = {}) {
   const meta = content.meta;
   const pages = content.pages || [];
   if (!pages.length) throw new Error('content.pages 为空');
-  const total = pages.length;
 
-  // 第一遍：id → 页码（目录自动填页用）
+  // 第一遍：物理页码。跨对开占两页，其余占一页；
+  // 目录里的 ref 指向跨对开的起始页（读者翻到左边那一页）。
+  const layout = [];
+  let acc = 0;
+  for (const p of pages) {
+    const span = p.type === 'spread' ? 2 : 1;
+    layout.push({ p, start: acc + 1, span });
+    acc += span;
+  }
+  const total = acc;
+
   const pageMap = {};
-  pages.forEach((p, i) => { if (p.id) pageMap[p.id] = i + 1; });
+  for (const l of layout) if (l.p.id) pageMap[l.p.id] = l.start;
 
   const warnings = [];
-  const sheets = pages.map((p, i) => {
-    const n = i + 1;
+  const out = [];
+  for (const { p, start: n } of layout) {
     switch (p.type) {
-      case 'cover': return pageCover(meta, n);
-      case 'contents': return sheet(pageContents(meta, p, n, total, pageMap), n, 'toc');
-      case 'grade': return sheet(pageGrade(meta, p, n, total), n, 'grade');
-      case 'tablepage': return sheet(pageTablepage(meta, p, n, total), n, 'dense');
-      case 'gallery': return sheet(pageGallery(meta, p, n, total), n, 'gallery');
-      case 'contact': return sheet(pageContact(meta, p, n, total), n, 'contact');
-      case 'section': return sheet(pageSection(meta, p, n, total), n);
+      case 'cover': out.push(pageCover(meta, n)); break;
+      case 'backcover': out.push(pageBackCover(meta, p, n)); break;
+      case 'spread': out.push(pageSpread(meta, p, n, total)); break;
+      case 'contents': out.push(sheet(pageContents(meta, p, n, total, pageMap), n, 'toc')); break;
+      case 'grade': out.push(sheet(pageGrade(meta, p, n, total), n, 'grade')); break;
+      case 'tablepage': out.push(sheet(pageTablepage(meta, p, n, total), n, 'dense')); break;
+      case 'gallery': out.push(sheet(pageGallery(meta, p, n, total), n, 'gallery')); break;
+      case 'contact': out.push(sheet(pageContact(meta, p, n, total), n, 'contact')); break;
+      case 'section': out.push(sheet(pageSection(meta, p, n, total), n)); break;
       default: throw new Error(`未知页面类型: ${p.type}（第 ${n} 页）`);
     }
-  }).join('\n');
+  }
+  const sheets = out.join('\n');
+
+  // 页码为奇数才好装订：封面 1 + 封底末页，正文页数应为偶数
+  if (total % 2 === 1) {
+    warnings.push(`总页数 ${total} 为奇数——封面封底之外还需补一页，否则最后的空白落在封底内侧`);
+  }
 
   // 覆盖率检查：内容页太少时提示（E 靠页数堆密度，页数不够会显得空）
   if (total < 8) warnings.push(`总页数 ${total}，偏薄——单页模版靠页数和图片撑密度`);
-  pages.forEach((p, i) => {
+  for (const { p, start } of layout) {
     if (p.type === 'section' && !(p.blocks || []).some((b) => ['photos', 'photo', 'bleed', 'adv', 'kv', 'dashgroups', 'table', 'twin'].includes(b.type))) {
-      warnings.push(`第 ${i + 1} 页只有文字，容易显得空——考虑加图或数字带`);
+      warnings.push(`第 ${start} 页只有文字，容易显得空——考虑加图或数字带`);
     }
-  });
+    if (p.type === 'spread' && start % 2 !== 0) {
+      warnings.push(`跨对开从第 ${start} 页起——它是右页，跟第 ${start + 1} 页（左页）不是面对面的一对，装订后读不成一张图`);
+    }
+  }
 
   const themeCss = ':root{\n' + Object.entries(theme)
     .map(([k, v]) => `  --${k}: ${v};`).join('\n') + '\n}\n';

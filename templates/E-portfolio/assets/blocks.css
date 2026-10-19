@@ -292,7 +292,8 @@ table { border-collapse: collapse; width: 100%; }
 .cover-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 /* 封面压暗：三段渐层，保证任何照片上标题都读得出来。
    用固定 rgba 而不是 color-mix——印厂机器上的 PDF 解释器不必支持新语法。 */
-.sheet-cover.has-img .cover-scrim {
+.sheet-cover .cover-scrim,
+.sheet-back .cover-scrim {
   position: absolute; inset: 0;
   background: linear-gradient(180deg,
     rgba(12, 12, 12, 0.86) 0%,
@@ -334,6 +335,115 @@ table { border-collapse: collapse; width: 100%; }
   border: 1pt solid var(--accent);
   padding: 2mm 5mm;
 }
+
+/* ============================================================
+   封底
+   ============================================================ */
+/* 封面是「让人翻开」，封底是「让人记住怎么找你」。
+   同一套暗底，但重心反过来：品牌在上、标语居中、联络方式托底。 */
+.sheet-back { background: var(--fg); }
+.back-inner { color: #fff; }
+.back-top { flex: 0 0 auto; }
+.back-main {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 12mm 0 24mm;
+}
+.back-statement { font-size: 22pt; font-weight: 600; line-height: 1.32; letter-spacing: 1.6pt; color: #fff; max-width: 150mm; }
+.back-note { margin-top: 8mm; font-size: 8.6pt; line-height: 1.7; color: var(--steel); max-width: 134mm; }
+.back-contact {
+  flex: 0 0 auto;
+  display: flex;
+  gap: 8mm;
+  border-top: 0.8pt solid rgba(255, 255, 255, 0.3);
+  padding-top: 4mm;
+}
+.back-contact > div { flex: 1; min-width: 0; }
+.back-contact .k {
+  font-family: var(--mono);
+  font-size: 6.8pt;
+  letter-spacing: 1.6pt;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.back-contact .v { font-size: 8.2pt; line-height: 1.55; margin-top: 1.4mm; color: #fff; }
+/* 暗底上用 --steel 而不是 --muted：#4a5057 压在 #141414 上等于没有 */
+.back-legal {
+  flex: 0 0 auto;
+  margin-top: 6mm;
+  padding-top: 3mm;
+  border-top: 0.5pt solid rgba(255, 255, 255, 0.18);
+  font-family: var(--mono);
+  font-size: 6.6pt;
+  letter-spacing: 0.6pt;
+  color: var(--steel);
+}
+
+/* ============================================================
+   跨对开
+   ============================================================ */
+/* 一张图横跨两页：左右各出一张 216×303 的单页，图按 426mm 铺开、各自裁掉一半。
+   左页从图的 0 起，右页从图的 210mm 起——两张页在装订线上取的是同一张图的相邻像素，
+   折起来是连续的一张。页宽不破口径，PDF 里只有一种 TrimBox，印厂不用手工拆版。 */
+.spread-figure { position: absolute; inset: 0; overflow: hidden; background: var(--fg); }
+.spread-figure img {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  width: calc(var(--trim-w) + var(--sheet-w));
+  object-fit: cover;
+  display: block;
+}
+.sheet[data-half="l"] .spread-figure img { left: 0; }
+.sheet[data-half="r"] .spread-figure img { left: calc(-1 * var(--trim-w)); }
+.spread-cap {
+  position: absolute;
+  left: calc(var(--bleed) + var(--pad-x));
+  bottom: calc(var(--bleed) + 8mm);
+  display: inline-block;
+  background: rgba(10, 10, 10, 0.55);
+  padding: 1.2mm 2.4mm;
+  font-family: var(--mono);
+  font-size: var(--fs-micro);
+  color: #fff;
+  letter-spacing: 0.8pt;
+}
+/* 图在右半（side:"right"）时，图注也要挪到外侧，不能贴着折缝 */
+.sheet[data-half="r"] .spread-cap { left: auto; right: calc(var(--bleed) + var(--pad-x)); text-align: right; }
+/* 通版跨页：暗化层两半都铺，文字只压在右半。
+   只在右半铺暗化的话，折缝上会出现一条竖直的色阶——同一张照片被切成明暗两块。 */
+.spread-scrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(10, 10, 10, 0) 34%, rgba(10, 10, 10, 0.8) 100%);
+  pointer-events: none;
+}
+/* 右半页永远是 recto（跨页从左页起），外侧在右，文字块就靠右——
+   压在折缝上的字，装订后会被吃掉一截。 */
+.spread-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: calc(var(--bleed) + var(--pad-t)) calc(var(--bleed) + var(--pad-x)) calc(var(--bleed) + var(--pad-b));
+  color: #fff;
+}
+.spread-ov-body { max-width: 150mm; margin-left: auto; }
+.spread-title { font-size: 26pt; font-weight: 600; line-height: 1.18; letter-spacing: 1.2pt; color: #fff; }
+.spread-sub {
+  font-family: var(--mono);
+  font-size: 8pt;
+  letter-spacing: 2pt;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-top: 2.5mm;
+  font-weight: 600;
+}
+.spread-lede { font-size: 9pt; line-height: 1.6; color: #f2f2f2; margin-top: 4mm; }
 
 /* ============================================================
    目录
