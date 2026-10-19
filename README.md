@@ -29,6 +29,8 @@
 技术数据自 v2.0.0 从 D 拆到 F——对开单位对单牌号 TDS 偏大，留白失控；单页 + 表格密度才是 TDS 的正确形态。
 选错页面单位是「版面空」的第一原因，不是字号也不是配色。完整路由见 `SKILL.md`。
 
+> **姊妹 Skill**：[product-catalog-generator](https://github.com/Guyzn/product-catalog-generator) —— 数据驱动的目录流水线（数据 dict → 品牌化 HTML → Playwright PDF → 压图 → 像素抽检）。分流口诀：**数据在手求快、要可重跑 → product-catalog-generator；版式求精求送印 → 本仓库。**
+
 ## 能力
 
 - **印刷级物理规格**：E 线成品 210×297、印刷幅面 216×303（四缘 3mm 出血）；D 线对开 420×297、幅面 426×303（订口不出血），可切 `cn16`；教育线 210×285 / 432×291
